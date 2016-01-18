@@ -1,4 +1,14 @@
 <html>
+<!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
+          integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css"
+          integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="/resources/bootstrap-3.3.2-dist/css/bootstrap-slider.css">
+    <link rel="stylesheet" href="/resources/bootstrap-3.3.2-dist/css/bootstrap-datepicker3.min.css">
 <!-- Latest compiled and minified JavaScript -->
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script src="http://code.jquery.com/jquery-2.2.0.min.js"></script>
@@ -22,12 +32,24 @@
     }
 </style>
 <body>
-<div class="container">
-<div class="center-block">
-    <div id="legend">&nbsp;</div>
+<div class="container-fluid">
+<a href="/">Фінансовий звіт</a>|
+<a href="/map">Карта</a>
+
+<div class="text-center">
+    <h2>Дана сторінка є зразком для презентації</h2>
+    Діаграма відображає рух коштів в Громадському в 2014 році
+</div>
+<div id="legend">
+    <p>
+
+    <h2>На що витратені кошти:</h2>
+
+    <h3><b>Сума в грн</b></h3></p>
+</div>
     <script>
         $(document).ready(function () {
-            var margin = {top: 350, right: 480, bottom: 350, left: 480},
+            var margin = {top: 350, right: 400, bottom: 350, left: 400},
                     radius = Math.min(margin.top, margin.right, margin.bottom, margin.left) - 10;
 
             var hue = d3.scale.category10();
@@ -233,7 +255,6 @@
             d3.select(self.frameElement).style("height", margin.top + margin.bottom + "px");
         });
     </script>
-</div>
 </div>
 </body>
 </html>
