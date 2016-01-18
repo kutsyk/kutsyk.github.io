@@ -2,11 +2,11 @@ var Monthes = {Jan: 1, Feb: 2, Mar: 3, Apr: 4, May: 5,
     Jun: 6, Jul: 7, Aug: 8, Sep: 9, Oct: 10, Nov: 11, Dec: 12};
 // load data
 queue()
-    .defer(d3.json, "/resources/oblasti.json")
-    .defer(d3.json, "/resources/dataviz1.json")
-    .defer(d3.json, "/resources/data/report_1_2013.json")
-    .defer(d3.json, "/resources/data/report_2_2013.json")
-    .defer(d3.json, "/resources/data/report_3_2013.json")
+    .defer(d3.json, "/oblasti.json")
+    .defer(d3.json, "/dataviz1.json")
+    .defer(d3.json, "/data/report_1_2013.json")
+    .defer(d3.json, "/data/report_2_2013.json")
+    .defer(d3.json, "/data/report_3_2013.json")
     .await(ready);
 
 function ready(error, oblasti, dataviz1) {
@@ -31,7 +31,7 @@ function ready(error, oblasti, dataviz1) {
         var month = Monthes[String($("#datepicker").datepicker('getDate')).split(" ")[1]];
         console.log(month);
         var year = String($("#datepicker").datepicker('getDate')).split(" ")[3];
-        $.getJSON('/resources/data/report_' + month + '_' + year + '.json', function (data) {
+        $.getJSON('/data/report_' + month + '_' + year + '.json', function (data) {
             render_map(dataviz1.coordinates, oblasti, data.quantities);
         });
     }
@@ -118,8 +118,6 @@ function ready(error, oblasti, dataviz1) {
             }
             context.closePath();
         }
-
     }
-
     renderAll();
 }
