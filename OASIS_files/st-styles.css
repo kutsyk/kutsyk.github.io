@@ -6,7 +6,7 @@
 .page-element.widget-form form select,
 .page-element.widget-form form label {
     font-family: Tenor Sans;
-    font-weight: 400;
+    font-weight: 300;
 }
 
 .page-element.widget-headline .contents h1,
@@ -16,7 +16,7 @@
 .page-element.widget-headline .contents h5,
 .page-element.widget-headline .contents h6 {
     font-family: Tenor Sans;
-    font-weight: 400;
+    font-weight: 300;
 }
 
 [id^=___plusone] {
