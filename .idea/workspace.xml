@@ -2,8 +2,79 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="31765374-1ed0-4cdd-b8cb-9d63ee7b5b89" name="Default" comment="">
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/-PAXP-deijE.gif" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/-_YIaxYdvCl.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/031a761e2b05d2bed213fd1f07412755.css" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/11049582_1614379708806896_5639633301330263931_n.jpg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/12042644_1163340243711302_4655488739486624307_n.jpg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/12049194_525251887633604_2924663941240371657_n.jpg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/12790896_431786177015474_3301831987923155277_n.jpg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/13434825_1070966046330423_8075684465281316308_n.jpg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/13882377_267858926933146_909506381779345244_n.jpg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/13886837_265994723786233_1983316654642178773_n.jpg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/13892115_267858923599813_6970398134631014096_n.jpg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/13900264_637898079695502_7477815241836271031_n.jpg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/13907201_265994163786289_1649743009290079618_n.jpg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/13912346_267450403640665_6152980068948462596_n.jpg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/13934714_269084590143913_1080912083057919506_n.jpg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/13938504_266837230368649_5398622258853393371_n.jpg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/1426311_1049460098446318_1573514520765242335_n.jpg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/1zFtH-9rPbv.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/250221_187620711299728_632354_n.jpg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/5Wrg-4XIoBR.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/5vT9IR1C9up.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/6639383-0-bottom-circle.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/6639388-0-bottom-layer.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/6639393-0-floors.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/6639398-0-fountain.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/6639403-0-gallery.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/6639408-0-logo-main.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/6639418-0-oasis-bg.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/6639423-0-stairs.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/6639428-0-third-layer.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/6639443-0-bottom-bg.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/6639448-0-second-layer.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/6639453-0-main-img.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/6639538-0-top-layer.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/6725573-0-utg-logo.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/6725578-0-megaline-logo.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/6725583-0-smart-fixer-logo-a.png" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/73687_104241749645140_7213697_n.jpg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/7Fbpf5GTLSL.css" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/7fWOoOJcd1e.css" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/913Ep5EnZOe.css" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/CHSnOgjqkNk.css" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/DRCc1jIbW6a.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/Eaja_7kEyQP.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/FTs2SUP_J8t.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/HQR5HcLW5FK.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/Ic-m5NFcFEi.css" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/Lcj5EtQ5qmD(1).html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/Lcj5EtQ5qmD.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/NJlm-9NrY6i.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/QMh25hQrmr6.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/VXc9ZMcQGJ-.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/_KiO0TlrQnM.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/a5cb880a745154a6a1a45f3465215dfd.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/bg-J6qFCrSA.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/c3GbDOUF-FR.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/css" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/jtjcInkuDuS.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/k6uscqCdYqK.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/loading_circle.svg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/lsQh86kM765.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/mbZxewMTzLS.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/mji2_dDeV_a.css" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/page.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/pmxofuiLJao.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/sdk.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/sr-YksOjxCG.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/ufDWv9vJTMY.css" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/vFA95YJXG6w.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/xNPqiJcP7bt.js" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/oasis copy/oasis_files/yn8LATHdwZV.js" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/oasis_main.html" afterPath="$PROJECT_DIR$/oasis_main.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="kutsyk.github.io.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -24,15 +95,16 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="oasis_main.html" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/oasis_main.html">
+      <file leaf-file-name="index.html" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/oasis_copy_2/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3128">
-              <caret line="184" column="59" selection-start-line="184" selection-start-column="59" selection-end-line="184" selection-end-column="59" />
+            <state relative-caret-position="271">
+              <caret line="93" column="15" selection-start-line="93" selection-start-column="14" selection-end-line="93" selection-end-column="15" />
               <folding>
-                <element signature="n#style#0;n#img#0;n#div#0;n#div#0;n#div#0;n#div#1;n#div#2;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#img#0;n#div#0;n#div#1;n#div#0;n#div#1;n#div#2;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                <element signature="n#style#0;n#img#0;n#div#0;n#div#0;n#div#0;n#div#1;n#div#3;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#div#4;n#div#0;n#body#0;n#html#0;n#!!top" expanded="false" />
+                <element signature="n#style#0;n#div#0;n#div#0;n#div#0;n#div#1;n#div#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#img#0;n#div#0;n#div#0;n#div#0;n#div#1;n#div#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#img#0;n#div#0;n#div#2;n#div#0;n#div#1;n#div#12;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -68,7 +140,12 @@
         <option value="$USER_HOME$/Downloads/OASIS.html" />
         <option value="$PROJECT_DIR$/OASIS_files/st-styles.css" />
         <option value="$PROJECT_DIR$/OASIS.html" />
+        <option value="$PROJECT_DIR$/oasis copy/oasis.html" />
         <option value="$PROJECT_DIR$/oasis_main.html" />
+        <option value="$PROJECT_DIR$/oasis_copy/oasis.html" />
+        <option value="$PROJECT_DIR$/oasis_copy_2/OASIS.html" />
+        <option value="$PROJECT_DIR$/oasis_copy_2/oasis.html" />
+        <option value="$PROJECT_DIR$/oasis_copy_2/index.html" />
       </list>
     </option>
   </component>
@@ -109,6 +186,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="PackagesPane" />
+      <pane id="Scratches" />
       <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
@@ -128,10 +207,40 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="kutsyk.github.io" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="kutsyk.github.io" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="oasis_copy_2" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="kutsyk.github.io" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="kutsyk.github.io" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="oasis_copy_2" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="OASIS_files" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
         </subPane>
       </pane>
-      <pane id="Scratches" />
-      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -571,6 +680,9 @@
   <component name="ShelveChangesManager" show_recycled="false">
     <option name="remove_strategy" value="false" />
   </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="31765374-1ed0-4cdd-b8cb-9d63ee7b5b89" name="Default" comment="" />
@@ -581,6 +693,7 @@
       <workItem from="1470393366774" duration="9453000" />
       <workItem from="1470655447540" duration="107000" />
       <workItem from="1470655826387" duration="1298000" />
+      <workItem from="1470663154194" duration="3116000" />
     </task>
     <task id="LOCAL-00001" summary="text updated">
       <created>1470394243067</created>
@@ -593,36 +706,36 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="10858000" />
+    <option name="totallyTimeSpent" value="13974000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
     <editor active="false" />
     <layout>
-      <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.16364606" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -654,9 +767,11 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="n#style#0;n#img#0;n#div#0;n#div#0;n#div#0;n#div#1;n#div#2;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#img#0;n#div#0;n#div#1;n#div#0;n#div#1;n#div#2;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#img#0;n#div#0;n#div#0;n#div#0;n#div#1;n#div#3;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#div#0;n#div#6;n#div#0;n#div#1;n#div#1;n#div#0;n#body#0;n#html#0;n#!!top" expanded="false" />
+            <element signature="n#style#0;n#img#0;n#div#0;n#div#0;n#div#0;n#div#1;n#div#2;n#div#0;n#body#0;n#html#0;n#!!top" expanded="false" />
+            <element signature="n#style#0;n#img#0;n#div#0;n#div#1;n#div#0;n#div#1;n#div#2;n#div#0;n#body#0;n#html#0;n#!!top" expanded="false" />
+            <element signature="n#style#0;n#div#0;n#div#2;n#div#0;n#div#1;n#div#2;n#div#0;n#body#0;n#html#0;n#!!top" expanded="false" />
+            <element signature="n#style#0;n#img#0;n#div#0;n#div#0;n#div#0;n#div#1;n#div#3;n#div#0;n#body#0;n#html#0;n#!!top" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -666,9 +781,11 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="n#style#0;n#img#0;n#div#0;n#div#0;n#div#0;n#div#1;n#div#2;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#img#0;n#div#0;n#div#1;n#div#0;n#div#1;n#div#2;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#img#0;n#div#0;n#div#0;n#div#0;n#div#1;n#div#3;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#div#0;n#div#6;n#div#0;n#div#1;n#div#1;n#div#0;n#body#0;n#html#0;n#!!top" expanded="false" />
+            <element signature="n#style#0;n#img#0;n#div#0;n#div#0;n#div#0;n#div#1;n#div#2;n#div#0;n#body#0;n#html#0;n#!!top" expanded="false" />
+            <element signature="n#style#0;n#img#0;n#div#0;n#div#1;n#div#0;n#div#1;n#div#2;n#div#0;n#body#0;n#html#0;n#!!top" expanded="false" />
+            <element signature="n#style#0;n#div#0;n#div#2;n#div#0;n#div#1;n#div#2;n#div#0;n#body#0;n#html#0;n#!!top" expanded="false" />
+            <element signature="n#style#0;n#img#0;n#div#0;n#div#0;n#div#0;n#div#1;n#div#3;n#div#0;n#body#0;n#html#0;n#!!top" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -678,9 +795,11 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="n#style#0;n#img#0;n#div#0;n#div#0;n#div#0;n#div#1;n#div#2;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#img#0;n#div#0;n#div#1;n#div#0;n#div#1;n#div#2;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#img#0;n#div#0;n#div#0;n#div#0;n#div#1;n#div#3;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#div#0;n#div#6;n#div#0;n#div#1;n#div#1;n#div#0;n#body#0;n#html#0;n#!!top" expanded="false" />
+            <element signature="n#style#0;n#img#0;n#div#0;n#div#0;n#div#0;n#div#1;n#div#2;n#div#0;n#body#0;n#html#0;n#!!top" expanded="false" />
+            <element signature="n#style#0;n#img#0;n#div#0;n#div#1;n#div#0;n#div#1;n#div#2;n#div#0;n#body#0;n#html#0;n#!!top" expanded="false" />
+            <element signature="n#style#0;n#div#0;n#div#2;n#div#0;n#div#1;n#div#2;n#div#0;n#body#0;n#html#0;n#!!top" expanded="false" />
+            <element signature="n#style#0;n#img#0;n#div#0;n#div#0;n#div#0;n#div#1;n#div#3;n#div#0;n#body#0;n#html#0;n#!!top" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -689,6 +808,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="136">
           <caret line="8" column="18" selection-start-line="8" selection-start-column="18" selection-end-line="8" selection-end-column="18" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -707,9 +827,11 @@
         <state relative-caret-position="177">
           <caret line="57" column="7" selection-start-line="57" selection-start-column="7" selection-end-line="59" selection-end-column="9" />
           <folding>
-            <element signature="n#style#0;n#img#0;n#div#0;n#div#0;n#div#0;n#div#1;n#div#2;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#img#0;n#div#0;n#div#1;n#div#0;n#div#1;n#div#2;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#img#0;n#div#0;n#div#0;n#div#0;n#div#1;n#div#3;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#div#0;n#div#6;n#div#0;n#div#1;n#div#1;n#div#0;n#body#0;n#html#0;n#!!top" expanded="false" />
+            <element signature="n#style#0;n#img#0;n#div#0;n#div#0;n#div#0;n#div#1;n#div#2;n#div#0;n#body#0;n#html#0;n#!!top" expanded="false" />
+            <element signature="n#style#0;n#img#0;n#div#0;n#div#1;n#div#0;n#div#1;n#div#2;n#div#0;n#body#0;n#html#0;n#!!top" expanded="false" />
+            <element signature="n#style#0;n#div#0;n#div#2;n#div#0;n#div#1;n#div#2;n#div#0;n#body#0;n#html#0;n#!!top" expanded="false" />
+            <element signature="n#style#0;n#img#0;n#div#0;n#div#0;n#div#0;n#div#1;n#div#3;n#div#0;n#body#0;n#html#0;n#!!top" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -718,6 +840,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="450">
           <caret line="8" column="2749" selection-start-line="8" selection-start-column="2749" selection-end-line="8" selection-end-column="2749" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -725,6 +848,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="196">
           <caret line="271" column="16" selection-start-line="271" selection-start-column="16" selection-end-line="271" selection-end-column="16" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -732,17 +856,57 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="120">
           <caret line="8" column="18" selection-start-line="8" selection-start-column="18" selection-end-line="8" selection-end-column="18" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/oasis copy/oasis.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="319">
+          <caret line="1722" column="36" selection-start-line="1722" selection-start-column="36" selection-end-line="1722" selection-end-column="36" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/oasis_main.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3128">
-          <caret line="184" column="59" selection-start-line="184" selection-start-column="59" selection-end-line="184" selection-end-column="59" />
+        <state relative-caret-position="265">
+          <caret line="147" column="67" selection-start-line="147" selection-start-column="49" selection-end-line="147" selection-end-column="67" />
           <folding>
-            <element signature="n#style#0;n#img#0;n#div#0;n#div#0;n#div#0;n#div#1;n#div#2;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#img#0;n#div#0;n#div#1;n#div#0;n#div#1;n#div#2;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#img#0;n#div#0;n#div#0;n#div#0;n#div#1;n#div#3;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#div#0;n#div#6;n#div#0;n#div#1;n#div#1;n#div#0;n#body#0;n#html#0;n#!!top" expanded="false" />
+            <element signature="n#style#0;n#img#0;n#div#0;n#div#0;n#div#0;n#div#1;n#div#2;n#div#0;n#body#0;n#html#0;n#!!top" expanded="false" />
+            <element signature="n#style#0;n#img#0;n#div#0;n#div#1;n#div#0;n#div#1;n#div#2;n#div#0;n#body#0;n#html#0;n#!!top" expanded="false" />
+            <element signature="n#style#0;n#div#0;n#div#2;n#div#0;n#div#1;n#div#2;n#div#0;n#body#0;n#html#0;n#!!top" expanded="false" />
+            <element signature="n#style#0;n#img#0;n#div#0;n#div#0;n#div#0;n#div#1;n#div#3;n#div#0;n#body#0;n#html#0;n#!!top" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/oasis_copy/oasis.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="254">
+          <caret line="1652" column="23" selection-start-line="1652" selection-start-column="23" selection-end-line="1660" selection-end-column="30" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/oasis_copy_2/oasis.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="679">
+          <caret line="1991" column="22" selection-start-line="1991" selection-start-column="22" selection-end-line="1991" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/oasis_copy_2/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="271">
+          <caret line="93" column="15" selection-start-line="93" selection-start-column="14" selection-end-line="93" selection-end-column="15" />
+          <folding>
+            <element signature="n#div#4;n#div#0;n#body#0;n#html#0;n#!!top" expanded="false" />
+            <element signature="n#style#0;n#div#0;n#div#0;n#div#0;n#div#1;n#div#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#0;n#div#0;n#div#0;n#div#0;n#div#1;n#div#7;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#img#0;n#div#0;n#div#2;n#div#0;n#div#1;n#div#12;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
           </folding>
         </state>
       </provider>
