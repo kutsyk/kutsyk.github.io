@@ -6,7 +6,7 @@
  #background 
 { 
 	 left: 0px; 
-	 top: 0px; 
+	 top: 0px;
 	 position: relative; 
 	 margin-left: auto; 
 	 margin-right: auto; 
@@ -14,23 +14,12 @@
 	 height: 3538px; 
 	 overflow: hidden;
 	 z-index:0;
-	} 
-
- #layer_1 
-{ 
-	 left: 0px; 
-	 top: 0px; 
-	 position: absolute; 
-	 width: 1366px;
-	 height: 3538px;
-	 z-index:1;
-} 
-
+	}
  #layer_1_0 
 { 
 	 left: 101px; 
-	 top: 1462px; 
-	 position: absolute; 
+	 top: 1462px;
+	 position: absolute;
 	 width: 1152px;
 	 height: 704px;
 	 z-index:2;
@@ -39,8 +28,8 @@
  #layer_1_1 
 { 
 	 left: 116px; 
-	 top: 60px; 
-	 position: absolute; 
+	 top: 60px;
+	 position: absolute;
 	 width: 1133px;
 	 height: 604px;
 	 z-index:3;
@@ -49,8 +38,8 @@
  #layer_1_2 
 { 
 	 left: 69px; 
-	 top: 19px; 
-	 position: absolute; 
+	 top: 19px;
+	 position: absolute;
 	 width: 1227px;
 	 height: 645px;
 	 z-index:4;
@@ -59,8 +48,8 @@
  #layer_1_3 
 { 
 	 left: 288px; 
-	 top: 403px; 
-	 position: absolute; 
+	 top: 403px;
+	 position: absolute;
 	 width: 587px;
 	 height: 168px;
 	 z-index:5;
@@ -69,18 +58,18 @@
  #layer_1_4 
 { 
 	 left: 238px; 
-	 top: 375px; 
-	 position: absolute; 
+	 top: 375px;
+	 position: absolute;
 	 width: 652px;
 	 height: 196px;
 	 z-index:6;
 } 
 
  #layer_7 
-{ 
+{
 	 left: 416px; 
-	 top: 443px; 
-	 position: absolute; 
+	 top: 434px;
+	 position: absolute;
 	 width: 422px;
 	 height: 66px;
 	 z-index:7;
@@ -89,8 +78,8 @@
  #layer_8 
 { 
 	 left: 115px; 
-	 top: 353px; 
-	 position: absolute; 
+	 top: 353px;
+	 position: absolute;
 	 width: 269px;
 	 height: 269px;
 	 z-index:8;
@@ -99,8 +88,8 @@
  #layer_9 
 { 
 	 left: 101px; 
-	 top: 325px; 
-	 position: absolute; 
+	 top: 325px;
+	 position: absolute;
 	 width: 296px;
 	 height: 296px;
 	 z-index:9;
@@ -109,8 +98,8 @@
  #layer_10 
 { 
 	 left: 1254px; 
-	 top: 622px; 
-	 position: absolute; 
+	 top: 622px;
+	 position: absolute;
 	 width: 20px;
 	 height: 20px;
 	 z-index:10;
@@ -119,8 +108,8 @@
  #layer_6 
 { 
 	 left: 116px; 
-	 top: 797px; 
-	 position: absolute; 
+	 top: 797px;
+	 position: absolute;
 	 width: 1132px;
 	 height: 404px;
 	 z-index:11;
@@ -129,18 +118,18 @@
  #layer_7_0 
 { 
 	 left: 69px; 
-	 top: 721px; 
-	 position: absolute; 
+	 top: 675px;
+	 position: absolute;
 	 width: 1227px;
-	 height: 480px;
+	 height: 699px;
 	 z-index:12;
 } 
 
  #layer_13 
 { 
 	 left: 62px; 
-	 top: 1261px; 
-	 position: absolute; 
+	 top: 1261px;
+	 position: absolute;
 	 width: 889px;
 	 height: 597px;
 	 z-index:13;
@@ -149,8 +138,8 @@
  #layer_14 
 { 
 	 left: 415px; 
-	 top: 4821px; 
-	 position: absolute; 
+	 top: 4821px;
+	 position: absolute;
 	 width: 639px;
 	 height: 84px;
 	 z-index:14;
@@ -159,8 +148,8 @@
  #layer_4 
 { 
 	 left: 214px; 
-	 top: 4779px; 
-	 position: absolute; 
+	 top: 4779px;
+	 position: absolute;
 	 width: 1041px;
 	 height: 605px;
 	 z-index:15;
@@ -169,8 +158,8 @@
  #uelogo 
 { 
 	 left: 588px; 
-	 top: 4933px; 
-	 position: absolute; 
+	 top: 4933px;
+	 position: absolute;
 	 width: 248px;
 	 height: 170px;
 	 z-index:16;
@@ -179,8 +168,8 @@
  #layer_0935317121 
 { 
 	 left: 369px; 
-	 top: 5230px; 
-	 position: absolute; 
+	 top: 5230px;
+	 position: absolute;
 	 width: 267px;
 	 height: 34px;
 	 z-index:17;
@@ -359,9 +348,9 @@
  #layer_144812 
 { 
 	 left: 431px; 
-	 top: 2827px; 
+	 top: 2818px;
 	 position: absolute; 
-	 width: 124px;
+	 width: 130px;
 	 height: 51px;
 	 z-index:35;
 } 
@@ -391,7 +380,7 @@
 	 left: 352px; 
 	 top: 2985px; 
 	 position: absolute; 
-	 width: 124px;
+	 width: 130px;
 	 height: 51px;
 	 z-index:38;
 } 
@@ -426,7 +415,7 @@
 	 z-index:41;
 } 
 
- #Oas 
+ #layer_42
 { 
 	 left: 760px; 
 	 top: 1684px; 
@@ -459,7 +448,7 @@
  #layer_45 
 { 
 	 left: 210px; 
-	 top: 1149px; 
+	 top: 1135px;
 	 position: absolute; 
 	 width: 945px;
 	 height: 102px;
@@ -507,21 +496,21 @@
 } 
 
  #layer_2018_0 
-{ 
-	 left: 1037px; 
-	 top: 3024px; 
-	 position: absolute; 
-	 width: 82px;
-	 height: 31px;
-	 z-index:50;
+{
+	 left: 1034px;
+	 top: 3016px;
+	 position: absolute;
+	 width: 100px;
+	 height: 44px;
+	 z-index: 50;
 } 
 
  #layer_51 
-{ 
-	 left: 783px; 
-	 top: 2916px; 
-	 position: absolute; 
-	 width: 248px;
-	 height: 34px;
-	 z-index:51;
+{
+	 left: 772px;
+	 top: 2910px;
+	 position: absolute;
+	 width: 272px;
+	 height: 46px;
+	 z-index: 51;
 } 
