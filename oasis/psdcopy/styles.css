@@ -10,7 +10,7 @@
 	 margin-left: auto; 
 	 margin-right: auto; 
 	 width: 1366px;
-	 height: 4766px;
+	 height: 4590px;
 	 overflow: hidden;
 	 z-index:0;
  }
@@ -357,10 +357,10 @@
 
  #layer_42
 { 
-	 left: 760px; 
+	 left: 715px;
 	 top: 1896px;
 	 position: absolute; 
-	 width: 406px;
+	 width: 513px;
 	 height: 239px;
 	 z-index:42;
 } 
