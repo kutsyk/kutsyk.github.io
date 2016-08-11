@@ -495,8 +495,10 @@
 
  #layer_66
  {
-     left: 15%;
-     top: 4026px;
-     position: relative;
+	 position: fixed;
+	 left: 10%;
+	 top: 95%;
+	 width: 8em;
+	 margin-top: -2.5em;
      z-index: 51;
  }
