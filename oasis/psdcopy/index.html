@@ -24,23 +24,44 @@
 
     <script src="./wow.js" crossorigin="anonymous"></script>
 
+    <script>
+        new WOW().init();
+    </script>
+
+    <script>
+        window.fbAsyncInit = function() {
+            FB.init({
+                appId      : 'your-app-id',
+                xfbml      : true,
+                version    : 'v2.7'
+            });
+        };
+
+        (function(d, s, id){
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) {return;}
+            js = d.createElement(s); js.id = id;
+            js.src = "//connect.facebook.net/en_US/sdk.js";
+            fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
+    </script>
+
     <style>
 
-        *{
+        * {
             font-family: Tenor Sans;
             font-weight: 400;
             font-size: 24px;
             color: #001a20;
         }
-        .shadow
-        {
+
+        .shadow {
             -webkit-box-shadow: 0 15px 10px -3px #888888;
             -moz-box-shadow: 0 15px 10px -3px #888888;
             box-shadow: 0 15px 10px -3px #888888;
         }
 
-        .white-text
-        {
+        .white-text {
             color: #FFFFFF;
         }
 
@@ -52,21 +73,21 @@
     <div id="layer_1_0">
         <img src="images/layer_1_0.png">
     </div>
-    <div id="layer_1_2" class="shadow">
+    <div id="layer_1_2" class="shadow centred">
         <img src="images/layer_1_2.png"></div>
-    <div id="layer_1_3"><img src="images/layer_1_3.png"></div>
-    <div id="layer_1_4"><img src="images/layer_1_4.png"></div>
-    <div id="layer_7" >
+    <div id="layer_9">
+        <img src="images/layer_9.png">
+    </div>
+    <div id="layer_1_4">
+        <img src="images/layer_1_4.png">
+    </div>
+    <div id="layer_7">
         <p class="white-text">
             КУТОЧОК ЗАТИШКУ ТА КРАСИ
         </p>
         <p class="white-text">
             СЕРЕД БЕТОННИХ ДЖУНГЛІВ
         </p>
-    </div>
-    <div id="layer_8"><img src="images/layer_8.png"></div>
-    <div id="layer_9">
-        <img src="images/layer_9.png">
     </div>
     <div id="layer_7_0" class="shadow">
         <video width="1227" height="710" autoplay="" loop="">
@@ -75,7 +96,12 @@
         </video>
     </div>
     <div id="layer_13">
-        <img src="images/layer_13.png">
+        <div class="fb-page" data-href="https://www.facebook.com/oasiskyiv/" data-tabs="timeline" data-width="500"
+             data-small-header="false" data-adapt-container-width="true" data-hide-cover="false"
+             data-show-facepile="true">
+            <blockquote cite="https://www.facebook.com/oasiskyiv/" class="fb-xfbml-parse-ignore"><a
+                    href="https://www.facebook.com/oasiskyiv/">Oasis Kyiv</a></blockquote>
+        </div>
     </div>
 
     <div id="layer_14"><img src="images/layer_14.png"></div>
@@ -94,11 +120,11 @@
     <div id="layer_1_7"><img src="images/layer_1_7.png"></div>
     <div id="Oasis">
         <p style="font-size: 48px; text-align: center; line-height: 60px;">
-        ТРЦ "OASIS" вдосконалить існуючу інфраструктуру та зодовольнить попит населення на товари щоденного вжитку
+            ТРЦ "OASIS" вдосконалить існуючу інфраструктуру та зодовольнить попит населення на товари щоденного вжитку
         </p>
     </div>
     <div id="layer_2_1"><img src="images/layer_2_1.png"></div>
-    <div id="layer_23" class="animated bounceIn">
+    <div id="layer_23" class="wow animated bounceIn">
         <img src="images/layer_23.png">
     </div>
     <div id="layer_144812" class="animated bounceIn">
@@ -109,10 +135,10 @@
             14 481 м²
         </p>
     </div>
-    <div id="layer_23_0" class="animated bounceIn">
+    <div id="layer_23_0" class="wow animated bounceIn">
         <img src="images/layer_23_0.png">
     </div>
-    <div id="layer_132122" class="animated bounceIn">
+    <div id="layer_132122" class="wow animated bounceIn">
         <p class="white-text" style="font-size: 24px; text-align: center; line-height: 26px;">
             корисна:
         </p>
@@ -120,10 +146,10 @@
             13 212 м²
         </p>
     </div>
-    <div id="layer_23_1" class="animated bounceIn">
+    <div id="layer_23_1" class="wow animated bounceIn">
         <img src="images/layer_23_1.png">
     </div>
-    <div id="layer_41" class="animated bounceIn">
+    <div id="layer_41" class="wow animated bounceIn">
         <p class="white-text" style="font-size: 44px; text-align: center;">
             ПЛОЩА
         </p>
@@ -135,27 +161,28 @@
         </p>
 
     </div>
-    <div id="layer_1_9" class="animated bounceIn">
+    <div id="layer_1_9" class="wow animated bounceIn">
         <img src="images/layer_1_9.png">
     </div>
-    <div id="layer_45" class="animated bounceIn">
+    <div id="layer_45" class="wow animated bounceIn">
         <p class="white-text" style="font-size: 32px; text-align: center;">
-        Новий торгово-розважальний центр буде розташовано у густонаселеному Оболонському районі Києва на місці кільця
+            Новий торгово-розважальний центр буде розташовано у густонаселеному Оболонському районі Києва на місці
+            кільця
             над станцією метро "Героїв Дніпра"
         </p>
     </div>
-    <div id="layer_3_0" class="animated bounceIn">
+    <div id="layer_3_0" class="wow animated bounceIn">
         <img src="images/layer_3_0.png">
     </div>
-    <div id="layer_33" class="animated bounceIn">
+    <div id="layer_33" class="wow animated bounceIn">
         <img src="images/layer_33.png">
     </div>
-    <div id="layer_2018_0" class="animated bounceIn">
+    <div id="layer_2018_0" class="wow animated bounceIn">
         <p class="white-text" style="font-size: 44px;">
             2018
         </p>
     </div>
-    <div id="layer_51" class="animated bounceIn">
+    <div id="layer_51" class="wow animated bounceIn">
         <p class="white-text" style="font-size: 44px;">
             ВІДКРИТТЯ
         </p>
@@ -215,7 +242,17 @@
             <span class="glyphicon glyphicon-user" style="color: #FFFFFF;" aria-hidden="true"></span> Анкета
         </a>
     </div>
+
 </div>
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/en_GB/sdk.js#xfbml=1&version=v2.7&appId=974052585963373";
+    fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
 
 </body>
 </html>

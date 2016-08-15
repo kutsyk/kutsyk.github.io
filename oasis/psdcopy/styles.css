@@ -2,6 +2,14 @@
 	margin: 0;
 	padding: 0;
  }
+
+ .centred {
+	 left: 50%;
+	 /* bring your own prefixes */
+	 transform: translate(-50%, 3%);
+	 position: fixed;
+ }
+
  #background
 {
 	 left: 0px;
@@ -9,15 +17,17 @@
 	 position: relative; 
 	 margin-left: auto; 
 	 margin-right: auto; 
-	 width: 1366px;
+	 width: 100%;
 	 height: 4590px;
 	 overflow: hidden;
 	 z-index:0;
  }
 
  #layer_1_0 
-{ 
-	 left: 101px; 
+{
+     left: 50%;
+     /* bring your own prefixes */
+     transform: translate(-50%);
 	 top: 1674px;
 	 position: absolute;
 	 width: 1152px;
@@ -26,8 +36,8 @@
 } 
 
  #layer_1_1 
-{ 
-	 left: 116px; 
+{
+	 left: 116px;
 	 top: 60px;
 	 position: absolute;
 	 width: 1133px;
@@ -36,10 +46,12 @@
 } 
 
  #layer_1_2 
-{ 
-	 left: 69px; 
+{
+     left: 50%;
+     /* bring your own prefixes */
+     transform: translate(-50%);
+     position: absolute;
 	 top: 19px;
-	 position: absolute;
 	 width: 1227px;
 	 height: 645px;
 	 z-index:4;
@@ -56,8 +68,10 @@
 } 
 
  #layer_1_4 
-{ 
-	 left: 238px; 
+{
+     left: 40%;
+     /* bring your own prefixes */
+     transform: translate(-50%);
 	 top: 375px;
 	 position: absolute;
 	 width: 652px;
@@ -67,7 +81,9 @@
 
  #layer_7 
 {
-	 left: 416px; 
+     left: 45%;
+     /* bring your own prefixes */
+     transform: translate(-50%);
 	 top: 434px;
 	 position: absolute;
 	 width: 422px;
@@ -86,8 +102,8 @@
 } 
 
  #layer_9 
-{ 
-	 left: 101px; 
+{
+     left: 7%;
 	 top: 325px;
 	 position: absolute;
 	 width: 296px;
@@ -116,8 +132,10 @@
 } 
 
  #layer_7_0 
-{ 
-	 left: 69px; 
+{
+     left: 50%;
+     /* bring your own prefixes */
+     transform: translate(-50%);
 	 top: 675px;
 	 position: absolute;
 	 width: 1227px;
@@ -126,9 +144,11 @@
 } 
 
  #layer_13 
-{ 
-	 left: 62px; 
-	 top: 1473px;
+{
+     left: 45%;
+     /* bring your own prefixes */
+     transform: translate(-50%);
+	 top: 1525px;
 	 position: absolute;
 	 width: 889px;
 	 height: 597px;
@@ -216,8 +236,10 @@
 } 
 
  #layer_2 
-{ 
-	 left: 889px; 
+{
+     left: 50%;
+     /* bring your own prefixes */
+     transform: translate(50%);
 	 top: 2672px;
 	 position: absolute; 
 	 width: 389px;
@@ -226,8 +248,10 @@
 }
 
  #layer_132 
-{ 
-	 left: 196px; 
+{
+     left: 50%;
+     /* bring your own prefixes */
+     transform: translate(-50%);
 	 top: 3058px;
 	 position: absolute; 
 	 width: 970px;
@@ -236,8 +260,10 @@
 } 
 
  #layer_10_0 
-{ 
-	 left: 101px; 
+{
+     left: 50%;
+     /* bring your own prefixes */
+     transform: translate(-70%);
 	 top: 2558px;
 	 position: absolute; 
 	 width: 806px;
@@ -256,8 +282,10 @@
 }
 
  #layer_1_6 
-{ 
-	 left: 100px; 
+{
+     left: 50%;
+     /* bring your own prefixes */
+     transform: translate(-50%);
 	 top: 2277px;
 	 position: absolute; 
 	 width: 1155px;
@@ -266,8 +294,10 @@
 } 
 
  #layer_1_7 
-{ 
-	 left: 134px; 
+{
+     left: 50%;
+     /* bring your own prefixes */
+     transform: translate(-50%);
 	 top: 2301px;
 	 position: absolute; 
 	 width: 1087px;
@@ -276,8 +306,10 @@
 } 
 
  #Oasis 
-{ 
-	 left: 200px; 
+{
+     left: 50%;
+     /* bring your own prefixes */
+     transform: translate(-50%);
 	 top: 2349px;
 	 position: absolute; 
 	 width: 958px;
@@ -286,8 +318,10 @@
 }
 
  #layer_2_1 
-{ 
-	 left: 677px; 
+{
+     left: 45%;
+     /* bring your own prefixes */
+     transform: translate(25%);
 	 top: 1713px;
 	 position: absolute; 
 	 width: 584px;
@@ -296,18 +330,18 @@
 }
 
  #layer_23 
-{ 
-	 left: 383px; 
-	 top: 2954px;
+{
+     left: 383px;
+     top: 2954px;
 	 position: absolute; 
 	 width: 219px;
 	 height: 220px;
 	 z-index:34;
 } 
 
- #layer_144812 
-{ 
-	 left: 431px; 
+ #layer_144812
+{
+     left: 431px;
 	 top: 3030px;
 	 position: absolute; 
 	 width: 130px;
@@ -316,8 +350,8 @@
 } 
 
  #layer_23_0 
-{ 
-	 left: 304px; 
+{
+     left: 304px;
 	 top: 3112px;
 	 position: absolute; 
 	 width: 219px;
@@ -326,8 +360,10 @@
 } 
 
  #layer_132122 
-{ 
-	 left: 352px; 
+{
+     left: 352px;
+     /* bring your own prefixes */
+     transform: translate(-50%);
 	 top: 3197px;
 	 position: absolute; 
 	 width: 130px;
@@ -336,8 +372,8 @@
 }
 
  #layer_23_1 
-{ 
-	 left: 100px; 
+{
+     left: 100px;
 	 top: 2932px;
 	 position: absolute; 
 	 width: 304px;
@@ -346,8 +382,8 @@
 } 
 
  #layer_41 
-{ 
-	 left: 143px; 
+{
+     left: 143px;
 	 top: 3063px;
 	 position: absolute; 
 	 width: 217px;
@@ -356,8 +392,10 @@
 } 
 
  #layer_42
-{ 
-	 left: 715px;
+{
+     left: 45%;
+     /* bring your own prefixes */
+     transform: translate(35%);
 	 top: 1896px;
 	 position: absolute; 
 	 width: 513px;
@@ -376,8 +414,10 @@
 } 
 
  #layer_1_9 
-{ 
-	 left: 106px;
+{
+     left: 10%;
+     /* bring your own prefixes
+     transform: translate(-50%);*/
 	 top: 1315px;
 	 position: absolute; 
 	 width: 1155px;
@@ -386,8 +426,10 @@
 } 
 
  #layer_45
-{ 
-	 left: 210px; 
+{
+     left: 17.5%;
+     /* bring your own prefixes
+     transform: translate(-50%);*/
 	 top: 1347px;
 	 position: absolute; 
 	 width: 945px;
@@ -396,8 +438,10 @@
 }
 
  #layer_3_0 
-{ 
-	 left: 748px; 
+{
+     left: 60%;
+     /* bring your own prefixes */
+     transform: translate(50%);
 	 top: 2986px;
 	 position: absolute; 
 	 width: 317px;
@@ -406,9 +450,11 @@
 }
 
  #layer_33 
-{ 
-	 left: 994px; 
-	 top: 3169px;
+{
+     left: 70%;
+     /* bring your own prefixes */
+     transform: translate(50%);
+	 top: 3175px;
 	 position: absolute; 
 	 width: 167px;
 	 height: 167px;
@@ -417,8 +463,10 @@
 
  #layer_2018_0 
 {
-	 left: 1034px;
-	 top: 3228px;
+     left: 72.5%;
+     /* bring your own prefixes */
+     transform: translate(50%);
+	 top: 3238px;
 	 position: absolute;
 	 width: 100px;
 	 height: 44px;
@@ -427,7 +475,9 @@
 
  #layer_51 
 {
-	 left: 772px;
+     left: 61.5%;
+     /* bring your own prefixes */
+     transform: translate(50%);
 	 top: 3122px;
 	 position: absolute;
 	 width: 272px;
@@ -437,17 +487,21 @@
 
  #layer_60
  {
-     left: 10%;
+     left: 50%;
+     /* bring your own prefixes */
+     transform: translate(-50%);
      top: 3702px;
      position: relative;
-     width: 272px;
+     width: 1123px;
      height: 46px;
      z-index: 51;
  }
 
  #layer_61
  {
-     left: 15%;
+     left: 40%;
+     /* bring your own prefixes */
+     transform: translate(-50%);
      top: 3702px;
      position: relative;
      width: 572px;
@@ -457,7 +511,7 @@
 
  #layer_62
  {
-     left: 55%;
+     left: 50%;
      top: 3665px;
      position: relative;
      width: 572px;
@@ -467,7 +521,9 @@
 
  #layer_63
  {
-     left: 15%;
+     left: 40%;
+     /* bring your own prefixes */
+     transform: translate(-50%);
      top: 3852px;
      position: relative;
      width: 572px;
@@ -477,7 +533,7 @@
 
  #layer_64
  {
-     left: 55%;
+     left: 50%;
      top: 3810px;
      position: relative;
      width: 572px;
@@ -487,7 +543,7 @@
 
  #layer_65
  {
-     left: 80%;
+     left: 70%;
      top: 4180px;
      position: relative;
      z-index: 51;
@@ -495,9 +551,9 @@
 
  #layer_66
  {
-	 position: fixed;
-	 right: 20%;
+	 right: 10%;
 	 top: 95%;
+     position: fixed;
 	 width: 8em;
 	 margin-top: -2.5em;
      z-index: 51;
