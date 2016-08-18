@@ -81,7 +81,7 @@
 
  #layer_7 
 {
-     left: 45%;
+     left: 47%;
      /* bring your own prefixes */
      transform: translate(-50%);
 	 top: 434px;
@@ -103,7 +103,7 @@
 
  #layer_9 
 {
-     left: 7%;
+     left: 5%;
 	 top: 325px;
 	 position: absolute;
 	 width: 296px;
@@ -415,26 +415,22 @@
 
  #layer_1_9 
 {
-     left: 10%;
-     /* bring your own prefixes
-     transform: translate(-50%);*/
 	 top: 1315px;
 	 position: absolute; 
-	 width: 1155px;
+	 width: 100%;
 	 height: 196px;
 	 z-index:44;
-} 
+     text-align: center;
+}
 
  #layer_45
 {
-     left: 17.5%;
-     /* bring your own prefixes
-     transform: translate(-50%);*/
-	 top: 1347px;
-	 position: absolute; 
-	 width: 945px;
-	 height: 102px;
-	 z-index:45;
+     top: 1330px;
+     position: absolute;
+     width: 100%;
+     height: 196px;
+     z-index:45;
+     text-align: center;
 }
 
  #layer_3_0 

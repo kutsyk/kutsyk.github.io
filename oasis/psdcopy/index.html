@@ -29,18 +29,21 @@
     </script>
 
     <script>
-        window.fbAsyncInit = function() {
+        window.fbAsyncInit = function () {
             FB.init({
-                appId      : 'your-app-id',
-                xfbml      : true,
-                version    : 'v2.7'
+                appId: 'your-app-id',
+                xfbml: true,
+                version: 'v2.7'
             });
         };
 
-        (function(d, s, id){
+        (function (d, s, id) {
             var js, fjs = d.getElementsByTagName(s)[0];
-            if (d.getElementById(id)) {return;}
-            js = d.createElement(s); js.id = id;
+            if (d.getElementById(id)) {
+                return;
+            }
+            js = d.createElement(s);
+            js.id = id;
             js.src = "//connect.facebook.net/en_US/sdk.js";
             fjs.parentNode.insertBefore(js, fjs);
         }(document, 'script', 'facebook-jssdk'));
@@ -74,20 +77,21 @@
         <img src="images/layer_1_0.png">
     </div>
     <div id="layer_1_2" class="shadow centred">
-        <img src="images/layer_1_2.png"></div>
-    <div id="layer_9">
-        <img src="images/layer_9.png">
-    </div>
-    <div id="layer_1_4">
-        <img src="images/layer_1_4.png">
-    </div>
-    <div id="layer_7">
-        <p class="white-text">
-            КУТОЧОК ЗАТИШКУ ТА КРАСИ
-        </p>
-        <p class="white-text">
-            СЕРЕД БЕТОННИХ ДЖУНГЛІВ
-        </p>
+        <img src="images/layer_1_2.png">
+        <div id="layer_9">
+            <img src="images/layer_9.png">
+        </div>
+        <div id="layer_1_4">
+            <img src="images/layer_1_4.png">
+        </div>
+        <div id="layer_7">
+            <p class="white-text">
+                КУТОЧОК ЗАТИШКУ ТА КРАСИ
+            </p>
+            <p class="white-text">
+                СЕРЕД БЕТОННИХ ДЖУНГЛІВ
+            </p>
+        </div>
     </div>
     <div id="layer_7_0" class="shadow">
         <video width="1227" height="710" autoplay="" loop="">
@@ -120,7 +124,7 @@
     <div id="layer_1_7"><img src="images/layer_1_7.png"></div>
     <div id="Oasis">
         <p style="font-size: 48px; text-align: center; line-height: 60px;">
-            ТРЦ "OASIS" вдосконалить існуючу інфраструктуру та зодовольнить попит населення на товари щоденного вжитку
+            ТРЦ "OASIS" вдосконалить існуючу інфраструктуру та задовольнить попит населення на товари щоденного вжитку
         </p>
     </div>
     <div id="layer_2_1"><img src="images/layer_2_1.png"></div>
@@ -162,10 +166,10 @@
 
     </div>
     <div id="layer_1_9" class="wow animated bounceIn">
-        <img src="images/layer_1_9.png">
+        <img src="images/layer_1_9.png" width="95%" style="max-width: 1155px; display: block; margin: auto;">
     </div>
     <div id="layer_45" class="wow animated bounceIn">
-        <p class="white-text" style="font-size: 32px; text-align: center;">
+        <p class="white-text" style="font-size: 32px; display: block; margin: auto; max-width: 1155px" >
             Новий торгово-розважальний центр буде розташовано у густонаселеному Оболонському районі Києва на місці
             кільця
             над станцією метро "Героїв Дніпра"
@@ -233,23 +237,24 @@
             pr@oasiscenter.com.ua
         </p>
     </div>
-    <div id="layer_65">
+    <div id="layer_65" class="wow animated bounceIn">
         <img src="images/logo-bottom-circle.png"/>
     </div>
     <div id="layer_66">
         <a type="button" class="btn btn-success btn-lg" style="font-size: 40px; color: #FFFFFF; border-radius: 50px;"
            href="https://docs.google.com/forms/d/1FpnA2vj7t5rQAq8GRRC2yy-G_nRmG8pzS8x-SHj2NXU/viewform?edit_requested=true">
-            <span class="glyphicon glyphicon-user" style="color: #FFFFFF;" aria-hidden="true"></span> Анкета
+            <span class="glyphicon glyphicon-user" style="color: #FFFFFF;" aria-hidden="true"></span> Оренда
         </a>
     </div>
 
 </div>
 
 <div id="fb-root"></div>
-<script>(function(d, s, id) {
+<script>(function (d, s, id) {
     var js, fjs = d.getElementsByTagName(s)[0];
     if (d.getElementById(id)) return;
-    js = d.createElement(s); js.id = id;
+    js = d.createElement(s);
+    js.id = id;
     js.src = "//connect.facebook.net/en_GB/sdk.js#xfbml=1&version=v2.7&appId=974052585963373";
     fjs.parentNode.insertBefore(js, fjs);
 }(document, 'script', 'facebook-jssdk'));</script>
