@@ -433,6 +433,18 @@
      text-align: center;
 }
 
+ .bubbles
+ {
+     left: 50%;
+     transform: translate(-50%);
+     width: 100%;
+     position: absolute;
+     max-width: 1155px;
+     text-align: center;
+     margin: auto;
+     z-index: 55;
+ }
+
  #layer_3_0 
 {
      left: 60%;
