@@ -39,7 +39,6 @@
             text-align: center;
             background: none;
             position: relative;
-            font-size: 64px;
             cursor: pointer;
         }
 
@@ -69,17 +68,10 @@
         }
 
         .counterbox {
-            width: auto;
-            font-size: 1em;
-        }
-
-        .counterbox div div {
-            color: #104c84;
-        }
-
-        .container-fluid .row {
-            margin-right: 0;
-            margin-left: 0;
+            min-width: 720px;
+            min-height: 120px;
+            display: inline-block;
+            background-color: rgba(255, 255, 255, 0.6);
         }
 
         .navbar-nav li a {
@@ -93,6 +85,11 @@
         .navbar-nav > li > a {
             height: 100%;
             text-align: center;
+        }
+
+        .row {
+             margin-right: 0px;
+             margin-left: 0px;
         }
 
     </style>
@@ -141,7 +138,7 @@
                     </div>
                 </div>
                 <div class="col-md-4 text-center">
-                    <h1> LOGO </h1>
+                    <img src="img/Logo%20SmartTende.png" width="100%"/>
                 </div>
                 <div class="col-md-4">
                     <div class="col-md-3">
@@ -157,28 +154,24 @@
             </div>
         </div>
         <div class="row" style="margin-top: 2.5%;">
-            <div class="row text-center">
-                <button class="ticket_button"><span>ПРИДБАТИ КВИТОК</span></button>
+            <div class="row text-center" style="font-size: 8em;">
+                <button class="ticket_button"><span>ПРИДБАТИВИТОК</span></button>
             </div>
-            <div class="row" style="font-size: 72px; margin-top: 50px; margin-bottom: 150px;">
-                <div class="col-md-3"></div>
-                <div class="col-md-6 text-center" style="font-size: 0.5em;">
-                    до події залишилося
-                    <div class="counterbox">
-                        <div class="text-center" style="background-color: rgba(255, 255, 255, 0.6);">
-                            <div id="countdown">
-
-                            </div>
-                        </div>
+            <div class="row text-center" style="font-size: 5em; margin-top: 5%;">
+                до події залишилося
+            </div>
+            <div class="row text-center" style="font-size: 8em; margin-bottom: 10%">
+                <div class="counterbox">
+                    <div id="countdown" style="color: #104c84; margin-top: 3%">
                     </div>
                 </div>
-                <div class="col-md-3"></div>
             </div>
         </div>
     </div>
-    <div class="row" style="font-size: 32px; height: 100px; background-color: #1b6d85; color: white;">
+    <div class="row" style="font-size: 32px; height: 100px; background-color: #104c84; color: white;">
         <div class="col-md-12">
             <div class="col-md-2"></div>
+            <div class="col-md-8">
             <div class="nav navbar-nav">
                 <li class="active"><a href="#">Про форум</a></li>
                 <li><a href="#">Програма</a></li>
@@ -189,18 +182,19 @@
                 <li><a href="#">Контакти</a></li>
                 <li><a href="#">Реєстрація</a></li>
             </div>
+            </div>
             <div class="col-md-2"></div>
         </div>
     </div>
     <div class="row" style="margin-top: 2.5%;">
         <div class="col-md-4">
-            <hr style="background: #1b6d85; height: 2px; margin-top: 12.5%;"/>
+            <hr style="background: #104c84; height: 2px; margin-top: 12.5%;"/>
         </div>
         <div class="col-md-4 text-center">
-            <p style="font-size: 6em; color: #1b6d85">ПРО ФОРУМ</p>
+            <p style="font-size: 6em; color: #104c84">ПРО ФОРУМ</p>
         </div>
         <div class="col-md-4">
-            <hr style="background: #1b6d85; height: 2px; margin-top: 12.5%;"/>
+            <hr style="background: #104c84; height: 2px; margin-top: 12.5%;"/>
         </div>
     </div>
     <div class="row" style="color: #000;">
@@ -255,13 +249,13 @@
     </div>
     <div class="row" style="margin-top: 2.5%;">
         <div class="col-md-4">
-            <hr style="background: #1b6d85; height: 2px; margin-top: 12.5%;"/>
+            <hr style="background: #104c84; height: 2px; margin-top: 12.5%;"/>
         </div>
         <div class="col-md-4 text-center">
-            <p style="font-size: 6em; color: #1b6d85">ПРОГРАМА</p>
+            <p style="font-size: 6em; color: #104c84">ПРОГРАМА</p>
         </div>
         <div class="col-md-4">
-            <hr style="background: #1b6d85; height: 2px; margin-top: 12.5%;"/>
+            <hr style="background: #104c84; height: 2px; margin-top: 12.5%;"/>
         </div>
     </div>
     <div class="row" style="color: black;   ">
@@ -303,13 +297,13 @@
     </div>
     <div class="row" style="margin-top: 2.5%;">
         <div class="col-md-4">
-            <hr style="background: #1b6d85; height: 2px; margin-top: 12.5%;"/>
+            <hr style="background: #104c84; height: 2px; margin-top: 12.5%;"/>
         </div>
         <div class="col-md-4 text-center">
-            <p style="font-size: 6em; color: #1b6d85">ПАРТНЕРИ</p>
+            <p style="font-size: 6em; color: #104c84">ПАРТНЕРИ</p>
         </div>
         <div class="col-md-4">
-            <hr style="background: #1b6d85; height: 2px; margin-top: 12.5%;"/>
+            <hr style="background: #104c84; height: 2px; margin-top: 12.5%;"/>
         </div>
     </div>
     <div class="row" style="color: black;">
@@ -329,7 +323,7 @@
         </div>
         <div class="row">
             <div class="row text-center" style="margin-top: 2.5%">
-                <button class="ticket_button"><span>ЗАРЕЄСТРУВАТИСЯ</span></button>
+                <button class="ticket_button" style="font-size: 8em;"><span>ЗАРЕЄСТРУВАТИСЯ</span></button>
             </div>
         </div>
         <div class="row text-center" style="font-size: 2em; margin-top: 7%; margin-bottom: 5%">
@@ -343,13 +337,13 @@
     </div>
     <div class="row" style="margin-top: 2.5%;">
         <div class="col-md-4">
-            <hr style="background: #1b6d85; height: 2px; margin-top: 12.5%;"/>
+            <hr style="background: #104c84; height: 2px; margin-top: 12.5%;"/>
         </div>
         <div class="col-md-4 text-center">
-            <p style="font-size: 6em; color: #1b6d85">КОНТАКТИ</p>
+            <p style="font-size: 6em; color: #104c84">КОНТАКТИ</p>
         </div>
         <div class="col-md-4">
-            <hr style="background: #1b6d85; height: 2px; margin-top: 12.5%;"/>
+            <hr style="background: #104c84; height: 2px; margin-top: 12.5%;"/>
         </div>
     </div>
     <div class="row" style="color: black;">
