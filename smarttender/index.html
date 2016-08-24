@@ -23,7 +23,7 @@
 
         * {
             font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
-            font-weight: 300;
+            font-size: 85%;
             color: white;
         }
 
@@ -70,10 +70,11 @@
 
         .counterbox {
             width: auto;
+            font-size: 1em;
         }
 
-        .counterbox div {
-            color: blue;
+        .counterbox div div{
+            color: #104c84;
         }
 
         .container-fluid .row {
@@ -88,37 +89,42 @@
         .navbar-nav li a:hover {
             background-color:  #1d2a5b;
         }
+
+        .navbar-nav > li > a{
+            height: 100%;
+            text-align: center;
+        }
+
     </style>
 </head>
 <body>
 <div class="container-fluid">
-    <div style="background-image: url(backgroundimage.jpg);">
-        <div style="background-color: rgba(6, 6, 249, 0.3);">
-            <div class="row" style="padding: 100px;">
+    <div style="background-image: url(/img/1.png);">
+            <div class="row" style="padding: 1%;">
                 <div class="col-md-12">
-                    <div class="col-md-3">
-                        <hr style="color: white;">
-                    </div>
-                    <div class="col-md-2">
-                        <span class="glyphicon glyphicon-calendar" style="font-size: 28px; color: white;"></span>
-                        <span style="font-size: 24px; color: white;">15 жовтня 2016 року</span>
-                    </div>
                     <div class="col-md-2">
                         <hr style="color: white;">
                     </div>
-                    <div class="col-md-2">
-                        <span class="glyphicon glyphicon-map-marker" style="font-size: 28px; color: white;"></span>
-                        <span style="font-size: 24px; color: white;">НСК "Олімпійський"</span>
+                    <div class="col-md-3 text-center" >
+                        <span class="glyphicon glyphicon-calendar" style="font-size: 4em; color: white;"></span>
+                        <span style="font-size: 3em; color: white;">15 жовтня 2016 року</span>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
+                        <hr style="color: white;">
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <span class="glyphicon glyphicon-map-marker" style="font-size: 4em; color: white;"></span>
+                        <span style="font-size: 3em; color: white;">НСК "Олімпійський"</span>
+                    </div>
+                    <div class="col-md-2">
                         <hr style="color: white;">
                     </div>
                 </div>
             </div>
-            <div class="row" style="margin-top: 150px; margin-bottom: 150px;">
+            <div class="row" style="margin-top: 5%; margin-bottom: 5%;">
                 <div class="text-center">
-                    <p style="font-size: 64px; color: white;">І ВСЕУКРАЇНСЬКИЙ ФОРУМ </p>
-                    <p style="font-size: 72px; color: white;">РОЗУМНІ ЗАКУПКИ зі SmartTender.biz</p>
+                    <p style="font-size: 5em; color: white;">І ВСЕУКРАЇНСЬКИЙ ФОРУМ </p>
+                    <p style="font-size: 7em; color: white;">РОЗУМНІ ЗАКУПКИ зі SmartTender.biz</p>
                 </div>
             </div>
             <div class="row" style="background-color: white;">
@@ -156,18 +162,19 @@
                 </div>
                 <div class="row" style="font-size: 72px; margin-top: 50px; margin-bottom: 150px;">
                     <div class="col-md-3"></div>
-                    <div class="col-md-6 text-center">
+                    <div class="col-md-6 text-center" style="font-size: 0.5em;">
                         до події залишилося
                         <div class="counterbox">
-                            <div style="background-color: rgba(255, 255, 255, 0.3);">
-                                <div id="countdown"></div>
+                            <div class="text-center" style="background-color: rgba(255, 255, 255, 0.6);">
+                                <div id="countdown">
+
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-3"></div>
                 </div>
             </div>
-        </div>
     </div>
     <div class="row" style="font-size: 32px; height: 100px; background-color: #1b6d85; color: white;">
         <div class="col-md-12">
@@ -185,15 +192,15 @@
             <div class="col-md-2"></div>
         </div>
     </div>
-    <div class="row" style="padding: 100px;">
+    <div class="row" style="margin-top: 2.5%;">
         <div class="col-md-4">
-            <hr style="background: #1b6d85; height: 2px; margin-top: 50px;"/>
+            <hr style="background: #1b6d85; height: 2px; margin-top: 12.5%;"/>
         </div>
         <div class="col-md-4 text-center">
             <p style="font-size: 72px; color: #1b6d85">ПРОГРАМА</p>
         </div>
         <div class="col-md-4">
-            <hr style="background: #1b6d85; height: 2px; margin-top: 50px;"/>
+            <hr style="background: #1b6d85; height: 2px; margin-top: 12.5%;"/>
         </div>
     </div>
     <div class="row"></div>
