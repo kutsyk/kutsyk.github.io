@@ -25,7 +25,7 @@
 
         * {
             font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
-            font-size: 85%;
+            font-size: 14px;
             color: white;
         }
 
@@ -131,7 +131,7 @@
             background-color: #4CAF50; /* Green */
             border: solid white;
             color: white;
-            padding: 15px 32px;
+            padding: 0px 25px;
             text-align: center;
             text-decoration: none;
             display: inline-block;
@@ -153,21 +153,21 @@
         <div class="row" style="padding: 5%;">
             <div class="col-md-12">
                 <div class="col-md-2">
-                    <hr style="color: white;">
+                    <hr style="color: white; height: 2px;">
                 </div>
                 <div class="col-md-3 text-center">
                     <span class="glyphicon glyphicon-calendar" style="font-size: 4em; color: white;"></span>
                     <span style="font-size: 3em; color: white;">15 жовтня 2016 року</span>
                 </div>
                 <div class="col-md-2">
-                    <hr style="color: white;">
+                    <hr style="color: white; height: 2px;">
                 </div>
                 <div class="col-md-3 text-center">
                     <span class="glyphicon glyphicon-map-marker" style="font-size: 4em; color: white;"></span>
                     <span style="font-size: 3em; color: white;">НСК "Олімпійський"</span>
                 </div>
                 <div class="col-md-2">
-                    <hr style="color: white;">
+                    <hr style="color: white; height: 2px;">
                 </div>
             </div>
         </div>
@@ -215,7 +215,7 @@
             </div>
             <div class="row text-center" style="font-size: 8em; margin-bottom: 10%">
                 <div class="counterbox">
-                    <div id="countdown" style="color: #104c84; margin-top: 3%">
+                    <div id="countdown" style="color: #104c84; margin-top: 3%; font-size: 4em;">
                     </div>
                 </div>
             </div>
@@ -300,7 +300,7 @@
                 <hr style="background: white; height: 2px; width: 100%; margin-top: 12.5%;"/>
             </div>
             <div class="col-md-2 text-center" style="margin-top: 3%;">
-                <p style="font-size: 6em;">СПІКЕРИ</p>
+                <p style="font-size: 5em;">СПІКЕРИ</p>
             </div>
             <div class="col-md-5" style="padding-left: 0; padding-right: 0;">
                 <hr style="background: white; height: 2px; margin-top: 12.5%;"/>
@@ -310,7 +310,7 @@
             <table class="table" style="border: hidden;">
                 <tr>
                     <td>
-                        <img src="img/1.png" class="img-circle" width="200" height="200"/>
+                        <img src="img/1.png" class="img-circle" width="200" height="200" style="float: left;"/>
                     </td>
                     <td>
                         <img src="img/1.png" class="img-circle" width="200" height="200"/>
@@ -340,7 +340,7 @@
                 <hr style="background: white; height: 2px; margin-top: 12.5%;"/>
             </div>
             <div class="col-md-4 text-center" style="margin-top: 2%;">
-                <p style="font-size: 6em;">ДЛЯ УЧАСНИКІВ</p>
+                <p style="font-size: 5em;">ДЛЯ УЧАСНИКІВ</p>
             </div>
             <div class="col-md-4"style="padding-left: 0; padding-right: 0;">
                 <hr style="background: white; height: 2px; margin-top: 12.5%;"/>
@@ -348,7 +348,7 @@
         </div>
         <div class="row">
             <div class="row text-center" style="margin-top: 2.5%">
-                <button class="ticket_button" style="font-size: 8em;"><span>ЗАРЕЄСТРУВАТИСЯ</span></button>
+                <button class="ticket_button" style="font-size: 10em;"><span>ЗАРЕЄСТРУВАТИСЯ</span></button>
             </div>
         </div>
         <div class="row text-center" style="font-size: 2em; margin-top: 7%; margin-bottom: 5%">
@@ -369,7 +369,7 @@
 </div>
 <script type="text/javascript">
     $('#countdown').countdown('2016/10/15', function (event) {
-        $(this).html(event.strftime('%w тижнів %d днів %H:%M:%S'));
+        $(this).html(event.strftime('%d днів %H:%M:%S'));
     });
 </script>
 </body>
