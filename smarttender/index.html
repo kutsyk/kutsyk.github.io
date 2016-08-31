@@ -11,6 +11,7 @@
 
     <!-- Optional theme -->
     <link rel="stylesheet" href="bootstrap-3.3.7-dist/css/bootstrap-theme.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="styles/timeline.css" crossorigin="anonymous">
 
     <!-- Latest compiled and minified JavaScript -->
     <script src="bootstrap-3.3.7-dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
@@ -30,7 +31,10 @@
         * {
             font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
             font-size: 14px;
-            color: white;
+        }
+
+        span {
+            color: black;
         }
 
         .sexy_line {
@@ -116,13 +120,13 @@
             display: inline-block;
         }
 
-        h2 {
+        .blue-line {
             text-align: center;
             position: relative;
             z-index: 2;
         }
 
-        h2:after {
+        .blue-line:after {
             content: "";
             position: absolute;
             top: 50%;
@@ -171,7 +175,7 @@
                 <div class="col-md-2" style="padding-left: 0px; padding-right: 0px;">
                     <hr style="color: white;">
                 </div>
-                <div class="col-md-3" style="padding-left: 0px; padding-right: 0px;">
+                <div class="col-md-3 text-center" style="padding-left: 0px; padding-right: 0px;">
                     <span class="glyphicon glyphicon-map-marker" style="font-size: 24px; color: white;"></span>
                     <span style="font-size: 24px; color: white;">НСК "Олімпійський"</span>
                 </div>
@@ -247,13 +251,25 @@
         </div>
     </div>
     <div id="about" class="row" style="margin-top: 2.5%;">
-        <h2><span class="line-center">ПРО ФОРУМ</span></h2>
+        <h2 class="blue-line"><span class="line-center">ПРО ФОРУМ</span></h2>
     </div>
-    <div class="row" style="color: #000;">
-        <h1>Тут буде заголовок</h1>
+    <div class="row">
+        <p style="color: black; font-size: 24px;">Перехід на систему електронних закупівель для сучасного бізнесу на
+            сьогодні є запорукою успішного й прозорого проведення тендерів та здійснення господарської діяльності.
+            Онлайн-закупівлі - це свого роду каталізатор ефективності процесу управління підприємством, який не тільки
+            оптимізує роботу, але й економить час та фінансові ресурси. Найуспішніші компанії України переходять на
+            закупівлі онлайн, адже в сучасних умовах ринку це не просто тренд, а інновація в управлінні, що забезпечує
+            широкий доступ до якісних товарів, робіт, послуг відповідно до поставлених замовником вимог.
+        </p>
+
+        <p style="color: black; font-size: 24px;">На форумі “Розумні закупки зі SmartTender.biz” представники провідних
+            компаній України поділяться досвідом організації тендерів онлайн. Форум збере всіх учасників тендерного
+            процесу та стане майданчиком для обговорення викликів та перспектив онлайн-закупівель в Україні.
+        </p>
+
     </div>
     <div class="row" style="background-image: url(img/2.png);">
-        <div class="col-md-12 text-center" style="padding-top: 5%;">
+        <div class="col-md-12 text-center" style="padding-top: 5%;  color: white;">
             <div class="row" style="line-height: 6em;">
                 <div class="col-md-4">
                     <p style="font-size: 180px;">
@@ -300,10 +316,283 @@
         </div>
     </div>
     <div id="agenda" class="row" style="margin-top: 2.5%;">
-        <h2><span class="line-center">ПРОГРАМА</span></h2>
+        <h2 class="blue-line"><span class="line-center">ПРОГРАМА</span></h2>
     </div>
-    <div class="row" style="color: black;   ">
-        <h1> AGENDA SECTION</h1>
+    <div class="row">
+        <div class="container">
+            <div class="row">
+                <div class="timeline-centered">
+
+                    <article class="timeline-entry">
+
+                        <div class="timeline-entry-inner">
+                            <time class="timeline-time" datetime="2016-01-10T08:30"><span>8:30 - 9:00</span> <span>Реєстрація</span>
+                            </time>
+
+                            <div class="timeline-icon">
+                                <i class="entypo-feather"></i>
+                            </div>
+
+                            <div class="timeline-label">
+                                <h2><b>Реєстрація. Ранкова кава.</b></h2>
+                            </div>
+                        </div>
+
+                    </article>
+
+
+                    <article class="timeline-entry left-aligned">
+
+                        <div class="timeline-entry-inner">
+                            <time class="timeline-time" datetime="2016-01-10T09:30"><span>09:30 - 10:00</span>
+                                <span>Відкриття Форуму</span></time>
+
+                            <div class="timeline-icon">
+                                <i class="entypo-suitcase"></i>
+                            </div>
+
+                            <div class="timeline-label">
+                                <h2>
+                                    <b>
+                                        Відкриття Форуму
+                                    </b>
+                                </h2>
+                            </div>
+                        </div>
+
+                    </article>
+
+
+                    <article class="timeline-entry">
+
+                        <div class="timeline-entry-inner">
+                            <time class="timeline-time" datetime="2016-10-09T13:22"><span>10:00 - 11:30</span>
+                                <span>
+                                </span></time>
+
+                            <div class="timeline-icon">
+                                <i class="entypo-location"></i>
+                            </div>
+
+                            <div class="timeline-label">
+                                <h2>
+                                    <b>
+                                        Публічні закупівлі як запорука прозорості й ефективного управління підприємством
+                                    </b>
+                                </h2>
+
+                                <blockquote>
+                                    <p>
+                                        У панельній дискусії візьмуть участь представники провідних компаній України,
+                                    державної влади та громадськості. Як онлайн закупівлі впливають на процес управління
+                                    виробництвом на підприємстві? Чому важливо забезпечувати прозорість закупівель та
+                                    які принципи є найважливішими для оргснізації процесу закупівель на сучасному
+                                    підприємстві?
+                                    </p>
+                                    <p><b>Модератор:</b> Андрій Мотовиловець</p>
+                                    <p><b>Серед спікерів:</b> Антон Припіченко, Сергій Сагун, Олексій Щербатенко</p>
+                                </blockquote>
+
+                            </div>
+                        </div>
+
+                    </article>
+
+
+                    <article class="timeline-entry left-aligned">
+
+                        <div class="timeline-entry-inner">
+                            <time class="timeline-time" datetime="2014-01-10T03:45"><span>11:30 - 12:00</span>
+                                <span>Кава-брейк</span>
+                            </time>
+
+                            <div class="timeline-icon">
+                                <i class="entypo-camera"></i>
+                            </div>
+
+                            <div class="timeline-label">
+                                <h2>
+                                    <b>
+                                        Кава-брейк
+                                    </b>
+                                </h2>
+                            </div>
+                        </div>
+
+                    </article>
+
+                    <article class="timeline-entry">
+
+                        <div class="timeline-entry-inner">
+                            <time class="timeline-time" datetime="2014-01-10T03:45"><span>12:00 - 13:30</span>
+                                <span>
+                                </span>
+                            </time>
+
+                            <div class="timeline-icon">
+                                <i class="entypo-camera"></i>
+                            </div>
+
+                            <div class="timeline-label">
+                                <h2>
+                                    <b>
+                                        Нецінові критерії в електронних закупівлях. Можливість чи загроза для
+                                        постачальників?
+                                    </b>
+                                </h2>
+                                <blockquote>
+                                    <p>
+                                        У дискусії обговорюватимуться питання впливу неціонових критеріїв (якості, умов
+                                    доставки
+                                    продукції) на результати тендерів. До дискусії запрошуються як представники
+                                    компаній-постачальників, так і замовники та організатори торгів.
+                                    </p>
+                                    <p><b>Модератор:</b> Андрій Мотовиловець</p>
+                                    <p><b>Серед спікерів:</b> Антон Припіченко, Сергій Сагун, Олексій Щербатенко</p>
+                                </blockquote>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="timeline-entry left-aligned">
+
+                        <div class="timeline-entry-inner">
+                            <time class="timeline-time" datetime="2014-01-10T03:45"><span>13:30 - 14:00</span>
+                                <span>Обід</span>
+                            </time>
+
+                            <div class="timeline-icon">
+                                <i class="entypo-camera"></i>
+                            </div>
+
+                            <div class="timeline-label">
+                                <h2>
+                                    <b>
+                                        Обід
+                                    </b>
+                                </h2>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="timeline-entry">
+
+                        <div class="timeline-entry-inner">
+                            <time class="timeline-time" datetime="2014-01-10T03:45"><span>14:00 - 15:30</span>
+                                <span>
+                                </span>
+                            </time>
+
+                            <div class="timeline-icon">
+                                <i class="entypo-camera"></i>
+                            </div>
+
+                            <div class="timeline-label">
+                                <h2>
+                                    <b>
+                                        Успішні приклади запровадження системи електронних закупівель
+                                    </b>
+                                </h2>
+                                <blockquote>
+                                    <p>На панельній дискусії обговорюватимуться успішні кейси запровадження е-закупівель
+                                        на підприємствах.</p>
+                                    <p><b>Модератор:</b> Андрій Мотовиловець</p>
+                                    <p><b>Серед спікерів:</b> Антон Припіченко, Сергій Сагун, Олексій Щербатенко</p>
+                                </blockquote>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="timeline-entry left-aligned">
+
+                        <div class="timeline-entry-inner">
+                            <time class="timeline-time" datetime="2014-01-10T03:45"><span>15:30 - 16:00</span>
+                                <span>Кава-брейк</span>
+                            </time>
+
+                            <div class="timeline-icon">
+                                <i class="entypo-camera"></i>
+                            </div>
+
+                            <div class="timeline-label">
+                                <h2>
+                                    <b>
+                                        Кава-брейк
+                                    </b>
+                                </h2>
+                            </div>
+                        </div>
+
+                    </article>
+
+                    <article class="timeline-entry">
+
+                        <div class="timeline-entry-inner">
+                            <time class="timeline-time" datetime="2014-01-10T03:45"><span>16:00 - 18:00</span>
+                                <span>
+                                </span>
+                            </time>
+
+                            <div class="timeline-icon">
+                                <i class="entypo-camera"></i>
+                            </div>
+
+                            <div class="timeline-label">
+                                <h2>
+                                    <b>
+                                        Стратегія на майбутнє. Візії електронних закупівель
+                                    </b>
+                                </h2>
+                                <blockquote>
+                                    <p>На панельній дискусії обговорюватимуться успішні кейси запровадження е-закупівель
+                                        на підприємствах.</p>
+                                    <p><b>Модератор:</b> Андрій Мотовиловець</p>
+                                    <p><b>Серед спікерів:</b> Антон Припіченко, Сергій Сагун, Олексій Щербатенко</p>
+                                </blockquote>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="timeline-entry left-aligned">
+
+                        <div class="timeline-entry-inner">
+                            <time class="timeline-time" datetime="2014-01-10T03:45"><span>18:00 - 20:00</span>
+                                <span>
+                                    Вечірній коктейль
+                                </span>
+                            </time>
+
+                            <div class="timeline-icon">
+                                <i class="entypo-camera"></i>
+                            </div>
+
+                            <div class="timeline-label">
+                                <h2>
+                                    <b>
+                                        Вечірній коктейль
+                                    </b>
+                                </h2>
+                            </div>
+                        </div>
+
+                    </article>
+
+                    <article class="timeline-entry begin">
+
+                        <div class="timeline-entry-inner">
+
+                            <div class="timeline-icon"
+                                 style="-webkit-transform: rotate(-90deg); -moz-transform: rotate(-90deg);">
+                                <i class="entypo-flight"></i>
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                </div>
+            </div>
+        </div>
     </div>
     <div id="speakers" class="row" style="background-image: url(img/3.png);">
         <div class="row">
@@ -312,7 +601,7 @@
                     <td style="width: 39%;">
                         <hr style="color: white; height: 2px;">
                     </td>
-                    <td class="text-center"><span style="font-size: 60px;">СПІКЕРИ</span></td>
+                    <td class="text-center"><span style="font-size: 60px; color: white;">СПІКЕРИ</span></td>
                     <td style=" width: 39%;">
                         <hr style="color: white; height: 2px;">
                     </td>
@@ -328,7 +617,7 @@
         </div>
     </div>
     <div id="partners" class="row" style="margin-top: 2.5%;">
-        <h2><span class="line-center">ПАРТНЕРИ</span></h2>
+        <h2 class="blue-line"><span class="line-center">ПАРТНЕРИ</span></h2>
     </div>
     <div class="row" style="color: black;">
         <h1>PARTNERS SECTION</h1>
@@ -340,7 +629,7 @@
                     <td style="width: 30%;">
                         <hr style="color: white; height: 2px;">
                     </td>
-                    <td class="text-center"><span style="font-size: 60px;">ДЛЯ УЧАСНИКІВ</span></td>
+                    <td class="text-center"><span style="font-size: 60px; color: white;">ДЛЯ УЧАСНИКІВ</span></td>
                     <td style=" width: 30%;">
                         <hr style="color: white; height: 2px;">
                     </td>
@@ -362,7 +651,7 @@
         </div>
     </div>
     <div id="contacts" class="row" style="margin-top: 2.5%;">
-        <h2><span class="line-center">КОНТАКТИ</span></h2>
+        <h2 class="blue-line"><span class="line-center">КОНТАКТИ</span></h2>
     </div>
     <div class="row" style="color: black;">
         <h1>CONTACTS SECTION</h1>
