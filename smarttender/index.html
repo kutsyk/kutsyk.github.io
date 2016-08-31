@@ -30,6 +30,7 @@
 
     <link rel="stylesheet" href="styles/animate.css"/>
     <script src="js/wow.js"></script>
+    <script src="http://maps.googleapis.com/maps/api/js"></script>
     <style>
 
         body {
@@ -42,7 +43,7 @@
 
         * {
             font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
-            font-weight: 200;
+            font-weight: 100;
             font-size: 14px;
         }
 
@@ -54,7 +55,7 @@
 
         .ticket_button {
             border: 2px solid white;
-            padding: 25px 100px;
+            padding: 10px 50px;
             color: white;
             text-align: center;
             background: none;
@@ -113,7 +114,7 @@
             height: 100%;
             text-align: center;
             padding-top: 35px;
-            font-size: 18px;
+            font-size: 14px;
         }
 
         .row {
@@ -207,72 +208,67 @@
 <div class="container-fluid" style="padding-right: 0px;  padding-left: 0px;">
     <div style="background-image: url(img/1.png);">
         <div class="row" style="padding: 5%;">
-            <div class="col-md-12">
-                <div class="col-md-2" style="padding-left: 0px; padding-right: 0px;">
-                    <hr style="color: white;">
-                </div>
-                <div class="col-md-3 text-center" style="padding-left: 0px; padding-right: 0px;">
-                    <span class="glyphicon glyphicon-calendar" style="font-size: 24px; color: white;"></span>
-                    <span style="font-size: 24px; color: white;">15 жовтня 2016</span>
-                </div>
-                <div class="col-md-2" style="padding-left: 0px; padding-right: 0px;">
-                    <hr style="color: white;">
-                </div>
-                <div class="col-md-3 text-center" style="padding-left: 0px; padding-right: 0px;">
-                    <span class="glyphicon glyphicon-map-marker" style="font-size: 24px; color: white;"></span>
-                    <span style="font-size: 24px; color: white;">НСК "Олімпійський"</span>
-                </div>
-                <div class="col-md-2" style="padding-left: 0px; padding-right: 0px;">
-                    <hr style="color: white;">
-                </div>
+            <div class="col-md-2" style="padding-left: 0px; padding-right: 0px;">
+                <hr style="color: white;">
+            </div>
+            <div class="col-md-3 text-center" style="padding-left: 0px; padding-right: 0px;">
+                <span class="glyphicon glyphicon-calendar" style="font-size: 24px; color: white;"></span>
+                <span style="font-size: 24px; color: white;">15 жовтня 2016</span>
+            </div>
+            <div class="col-md-2" style="padding-left: 0px; padding-right: 0px;">
+                <hr style="color: white;">
+            </div>
+            <div class="col-md-3 text-center" style="padding-left: 0px; padding-right: 0px;">
+                <span class="glyphicon glyphicon-map-marker" style="font-size: 24px; color: white;"></span>
+                <span style="font-size: 24px; color: white;">НСК "Олімпійський"</span>
+            </div>
+            <div class="col-md-2" style="padding-left: 0px; padding-right: 0px;">
+                <hr style="color: white;">
             </div>
         </div>
-        <div class="row" style="margin-top: 2.5%;">
+        <div class="row">
             <div class="text-center">
                 <p style="font-size: 28px; color: white;">І ВСЕУКРАЇНСЬКИЙ ФОРУМ </p>
+                <p>
+                <hr style="color: white; width: 50px;">
+                </p>
                 <p class="header-font" style="font-size: 52px; color: white;">РОЗУМНІ ЗАКУПКИ</p>
             </div>
         </div>
-        <div class="row" style="background-color: white; margin-top: 2.5%;">
-            <div class="col-md-12" style="margin-top: 2%; margin-bottom: 1%; display:inline-block;">
-                <div class="col-md-4 text-center">
-                    <div class="col-md-6">
-                        <hr class="sexy_line">
-                    </div>
-                    <div class="col-md-3 text-center">
-                        <span class="fa fa-facebook-official" style="font-size:48px; color: green;"></span>
-                    </div>
-                    <div class="col-md-3">
-                        <hr class="sexy_line">
-                    </div>
-                </div>
+        <div class="row" style="margin-top: 2.5%;">
+            <div class="col-md-12">
+                <div class="col-md-4"></div>
                 <div class="col-md-4 text-center" style="margin-top: -1%;">
                     <img src="img/Logo%20SmartTende.png" width="100%"/>
                 </div>
-                <div class="col-md-4">
-                    <div class="col-md-3">
-                        <hr class="sexy_line">
-                    </div>
-                    <div class="col-md-3 text-center">
-                        <span class="glyphicon glyphicon-home" style="font-size:48px; color: green;"></span>
-                    </div>
-                    <div class="col-md-6">
-                        <hr class="sexy_line">
-                    </div>
-                </div>
+                <div class="col-md-4"></div>
             </div>
         </div>
         <div id="registration" class="row">
-            <div class="row text-center" style="margin-top: 5%; margin-bottom: 5%;">
-                <button class="ticket_button" style="font-size: 32px;">
-                    РЕЄСТРАЦІЯ
-                </button>
+            <div class="row" style="margin-top: 5%; margin-bottom: 5%;">
+                <div class="col-md-12">
+                    <div class="col-md-6 text-center">
+                        <button class="ticket_button" style="font-size: 18px;">
+                            РЕЄСТРАЦІЯ
+                        </button>
+                    </div>
+                    <div class="col-md-6 text-center">
+                        <button class="ticket_button" style="font-size: 18px;">
+                            ПРЕС-РЕЛІЗ
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
     <div class="menu row text-center" style="height: 100px; background-color: #104c84; color: white;">
-        <div class="collapse navbar-collapse">
+        <span>
             <ul class="nav navbar-nav">
+                <li>
+                    <a href="https://smarttender.biz/">
+                        <img src="img/Logo%20SmartTende.png" height="25"/>
+                    </a>
+                </li>
                 <li class="active"><a href="#about">Про форум</a></li>
                 <li><a class="page-scroll" href="#agenda">Програма</a></li>
                 <li><a class="page-scroll" href="#speakers">Спікери</a></li>
@@ -280,17 +276,22 @@
                 <li><a class="page-scroll" href="#partners">Партнери</a></li>
                 <li><a class="page-scroll" href="#participators">Для учасників</a></li>
                 <li><a class="page-scroll" href="#contacts">Контакти</a></li>
+                <li style="padding-top: 25px;">
+                    <a class="page-scroll" style="border: 2px solid white; padding: 10px 10px; height: 40px;">
+                        Реєстрація
+                    </a>
+                </li>
             </ul>
-        </div>
+        </span>
     </div>
     <div id="about" class="row" style="margin-top: 2.5%;">
         <h2 class="blue-line"><span class="line-center header-font">ПРО ФОРУМ</span></h2>
     </div>
     <div class="row" style="margin-top: 2.5%;">
-        <div class="col-md-4 text-right wow slideInLeft" style="float: left;">
+        <div class="col-md-4 text-right wow slideInLeft" style="float: left; padding-right: 50px;">
             <div class="col-md-9" style="padding-right: 0; padding-left: 0;">
                 <img src="img/mission.png" width="100">
-                <hr style="background-color: green; height: 2px; margin-top: -10px; ">
+                <hr style="background-color: green; height: 2px; margin-top: -10px;">
             </div>
             <div class="col-md-3">
                 <img src="img/i6.png" width="100">
@@ -302,13 +303,13 @@
             процесу та стане майданчиком для обговорення викликів та перспектив онлайн-закупівель в Україні.
         </div>
     </div>
-    <div class="row" style="margin-top: 2.5%;">
+    <div class="row text-right" style="margin-top: 2.5%;">
         <div class="col-md-8" style="color: black; font-size: 18px;">На форумі “Розумні закупки зі SmartTender.biz”
             представники провідних
             компаній України поділяться досвідом організації тендерів онлайн. Форум збере всіх учасників тендерного
             процесу та стане майданчиком для обговорення викликів та перспектив онлайн-закупівель в Україні.
         </div>
-        <div class="col-md-4 text-left wow slideInRight" style="float: right;">
+        <div class="col-md-4 text-left wow slideInRight" style="float: right; padding-left: 15px;">
             <div class="col-md-3">
                 <img src="img/i8.png" width="100">
             </div>
@@ -319,7 +320,7 @@
         </div>
     </div>
     <div class="row" style="margin-top: 2.5%; padding-bottom: 2.5%;">
-        <div class="col-md-4 text-right wow slideInLeft" style="float: left;">
+        <div class="col-md-4 text-right wow slideInLeft" style="float: left; padding-right: 50px;">
             <div class="col-md-9" style="padding-right: 0; padding-left: 0;">
                 <img src="img/format.png" width="100">
                 <hr style="background-color: green; height: 2px; margin-top: -10px; ">
@@ -686,11 +687,42 @@
         </div>
         <div class="row">
             <div class="container">
-                <img src="img/1.png" class="img-circle speaker" width="200" height="200"/>
-                <img src="img/1.png" class="img-circle speaker" width="200" height="200"/>
-                <img src="img/1.png" class="img-circle speaker" width="200" height="200"/>
-                <img src="img/1.png" class="img-circle speaker" width="200" height="200"/>
-                <img src="img/1.png" class="img-circle speaker" width="200" height="200"/>
+                <div class="col-md-3">
+                    <div>
+                        <img src="img/1.png" class="img-circle speaker" width="200" height="200"/>
+                    </div>
+                    <div class="text-center white-text">
+                        <p><b>Name Surname</b></p>
+                        <p>Hello this is example text</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div>
+                        <img src="img/1.png" class="img-circle speaker" width="200" height="200"/>
+                    </div>
+                    <div class="text-center white-text">
+                        <p><b>Name Surname</b></p>
+                        <p>Hello this is example text</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div>
+                        <img src="img/1.png" class="img-circle speaker" width="200" height="200"/>
+                    </div>
+                    <div class="text-center white-text">
+                        <p><b>Name Surname</b></p>
+                        <p>Hello this is example text</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div>
+                        <img src="img/1.png" class="img-circle speaker" width="200" height="200"/>
+                    </div>
+                    <div class="text-center white-text">
+                        <p><b>Name Surname</b></p>
+                        <p>Hello this is example text</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -707,7 +739,7 @@
                     <td style="width: 30%;">
                         <hr style="color: white; height: 2px;">
                     </td>
-                    <td class="text-center"><span style="font-size: 60px; color: white;">ДЛЯ УЧАСНИКІВ</span></td>
+                    <td class="text-center"><span style="font-size: 60px; color: white;">НЕ ПРОГАВ!</span></td>
                     <td style=" width: 30%;">
                         <hr style="color: white; height: 2px;">
                     </td>
@@ -715,11 +747,14 @@
             </table>
         </div>
         <div class="row">
-            <div class="row text-center" style="margin-top: 2.5%">
-                <button class="ticket_button" style="font-size: 48px;">ЗАРЕЄСТРУВАТИСЯ</button>
+            <div class="col-md-6 text-center" style="margin-top: 2.5%">
+                <button class="ticket_button" style="font-size: 24px;">ЗАРЕЄСТРУВАТИСЯ</button>
+            </div>
+            <div class="col-md-6 text-center" style="margin-top: 2.5%">
+                <button class="ticket_button" style="font-size: 24px;">COUNTER</button>
             </div>
         </div>
-        <div class="row text-center" style="font-size: 2em; margin-top: 7%; margin-bottom: 5%">
+        <div class="row text-center white-text" style="font-size: 2em; margin-top: 7%; margin-bottom: 5%">
             <p>
                 Вартість участі у Форумі становить _________ грн в разі реєстрації до _____ вересня.
             </p>
@@ -732,10 +767,25 @@
         <h2 class="blue-line"><span class="line-center">КОНТАКТИ</span></h2>
     </div>
     <div class="row" style="color: black;">
-        <h1>CONTACTS SECTION</h1>
+        <div id="googleMap" style="width:100%;height:380px;"></div>
     </div>
 </div>
-<script type="text/javascript">
+<script>
+    function initialize() {
+        var mapProp = {
+            center:new google.maps.LatLng(51.508742,-0.120850),
+            zoom:5,
+            mapTypeId:google.maps.MapTypeId.ROADMAP
+        };
+        var marker=new google.maps.Marker({
+            position:myCenter,
+        });
+
+        var map=new google.maps.Map(document.getElementById("googleMap"),mapProp);
+        marker.setMap(map);
+    }
+    google.maps.event.addDomListener(window, 'load', initialize);
+
     $('#countdown').countdown('2016/10/15', function (event) {
         $(this).html(event.strftime('%d днів %H:%M:%S'));
     });
