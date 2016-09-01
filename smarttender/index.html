@@ -8,8 +8,6 @@
     <meta property="og:image:width" content="1024">
     <meta property="og:image:height" content="1024">
 
-    <script src="js/jquery-2.1.3.min.js"></script>
-    <script src="js/jquery.easing.min.js"></script>
     <title>SmartTender</title>
 
     <!-- Latest compiled and minified CSS -->
@@ -19,18 +17,14 @@
     <link rel="stylesheet" href="bootstrap-3.3.7-dist/css/bootstrap-theme.min.css" crossorigin="anonymous">
     <link rel="stylesheet" href="styles/timeline.css" crossorigin="anonymous">
 
-    <!-- Latest compiled and minified JavaScript -->
-    <script src="bootstrap-3.3.7-dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
-    <script src="js/jquery.countdown.min.js"></script>
-    <script src="js/scrolling-nav.js"></script>
 
 
     <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
+    <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700">
     <link href='https://fonts.googleapis.com/css?family=Tenor+Sans' rel='stylesheet' type='text/css'>
 
     <link rel="stylesheet" href="styles/animate.css"/>
-    <script src="js/wow.js"></script>
-    <script src="http://maps.googleapis.com/maps/api/js"></script>
+
     <style>
 
         body {
@@ -39,12 +33,13 @@
 
         .header-font {
             font-family: Century, "URW Gothic L";
+            font-weight: 100;
         }
 
         * {
-            font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
+            font-family:Roboto,Arial,sans-serif;
             font-weight: 100;
-            font-size: 14px;
+            font-size: 11px;
         }
 
         .sexy_line {
@@ -63,30 +58,10 @@
             cursor: pointer;
         }
 
-        .ticket_button span {
-            color: white;
-            cursor: pointer;
-            display: inline-block;
-            position: relative;
-            transition: 0.5s;
+        .ticket_button:hover {
+            background: rgba(0, 128, 0, 0.6);
         }
 
-        .ticket_button span:after {
-            opacity: 0;
-            top: 0;
-            right: -20px;
-            transition: 0.5s;
-        }
-
-        .ticket_button:hover span {
-            padding-right: 25px;
-            padding-left: 25px;
-        }
-
-        .ticket_button:hover span:after {
-            opacity: 1;
-            right: 0;
-        }
 
         .counterbox {
             min-width: 720px;
@@ -113,7 +88,7 @@
             background-color: #104c84;
             height: 100%;
             text-align: center;
-            padding-top: 35px;
+            padding-top: 20px;
             font-size: 14px;
         }
 
@@ -183,28 +158,6 @@
     </style>
 </head>
 <body>
-<script>
-    new WOW().init();
-
-    $(document).ready(function () {
-
-        var menu = $('.menu');
-        var origOffsetY = menu.offset().top;
-
-        function scroll() {
-            if ($(window).scrollTop() >= origOffsetY) {
-                $('.menu').addClass('sticky');
-            } else {
-                $('.menu').removeClass('sticky');
-            }
-
-
-        }
-
-        document.onscroll = scroll;
-
-    });
-</script>
 <div class="container-fluid" style="padding-right: 0px;  padding-left: 0px;">
     <div style="background-image: url(img/1.png);">
         <div class="row" style="padding: 5%;">
@@ -239,20 +192,22 @@
             <div class="col-md-12">
                 <div class="col-md-4"></div>
                 <div class="col-md-4 text-center" style="margin-top: -1%;">
-                    <img src="img/Logo%20SmartTende.png" width="100%"/>
+                    <a href="https://smarttender.biz/">
+                        <img src="img/Logo%20SmartTende.png" width="100%"/>
+                    </a>
                 </div>
                 <div class="col-md-4"></div>
             </div>
         </div>
         <div id="registration" class="row">
-            <div class="row" style="margin-top: 5%; margin-bottom: 5%;">
+            <div class="row" style="margin-top: 5%; margin-bottom: 10%;">
                 <div class="col-md-12">
-                    <div class="col-md-6 text-center">
+                    <div class="col-md-6 text-right">
                         <button class="ticket_button" style="font-size: 18px;">
                             РЕЄСТРАЦІЯ
                         </button>
                     </div>
-                    <div class="col-md-6 text-center">
+                    <div class="col-md-6 text-left">
                         <button class="ticket_button" style="font-size: 18px;">
                             ПРЕС-РЕЛІЗ
                         </button>
@@ -261,7 +216,7 @@
             </div>
         </div>
     </div>
-    <div class="menu row text-center" style="height: 100px; background-color: #104c84; color: white;">
+    <div class="menu row text-center" style="height: 60px; background-color: #104c84; color: white;">
         <span>
             <ul class="nav navbar-nav">
                 <li>
@@ -276,8 +231,8 @@
                 <li><a class="page-scroll" href="#partners">Партнери</a></li>
                 <li><a class="page-scroll" href="#participators">Для учасників</a></li>
                 <li><a class="page-scroll" href="#contacts">Контакти</a></li>
-                <li style="padding-top: 25px;">
-                    <a class="page-scroll" style="border: 2px solid white; padding: 10px 10px; height: 40px;">
+                <li style="padding-top: 20px;">
+                    <a class="page-scroll" style="border: 2px solid white; padding: 10px 10px; height: 20px; display: inline;">
                         Реєстрація
                     </a>
                 </li>
@@ -310,18 +265,18 @@
             процесу та стане майданчиком для обговорення викликів та перспектив онлайн-закупівель в Україні.
         </div>
         <div class="col-md-4 text-left wow slideInRight" style="float: right; padding-left: 15px;">
-            <div class="col-md-3">
+            <div class="col-md-3 text-left">
                 <img src="img/i8.png" width="100">
             </div>
-            <div class="col-md-9" style="padding-right: 0; padding-top: 5%;">
+            <div class="col-md-9" style="padding-right: 0; padding-top: 7%; padding-left: 25px;">
                 <img src="img/task.png" width="100">
-                <hr style="background-color: green; height: 2px; margin-top: -10px; ">
+                <hr style="background-color: green; height: 2px; margin-top: -5px; ">
             </div>
         </div>
     </div>
     <div class="row" style="margin-top: 2.5%; padding-bottom: 2.5%;">
         <div class="col-md-4 text-right wow slideInLeft" style="float: left; padding-right: 50px;">
-            <div class="col-md-9" style="padding-right: 0; padding-left: 0;">
+            <div class="col-md-9" style="padding-right: 0; padding-left: 0; padding-top: 25px;" >
                 <img src="img/format.png" width="100">
                 <hr style="background-color: green; height: 2px; margin-top: -10px; ">
             </div>
@@ -338,16 +293,14 @@
     <div class="row" style="background-image: url(img/2.png);">
         <div class="col-md-12 text-center" style="padding-top: 5%;  color: white;">
             <div class="row" style="line-height: 6em;">
-                <div class="col-md-4">
-                    <p style="font-size: 150px;">
-                        350
-                    </p>
+                <div class="col-md-4 wow animated slideInDown">
+                    <span class="count" style="font-size: 150px;" data-from="0" data-to="350">350</span>
                 </div>
-                <div class="col-md-4">
-                    <p style="font-size: 150px;">20</p>
+                <div class="col-md-4 wow animated slideInDown">
+                    <span class="count" style="font-size: 150px;" data-from="0" data-to="350">20</span>
                 </div>
-                <div class="col-md-4">
-                    <p style="font-size: 150px;">100</p>
+                <div class="col-md-4 wow animated slideInDown">
+                    <span class="count" style="font-size: 150px;" data-from="0" data-to="350">100</span>
                 </div>
             </div>
             <div class="row">
@@ -770,25 +723,52 @@
         <div id="googleMap" style="width:100%;height:380px;"></div>
     </div>
 </div>
+<script src="js/jquery-2.1.3.min.js"></script>
+<script src="js/jquery.easing.min.js"></script>
+<!-- Latest compiled and minified JavaScript -->
+<script src="bootstrap-3.3.7-dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
+<script src="js/jquery.countdown.min.js"></script>
+<script src="js/scrolling-nav.js"></script>
+<script src="js/wow.js"></script>
+<script src="js/jquery.countTo.js"></script>
+<script src="http://maps.googleapis.com/maps/api/js"></script>
 <script>
-    function initialize() {
-        var mapProp = {
-            center:new google.maps.LatLng(51.508742,-0.120850),
-            zoom:5,
-            mapTypeId:google.maps.MapTypeId.ROADMAP
-        };
-        var marker=new google.maps.Marker({
-            position:myCenter,
-        });
+    new WOW().init();
 
-        var map=new google.maps.Map(document.getElementById("googleMap"),mapProp);
-        marker.setMap(map);
-    }
-    google.maps.event.addDomListener(window, 'load', initialize);
+    $(document).ready(function () {
+
+        var menu = $('.menu');
+        var origOffsetY = menu.offset().top;
+
+        function scroll() {
+            if ($(window).scrollTop() >= origOffsetY) {
+                $('.menu').addClass('sticky');
+            } else {
+                $('.menu').removeClass('sticky');
+            }
+
+
+        }
+
+        document.onscroll = scroll;
+
+    });
+    $('.count').each(function () {
+        $(this).prop('Counter',0).animate({
+            Counter: $(this).text()
+        }, {
+            duration: 4000,
+            easing: 'swing',
+            step: function (now) {
+                $(this).text(Math.ceil(now));
+            }
+        });
+    });
 
     $('#countdown').countdown('2016/10/15', function (event) {
         $(this).html(event.strftime('%d днів %H:%M:%S'));
     });
+
 </script>
 </body>
 </html>
