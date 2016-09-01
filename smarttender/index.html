@@ -18,7 +18,6 @@
     <link rel="stylesheet" href="styles/timeline.css" crossorigin="anonymous">
 
 
-
     <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
     <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700">
     <link href='https://fonts.googleapis.com/css?family=Tenor+Sans' rel='stylesheet' type='text/css'>
@@ -37,7 +36,7 @@
         }
 
         * {
-            font-family:Roboto,Arial,sans-serif;
+            font-family: Roboto, Arial, sans-serif;
             font-weight: 100;
             font-size: 11px;
         }
@@ -61,7 +60,6 @@
         .ticket_button:hover {
             background: rgba(0, 128, 0, 0.6);
         }
-
 
         .counterbox {
             min-width: 720px;
@@ -155,6 +153,7 @@
             width: 100%;
             z-index: 999;
         }
+
     </style>
 </head>
 <body>
@@ -232,7 +231,8 @@
                 <li><a class="page-scroll" href="#participators">Для учасників</a></li>
                 <li><a class="page-scroll" href="#contacts">Контакти</a></li>
                 <li style="padding-top: 20px;">
-                    <a class="page-scroll" style="border: 2px solid white; padding: 10px 10px; height: 20px; display: inline;">
+                    <a class="page-scroll"
+                       style="border: 2px solid white; padding: 10px 10px; height: 20px; display: inline;">
                         Реєстрація
                     </a>
                 </li>
@@ -276,7 +276,7 @@
     </div>
     <div class="row" style="margin-top: 2.5%; padding-bottom: 2.5%;">
         <div class="col-md-4 text-right wow slideInLeft" style="float: left; padding-right: 50px;">
-            <div class="col-md-9" style="padding-right: 0; padding-left: 0; padding-top: 25px;" >
+            <div class="col-md-9" style="padding-right: 0; padding-left: 0; padding-top: 25px;">
                 <img src="img/format.png" width="100">
                 <hr style="background-color: green; height: 2px; margin-top: -10px; ">
             </div>
@@ -640,40 +640,54 @@
         </div>
         <div class="row">
             <div class="container">
-                <div class="col-md-3">
-                    <div class="text-center white-text">
-                        <p>
-                        <img src="img/speakers/s1.png" class="img-circle speaker" width="200" height="200"/>
-                        </p>
-                        <p><b>Name Surname</b></p>
-                        <p>Hello this is example text</p>
+                <div class="row">
+                    <div class="col-md-3 text-center">
+                        <div class="row text-center">
+                            <div class="row text-center">
+                                <img src="img/speakers/s1.png" class="img-circle speaker" width="200" height="200"
+                                     style="clear:left"/>
+                            </div>
+                            <div class="row white-text">
+                                <p><b>Name Surname</b></p>
+                                <p>Hello this is example text</p>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-3">
-                    <div>
-                        <img src="img/speakers/s2.png" class="img-circle speaker" width="200" height="200"/>
+                    <div class="col-md-3 text-center">
+                        <div class="row text-center">
+                            <div class="row text-center">
+                                <img src="img/speakers/s2.png" class="img-circle speaker" width="200" height="200"
+                                     style="clear:left"/>
+                            </div>
+                            <div class="row white-text">
+                                <p><b>Name Surname</b></p>
+                                <p>Hello this is example text</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="text-center white-text">
-                        <p><b>Name Surname</b></p>
-                        <p>Hello this is example text</p>
+                    <div class="col-md-3 text-center">
+                        <div class="row text-center">
+                            <div class="row text-center">
+                                <img src="img/speakers/s3.png" class="img-circle speaker" width="200" height="200"
+                                     style="clear:left"/>
+                            </div>
+                            <div class="row white-text">
+                                <p><b>Name Surname</b></p>
+                                <p>Hello this is example text</p>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-3">
-                    <div>
-                        <img src="img/speakers/s3.png" class="img-circle speaker" width="200" height="200"/>
-                    </div>
-                    <div class="text-center white-text">
-                        <p><b>Name Surname</b></p>
-                        <p>Hello this is example text</p>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div>
-                        <img src="img/speakers/s4.png" class="img-circle speaker" width="200" height="200"/>
-                    </div>
-                    <div class="text-center white-text">
-                        <p><b>Name Surname</b></p>
-                        <p>Hello this is example text</p>
+                    <div class="col-md-3 text-center">
+                        <div class="row text-center">
+                            <div class="row text-center">
+                                <img src="img/speakers/s4.png" class="img-circle speaker" width="200" height="200"
+                                     style="clear:left"/>
+                            </div>
+                            <div class="row white-text">
+                                <p><b>Name Surname</b></p>
+                                <p>Hello this is example text</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -700,11 +714,8 @@
             </table>
         </div>
         <div class="row">
-            <div class="col-md-6 text-center" style="margin-top: 2.5%">
+            <div class="text-center" style="margin-top: 2.5%">
                 <button class="ticket_button" style="font-size: 24px;">ЗАРЕЄСТРУВАТИСЯ</button>
-            </div>
-            <div class="col-md-6 text-center" style="margin-top: 2.5%">
-                <button class="ticket_button" style="font-size: 24px;">COUNTER</button>
             </div>
         </div>
         <div class="row text-center white-text" style="font-size: 2em; margin-top: 7%; margin-bottom: 5%">
@@ -716,11 +727,11 @@
             </p>
         </div>
     </div>
-    <div id="contacts" class="row" style="margin-top: 2.5%;">
-        <h2 class="blue-line"><span class="line-center">КОНТАКТИ</span></h2>
-    </div>
+    <!--<div id="contacts" class="row" style="margin-top: 2.5%;">-->
+        <!--<h2 class="blue-line"><span class="line-center">КОНТАКТИ</span></h2>-->
+    <!--</div>-->
     <div class="row" style="color: black;">
-        <div id="googleMap" style="width:100%;height:380px;"></div>
+        <div id="map" style="width:100%;height:380px;"></div>
     </div>
 </div>
 <script src="js/jquery-2.1.3.min.js"></script>
@@ -731,9 +742,25 @@
 <script src="js/scrolling-nav.js"></script>
 <script src="js/wow.js"></script>
 <script src="js/jquery.countTo.js"></script>
-<script src="http://maps.googleapis.com/maps/api/js"></script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBQakZNihjXhdzkHUorsYIW7drQLfU2xMg&callback=initMap">
+</script>
 <script>
     new WOW().init();
+
+    function initMap() {
+        var myLatLng = {lat: 50.437924, lng: 30.521581};
+
+        var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 13,
+            center: myLatLng
+        });
+
+        var marker = new google.maps.Marker({
+            position: myLatLng,
+            map: map,
+            title: 'Hello World!'
+        });
+    }
 
     $(document).ready(function () {
 
@@ -754,7 +781,7 @@
 
     });
     $('.count').each(function () {
-        $(this).prop('Counter',0).animate({
+        $(this).prop('Counter', 0).animate({
             Counter: $(this).text()
         }, {
             duration: 4000,
