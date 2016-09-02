@@ -181,7 +181,8 @@ img
 
 .timeline-centered .timeline-entry .timeline-entry-inner .timeline-icon {
     background: #fff;
-    background-color: #104c84;
+    background-image: url("clock.png");
+    background-size: 40px 40px;
     color: black;
     display: block;
     width: 40px;
@@ -260,10 +261,9 @@ img
 
 .timeline-centered .timeline-entry .timeline-entry-inner .timeline-label h2, .timeline-centered .timeline-entry .timeline-entry-inner .timeline-label p {
     color: black;
-    font-family: "Noto Sans",sans-serif;
-    font-size: 12px;
+    font-size: 14px;
+    font-weight: 100;
     margin: 0;
-    line-height: 1.428571429;
 }
 
 .timeline-centered .timeline-entry .timeline-entry-inner .timeline-label p + p {
