@@ -181,7 +181,6 @@ img
 
 .timeline-centered .timeline-entry .timeline-entry-inner .timeline-icon {
     background: #fff;
-    background-image: url("clock.png");
     background-size: 40px 40px;
     color: black;
     display: block;
@@ -262,7 +261,7 @@ img
 .timeline-centered .timeline-entry .timeline-entry-inner .timeline-label h2, .timeline-centered .timeline-entry .timeline-entry-inner .timeline-label p {
     color: black;
     font-size: 14px;
-    font-weight: 100;
+    font-weight: 400;
     margin: 0;
 }
 
