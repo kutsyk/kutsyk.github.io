@@ -1,7 +1,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:og="http://opengraphprotocol.org/schema/"
       xmlns:fb="http://www.facebook.com/2008/fbml" xml:lang="en" lang="en">
 <head>
-    <title>Starter pack</title>
+    <title>SmartEAM</title>
 
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="bootstrap-3.3.7-dist/css/bootstrap.min.css" crossorigin="anonymous">
@@ -48,6 +48,43 @@
             font-weight: 300;
         }
 
+        .button-section {
+            padding-top: 25%;
+            left: 15%;
+        }
+
+        .arrow_box {
+            width: 35%;
+            position: relative;
+            border: 5px solid #ffb718;
+            padding: 35px 25px 35px 25px;
+            font-size: 25px;
+            font-weight: 300;
+        }
+
+        .arrow_box:after, .arrow_box:before {
+            right: 0;
+            top: 50%;
+            border: solid transparent;
+            content: " ";
+            height: 0;
+            width: 0;
+            position: absolute;
+            pointer-events: none;
+        }
+
+        .arrow_box:after {
+            border-color: rgba(0, 0, 0, 0);
+            border-width: 20px;
+            margin-top: -20px;
+        }
+
+        .arrow_box:before {
+            border-color: rgba(255, 183, 24, 0);
+            border-right-color: #ffb718;
+            border-width: 15px;
+            margin-top: -15px;
+        }
 
         /*ovveride*/
         .navbar-nav {
@@ -79,14 +116,16 @@
         <div class="col-sm-12 col-md-12 section first-section">
             <div class="col-sm-6 col-md-6 section-info-text">
                 <p>
-                  СИСТЕМА ДЛЯ НАДЕЖНОЙ РАБОТЫ ОБОРУДОВАНИЯ
+                    СИСТЕМА ДЛЯ НАДЕЖНОЙ РАБОТЫ ОБОРУДОВАНИЯ
                 </p>
                 <p class="section-info-text-small">
                     ИТ-система SmartEAM позволит повысить надежность оборудования снизить затраты на содержание
                 </p>
             </div>
-            <div class="col-sm-6 col-md-6 text-center" style="padding-top: 35%">
-                HELLO
+            <div class="col-sm-6 col-md-6 text-center button-section">
+                <div class="arrow_box">
+                    <a href="#" style="color: #ffb718;">ЗАДАЙТЕ <br>ВОПРОС</a>
+                </div>
             </div>
         </div>
     </div>
