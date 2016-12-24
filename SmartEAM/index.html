@@ -11,30 +11,84 @@
 
     <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700">
     <style>
+        body {
+            font-family: Roboto, Arial, sans-serif;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
         ul.nav li {
             padding-top: 2%;
+        }
+
+        .logo {
+            position: absolute;
+            z-index: 20;
+        }
+
+        .section {
+            height: 100vw;
+        }
+
+        .first-section {
+            background-image: url(/imgs/depositphotos_10229722-stock-photo-modern-machine-operator.jpg);
+            background-size: 100%;
+            background-repeat: no-repeat;
+        }
+
+        .section-info-text {
+            padding-top: 25%;
+            color: white;
+            font-size: 24px;
+        }
+
+        .section-info-text-small {
+            color: white;
+            font-size: 18px;
+            font-weight: 300;
+        }
+
+
+        /*ovveride*/
+        .navbar-nav {
+            display: inline-block;
+            float: none;
+            vertical-align: top;
         }
     </style>
 </head>
 <body text="#4f504f">
 <div class="container">
     <div class="container-fluid">
-        <div class="navbar-header">
-            <a class="navbar-brand" href="/" style="padding-top: 0px;">
-                <img src="imgs/logo.png" height="100px">
-            </a>
+        <div class="row">
+            <div class="col-sm-2 col-md-2">
+                <a class="navbar-brand" href="/" style="padding-top: 0px;">
+                    <img class="logo" src="imgs/logo.png" height="100px">
+                </a>
+            </div>
+            <div class="col-sm-10 col-md-10">
+                <ul class="nav navbar-nav">
+                    <li><a href="#">РЕШЕНИЯ</a></li>
+                    <li><a href="#">УСЛУГИ</a></li>
+                    <li><a href="#">О НАС</a></li>
+                    <li><a href="#">КЛИЕНТЫ</a></li>
+                    <li><a href="#">СВЯЖИТЕСЬ С НАМИ</a></li>
+                </ul>
+            </div>
         </div>
-
-        <ul class="nav navbar-nav">
-            <li class="active"><a href="/">ГЛАВНАЯ<span class="sr-only">(current)</span></a></li>
-            <li><a href="#">РЕШЕНИЯ</a></li>
-            <li><a href="#">УСЛУГИ</a></li>
-            <li><a href="#">О НАС</a></li>
-            <li><a href="#">КЛИЕНТЫ</a></li>
-            <li><a href="#">ИНФОРМАЦИЯ</a></li>
-            <li><a href="#">КОНТАКТЫ</a></li>
-            <li><a href="#">СВЯЗАТЬСЯ С НАМИ</a></li>
-        </ul>
+        <div class="col-sm-12 col-md-12 section first-section">
+            <div class="col-sm-6 col-md-6 section-info-text">
+                <p>
+                  СИСТЕМА ДЛЯ НАДЕЖНОЙ РАБОТЫ ОБОРУДОВАНИЯ
+                </p>
+                <p class="section-info-text-small">
+                    ИТ-система SmartEAM позволит повысить надежность оборудования снизить затраты на содержание
+                </p>
+            </div>
+            <div class="col-sm-6 col-md-6 text-center" style="padding-top: 35%">
+                HELLO
+            </div>
+        </div>
     </div>
 </div>
 
