@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="bootstrap-3.3.7-dist/css/bootstrap.min.css" crossorigin="anonymous">
     <!-- Optional theme -->
     <link rel="stylesheet" href="bootstrap-3.3.7-dist/css/bootstrap-theme.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/animate.css" crossorigin="anonymous">
     <link rel="stylesheet" href="css/this.css" crossorigin="anonymous">
 
     <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700">
@@ -27,7 +28,7 @@
         }
 
         .section {
-            height: 100vw;
+            height: 40vw;
         }
 
         .first-section {
@@ -36,16 +37,22 @@
             background-repeat: no-repeat;
         }
 
+        .second-section {
+            padding-top: 3%;
+        }
+
         .section-info-text {
             padding-top: 25%;
-            color: white;
             font-size: 24px;
         }
 
         .section-info-text-small {
-            color: white;
             font-size: 18px;
             font-weight: 300;
+        }
+
+        .white-text {
+            color: white;
         }
 
         .button-section {
@@ -86,6 +93,40 @@
             margin-top: -15px;
         }
 
+        .readmore_arrow {
+            width: 35%;
+            position: relative;
+            border: 5px solid #ffb718;
+            text-align: center;
+            padding: 7px 7px 7px 7px;
+            font-size: 18px;
+            font-weight: 300;
+        }
+
+        .readmore_arrow:after, .readmore_arrow:before {
+            right: 0;
+            top: 50%;
+            border: solid transparent;
+            content: " ";
+            height: 0;
+            width: 0;
+            position: absolute;
+            pointer-events: none;
+        }
+
+        .readmore_arrow:after {
+            border-color: rgba(0, 0, 0, 0);
+            border-width: 20px;
+            margin-top: -20px;
+        }
+
+        .readmore_arrow:before {
+            border-color: rgba(255, 183, 24, 0);
+            border-right-color: #ffb718;
+            border-width: 15px;
+            margin-top: -15px;
+        }
+
         /*ovveride*/
         .navbar-nav {
             display: inline-block;
@@ -114,17 +155,33 @@
             </div>
         </div>
         <div class="col-sm-12 col-md-12 section first-section">
-            <div class="col-sm-6 col-md-6 section-info-text">
+            <div class="col-sm-6 col-md-6 section-info-text white-text">
                 <p>
                     СИСТЕМА ДЛЯ НАДЕЖНОЙ РАБОТЫ ОБОРУДОВАНИЯ
                 </p>
-                <p class="section-info-text-small">
+                <p class="section-info-text-small white-text">
                     ИТ-система SmartEAM позволит повысить надежность оборудования снизить затраты на содержание
                 </p>
             </div>
             <div class="col-sm-6 col-md-6 text-center button-section">
                 <div class="arrow_box">
                     <a href="#" style="color: #ffb718;">ЗАДАЙТЕ <br>ВОПРОС</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-12 section second-section">
+            <div class="col-sm-6 col-md-6">
+                <img src="./imgs/AICBERG1.jpg" height="60%" class="wow animated slideInLeft">
+            </div>
+            <div class="col-sm-6 col-md-6" style="padding-top: 15%; font-size: 24px; font-weight: 600;">
+                <p>
+                    СКОЛЬКО СТОИТ БИЗНЕСУ НЕСВОЕВРЕМЕННОЕ ОБСЛУЖИВАНИЕ ОБОРУДОВАНИЯ
+                </p>
+                <p class="section-info-text-small">
+                    Отказ оборудования несет в себе огромные расходы, которые никак не ограничиваются тратой средств на, непосредственно, ремонт оборудования.
+                </p>
+                <div class="readmore_arrow">
+                    <a href="#" style="color: #ffb718;">ЧИТАТЬ ДАЛЕ</a>
                 </div>
             </div>
         </div>
@@ -135,6 +192,8 @@
 <script src="js/jquery.easing.min.js"></script>
 <!-- Latest compiled and minified JavaScript -->
 <script src="bootstrap-3.3.7-dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
-
+<script>
+    new WOW().init();
+</script>
 </body>
 </html>
