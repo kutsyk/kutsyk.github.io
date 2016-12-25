@@ -28,7 +28,7 @@
         }
 
         .section {
-            height: 40vw;
+            height: 50vw;
         }
 
         .first-section {
@@ -71,14 +71,16 @@
             color: white;
         }
 
-        .button-section {
-            padding-top: 25%;
-            left: 15%;
+        .first-button-section {
+            margin-top: 45%;
+            left: 25%;
         }
+
         /*AFTER BOX*/
         .arrow_box {
-            width: 35%;
-            min-width: 175px;
+            width: 30%;
+            min-width: 150px;
+            min-height: 150px;
             position: relative;
             border: 5px solid #ffb718;
             padding: 35px 25px 35px 25px;
@@ -109,6 +111,7 @@
             border-width: 15px;
             margin-top: -15px;
         }
+
         /*READ MORE*/
         .readmore_arrow {
             width: 35%;
@@ -147,17 +150,17 @@
         /*AIRPLANE MORE*/
 
         .airplane-button-section {
-            padding-top: 10%;
-            left: 8%;
+            margin-top: 20%;
+            left: 20%;
         }
 
         .airplane_block {
-            width: 35%;
+            width: 25%;
             min-height: 150px;
-            max-height: 255px;
-            position: relative;
+            max-height: 150px;
+            position: absolute;
             border: 5px solid #ffb718;
-            padding: 15px 50px 75px 50px;
+            padding: 0% 15% 25% 13%;
             font-weight: 300;
         }
 
@@ -167,71 +170,87 @@
             float: none;
             vertical-align: top;
         }
+
+        .row {
+            margin-left: 0;
+            margin-right: 0;
+        }
+
+        .container-fluid {
+            margin-left: 0;
+            margin-right: 0;
+            padding-right: 0;
+            padding-left: 0;
+        }
+
     </style>
 </head>
 <body text="#4f504f">
-<div class="container">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-sm-2 col-md-2">
-                <a class="navbar-brand" href="/" style="padding-top: 0px;">
-                    <img class="logo" src="imgs/logo.png" height="100px">
-                </a>
-            </div>
-            <div class="col-sm-10 col-md-10">
-                <ul class="nav navbar-nav">
-                    <li><a href="#">РЕШЕНИЯ</a></li>
-                    <li><a href="#">УСЛУГИ</a></li>
-                    <li><a href="#">О НАС</a></li>
-                    <li><a href="#">КЛИЕНТЫ</a></li>
-                    <li><a href="#">СВЯЖИТЕСЬ С НАМИ</a></li>
-                </ul>
+<!--<div class="container">-->
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-xs-2 col-sm-2 col-md-2">
+            <a class="navbar-brand" href="/" style="padding-top: 0px;">
+                <img class="logo" src="imgs/logo.png" height="100px">
+            </a>
+        </div>
+        <div class="col-xs-10 col-sm-10 col-md-10">
+            <ul class="nav navbar-nav">
+                <li><a href="#">РЕШЕНИЯ</a></li>
+                <li><a href="#">УСЛУГИ</a></li>
+                <li><a href="#">О НАС</a></li>
+                <li><a href="#">КЛИЕНТЫ</a></li>
+                <li><a href="#">СВЯЖИТЕСЬ С НАМИ</a></li>
+            </ul>
+        </div>
+    </div>
+    <!--FIRST SECTION-->
+    <div class="row section first-section">
+        <div class="col-xs-6 col-sm-6 col-md-6 section-info-text white-text" style="padding-top: 25%;">
+            <p>
+                СИСТЕМА ДЛЯ НАДЕЖНОЙ РАБОТЫ ОБОРУДОВАНИЯ
+            </p>
+            <p class="section-info-text-small white-text">
+                ИТ-система SmartEAM позволит повысить надежность оборудования снизить затраты на содержание
+            </p>
+        </div>
+        <div class="col-xs-6 col-sm-6 col-md-6 text-center">
+            <div class="arrow_box first-button-section">
+                <a href="#" style="color: #ffb718;">ЗАДАЙТЕ <br>ВОПРОС</a>
             </div>
         </div>
-        <!--FIRST SECTION-->
-        <div class="col-sm-12 col-md-12 section first-section">
-            <div class="col-sm-6 col-md-6 section-info-text white-text" style="padding-top: 25%;">
-                <p>
-                    СИСТЕМА ДЛЯ НАДЕЖНОЙ РАБОТЫ ОБОРУДОВАНИЯ
-                </p>
-                <p class="section-info-text-small white-text">
-                    ИТ-система SmartEAM позволит повысить надежность оборудования снизить затраты на содержание
-                </p>
-            </div>
-            <div class="col-sm-6 col-md-6 text-center button-section">
-                <div class="arrow_box">
-                    <a href="#" style="color: #ffb718;">ЗАДАЙТЕ <br>ВОПРОС</a>
-                </div>
+    </div>
+    <!--SECOND SECTION-->
+    <div class="row second-section">
+        <div class="col-xs-6 col-sm-6 col-md-6">
+            <img src="./imgs/AICBERG1.jpg" class="wow animated slideInLeft" style="max-width: 90%;">
+        </div>
+        <div class="col-sm-6 col-md-6" style="padding-top: 5%; font-size: 24px; font-weight: 600;">
+            <p>
+                СКОЛЬКО СТОИТ БИЗНЕСУ НЕСВОЕВРЕМЕННОЕ ОБСЛУЖИВАНИЕ ОБОРУДОВАНИЯ
+            </p>
+            <p class="section-info-text-small">
+                Отказ оборудования несет в себе огромные расходы, которые никак не ограничиваются тратой средств на,
+                непосредственно, ремонт оборудования.
+            </p>
+            <div class="readmore_arrow">
+                <a href="#" style="color: #ffb718;">ЧИТАТЬ ДАЛЕ</a>
             </div>
         </div>
-        <!--SECOND SECTION-->
-        <div class="col-sm-12 col-md-12 second-section">
-            <div class="col-sm-6 col-md-6">
-                <img src="./imgs/AICBERG1.jpg" width="90%" class="wow animated slideInLeft">
-            </div>
-            <div class="col-sm-6 col-md-6" style="padding-top: 5%; font-size: 24px; font-weight: 600;">
-                <p>
-                    СКОЛЬКО СТОИТ БИЗНЕСУ НЕСВОЕВРЕМЕННОЕ ОБСЛУЖИВАНИЕ ОБОРУДОВАНИЯ
-                </p>
-                <p class="section-info-text-small">
-                    Отказ оборудования несет в себе огромные расходы, которые никак не ограничиваются тратой средств на,
-                    непосредственно, ремонт оборудования.
-                </p>
-                <div class="readmore_arrow">
-                    <a href="#" style="color: #ffb718;">ЧИТАТЬ ДАЛЕ</a>
-                </div>
-            </div>
-        </div>
-        <!--THIRD SECTION-->
-        <div class="col-sm-12 col-md-12 section third-section">
+    </div>
+    <!--THIRD SECTION-->
+    <div class="row">
+        <div class="section third-section">
             <div style="padding-top: 25%;">
                 <div class="text-center white-text " style="padding-top: 5%; font-size: 24px; font-weight: 600;">
                     ПРЕИМУЩЕСТВА SMARTEAM:
                 </div>
             </div>
         </div>
-        <div class="col-sm-12 col-md-12 fourth-section">
-            <div class="col-sm-6 col-md-6" style="padding-top: 15%; font-size: 24px; font-weight: 600;">
+    </div>
+    <div class="row">
+        <div class="fourth-section">
+            <div class="col-sm-5 col-md-5" style="padding-top: 15%; font-size: 24px; font-weight: 600;">
                 <p>
                     ЗНАЕТЕ ЛИ ВЫ ЧТО ППР<br> ЭФФЕКТИВЕН <br>ТОЛЬКО В 20% СЛУЧАЕВ
                 </p>
@@ -242,31 +261,33 @@
                     <a href="#" style="color: #ffb718;">ЧИТАТЬ ДАЛЕ</a>
                 </div>
             </div>
-            <div class="col-sm-6 col-md-6">
-                <img src="./imgs/PPR01.jpg" width="100%" class="wow animated slideInRight">
+            <div class="col-sm-7 col-md-7">
+                <img src="./imgs/PPR01.jpg" class="wow animated slideInRight" style="max-width: 80%;">
             </div>
         </div>
-        <!--FIFTH SECTION-->
-        <div class="col-sm-12 col-md-12 section fifth-section">
-            <div class="col-sm-6 col-md-6 section-info-text white-text">
-                <p>
-                    А ВЫ ЗНАЕТЕ ПОЧЕМУ BOEING 747 ОДИН ИЗ САМЫХ НАДЕЖНЫХ САМОЛЕТОВ В МИРЕ?
-                </p>
-                <p class="section-info-text-small white-text">
-                    ИТ-система SmartEAM позволит повысить надежность оборудования снизить затраты на содержание
-                </p>
-                <div class="readmore_arrow">
-                    <a href="#" style="color: #ffb718;">ЧИТАТЬ ДАЛЕ</a>
-                </div>
+    </div>
+    <!--FIFTH SECTION-->
+    <div class="row fifth-section" style="position: relative; height: 30vw;">
+        <div class="col-sm-6 col-md-6 section-info-text white-text">
+            <p>
+                А ВЫ ЗНАЕТЕ ПОЧЕМУ BOEING 747 ОДИН ИЗ САМЫХ НАДЕЖНЫХ САМОЛЕТОВ В МИРЕ?
+            </p>
+            <p class="section-info-text-small white-text">
+                ИТ-система SmartEAM позволит повысить надежность оборудования снизить затраты на содержание
+            </p>
+            <div class="readmore_arrow">
+                <a href="#" style="color: #ffb718;">ЧИТАТЬ ДАЛЕ</a>
             </div>
-            <div class="col-sm-6 col-md-6 text-center airplane-button-section">
-                <div class="airplane_block">
-                    <a href="#" style="color: #ffb718;"></a>
-                </div>
+        </div>
+        <div class="col-sm-6 col-md-6 text-center">
+            <div class="airplane_block airplane-button-section">
+                <a href="#" style="color: #ffb718;"></a>
             </div>
         </div>
     </div>
 </div>
+<!--</div>-->
+<!--</div>-->
 
 <script src="./js/jquery-2.1.3.min.js"></script>
 <script src="./js/jquery.easing.min.js"></script>
