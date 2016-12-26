@@ -58,12 +58,12 @@
         }
 
         .section-info-text {
-            padding-top: 10%;
-            font-size: 24px;
+            font-size: 28px;
+            letter-spacing: 1px;
         }
 
         .section-info-text-small {
-            font-size: 18px;
+            font-size: 22px;
             font-weight: 300;
         }
 
@@ -164,6 +164,23 @@
             font-weight: 300;
         }
 
+        .advantages {
+            border: 5px solid #ffb718;
+            margin-right: 1%;
+            width: 250px;
+            height: 250px;
+        }
+
+        .advantage-text {
+            color: #ffb718;
+            font-weight: 400;
+            font-size: 22px;
+            padding-top: 25%;
+        }
+
+        .grow { transition: all .2s ease-in-out; }
+        .grow:hover { transform: scale(1.1); }
+
         /*ovveride*/
         .navbar-nav {
             display: inline-block;
@@ -207,16 +224,19 @@
     <!--FIRST SECTION-->
     <div class="row section first-section">
         <div class="col-sm-1 col-md-1"></div>
-        <div class="col-xs-5 col-sm-5 col-md-5 section-info-text white-text" style="padding-top: 25%;">
+        <div class="col-xs-5 col-sm-5 col-md-5 section-info-text white-text" style="padding-top: 22%;">
             <p>
                 СИСТЕМА ДЛЯ НАДЕЖНОЙ РАБОТЫ ОБОРУДОВАНИЯ
             </p>
             <p class="section-info-text-small white-text">
-                ИТ-система SmartEAM позволит повысить надежность оборудования снизить затраты на содержание
+                ИТ-система SmartEAM позволит повысить надежность
+            </p>
+            <p class="section-info-text-small white-text">
+                оборудования и снизить затраты на содержание
             </p>
         </div>
         <div class="col-xs-6 col-sm-6 col-md-6 text-center">
-            <div class="arrow_box first-button-section">
+            <div class="arrow_box first-button-section grow">
                 <a href="#" style="color: #ffb718;">ЗАДАЙТЕ <br>ВОПРОС</a>
             </div>
         </div>
@@ -235,7 +255,7 @@
                 Отказ оборудования несет в себе огромные расходы, которые никак не ограничиваются тратой средств на,
                 непосредственно, ремонт оборудования.
             </p>
-            <div class="readmore_arrow">
+            <div class="readmore_arrow grow">
                 <a href="#" style="color: #ffb718;">ЧИТАТЬ ДАЛЕ</a>
             </div>
         </div>
@@ -243,10 +263,34 @@
     <!--THIRD SECTION-->
     <div class="row">
         <div class="section third-section">
-            <div style="padding-top: 25%;">
-                <div class="text-center white-text " style="padding-top: 5%; font-size: 24px; font-weight: 600;">
+            <div class="row" style="padding-top: 5%;">
+                <div class="text-center white-text section-info-text">
                     ПРЕИМУЩЕСТВА SMARTEAM:
                 </div>
+            </div>
+            <div class="row" style="padding-top: 10%;">
+                <div class="col-sm-2 col-md-2"></div>
+                <div class="col-sm-2 col-md-2 advantages grow text-center">
+                    <p class="advantage-text">
+                        МОБИЛЬНЫЕ РЕШЕНИЯ
+                    </p>
+                </div>
+                <div class="col-sm-2 col-md-2 advantages grow text-center">
+                    <p class="advantage-text">
+                        САМАЯ СОВРЕМЕННАЯ МЕТОДОЛОГИЯ RCM-2
+                    </p>
+                </div>
+                <div class="col-sm-2 col-md-2 advantages grow text-center">
+                    <p class="advantage-text">
+                        ШИРОКИЕ АНАЛИТИЧЕСКИЕ ИНСТРУМЕНТЫ
+                    </p>
+                </div>
+                <div class="col-sm-2 col-md-2 advantages grow text-center">
+                    <p class="advantage-text">
+                        ОПЫТ ВНЕДРЕНИЯ НА 50+ ПРЕДПРИЯТИЙ В ОСНОВЕ РЕШЕНИЙ
+                    </p>
+                </div>
+                <div class="col-sm-2 col-md-2"></div>
             </div>
         </div>
     </div>
@@ -255,12 +299,12 @@
             <div class="col-sm-1 col-md-1"></div>
             <div class="col-sm-4 col-md-4" style="padding-top: 15%; font-size: 24px; font-weight: 600;">
                 <p>
-                    ЗНАЕТЕ ЛИ ВЫ ЧТО ППР<br> ЭФФЕКТИВЕН <br>ТОЛЬКО В 20% СЛУЧАЕВ
+                    ЗНАЕТЕ ЛИ ВЫ ЧТО ППР<br> ЭФФЕКТИВНЫ <br>ТОЛЬКО В 20% СЛУЧАЕВ
                 </p>
                 <p class="section-info-text-small">
                     -
                 </p>
-                <div class="readmore_arrow">
+                <div class="readmore_arrow grow">
                     <a href="#" style="color: #ffb718;">ЧИТАТЬ ДАЛЕ</a>
                 </div>
             </div>
@@ -279,7 +323,7 @@
             <p class="section-info-text-small white-text">
                 ИТ-система SmartEAM позволит повысить надежность оборудования снизить затраты на содержание
             </p>
-            <div class="readmore_arrow">
+            <div class="readmore_arrow grow">
                 <a href="#" style="color: #ffb718;">ЧИТАТЬ ДАЛЕ</a>
             </div>
         </div>
@@ -343,7 +387,7 @@
                         </div>
                     </div>
                 </form>
-                <button type="submit" class="readmore_arrow" style="width: 50%;">СВЯЖИТЕСЬ С НАМИ</button>
+                <button type="submit" class="readmore_arrow grow" style="width: 50%;">СВЯЖИТЕСЬ С НАМИ</button>
             </div>
         </div>
     </div>
