@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="css/this.css" crossorigin="anonymous">
 
     <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
     <style>
         body {
             font-family: Roboto, Arial, sans-serif;
@@ -31,6 +32,12 @@
             height: 50vw;
         }
 
+        /*.first-section:hover {*/
+        /*background-image: url(imgs/first-section-background-min.jpg);*/
+        /*background-size: 100%;*/
+        /*background-repeat: no-repeat;*/
+        /*}*/
+
         .first-section {
             background-image: url(imgs/first-section-background-min.jpg);
             background-size: 100%;
@@ -42,6 +49,12 @@
             padding-bottom: 5%;
         }
 
+        /*.third-section:hover {*/
+        /*background-image: url(imgs/third-section-background-min.jpg);*/
+        /*background-size: 100%;*/
+        /*background-repeat: no-repeat;*/
+        /*}*/
+
         .third-section {
             background-image: url(imgs/third-section-background-min.jpg);
             background-size: 100%;
@@ -50,6 +63,12 @@
 
         .fourth-section {
         }
+
+        /*.fifth-section:hover {*/
+        /*background-image: url(imgs/fifth-section-background.jpg);*/
+        /*background-size: 100%;*/
+        /*background-repeat: no-repeat;*/
+        /*}*/
 
         .fifth-section {
             background-image: url(imgs/fifth-section-background.jpg);
@@ -178,8 +197,13 @@
             padding-top: 25%;
         }
 
-        .grow { transition: all .2s ease-in-out; }
-        .grow:hover { transform: scale(1.1); }
+        .grow {
+            transition: all .2s ease-in-out;
+        }
+
+        .grow:hover {
+            transform: scale(1.1);
+        }
 
         /*ovveride*/
         .navbar-nav {
@@ -200,11 +224,24 @@
             padding-left: 0;
         }
 
+        .cover {
+        }
+
     </style>
 </head>
 <body text="#4f504f">
 <!--<div class="container">-->
-<div class="container-fluid">
+
+<div class="navbar-fixed-top text-right" style="color: #ffb718;">
+    <ul style="display:flex; list-style:none; justify-content: flex-end; ">
+        <h2><i id="downClick" class="fa fa-arrow-down" aria-hidden="true"></i></h2>
+        <h2><i id="upClick" class="fa fa-arrow-up" aria-hidden="true"></i></h2>
+    </ul>
+</div>
+
+<div class="container-fluid cover">
+
+
     <div class="row">
         <div class="col-xs-2 col-sm-2 col-md-2">
             <a class="navbar-brand" href="/" style="padding-top: 0px;">
@@ -221,6 +258,7 @@
             </ul>
         </div>
     </div>
+
     <!--FIRST SECTION-->
     <div class="row section first-section">
         <div class="col-sm-1 col-md-1"></div>
@@ -400,6 +438,23 @@
 <script src="./js/wow.js" crossorigin="anonymous"></script>
 <script>
     new WOW().init();
+
+    var scrolled = 0;
+    $(document).ready(function () {
+        $("#downClick").on("click", function () {
+            scrolled = scrolled + 300;
+            $("html, body").stop().animate({
+                scrollTop: scrolled
+            });
+        });
+
+        $("#upClick").on("click", function () {
+            scrolled = scrolled - 300;
+            $("html, body").stop().animate({
+                scrollTop: scrolled
+            });
+        });
+    });
 </script>
 </body>
 </html>
