@@ -1,263 +1,24 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:og="http://opengraphprotocol.org/schema/"
       xmlns:fb="http://www.facebook.com/2008/fbml" xml:lang="en" lang="en">
 <head>
-    <title>SmartEAM</title>
+    <title>SmartEAM - СИСТЕМА ДЛЯ НАДЕЖНОЙ РАБОТЫ ОБОРУДОВАНИЯ</title>
 
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="bootstrap-3.3.7-dist/css/bootstrap.min.css" crossorigin="anonymous">
     <!-- Optional theme -->
     <link rel="stylesheet" href="bootstrap-3.3.7-dist/css/bootstrap-theme.min.css" crossorigin="anonymous">
     <link rel="stylesheet" href="css/animate.css" crossorigin="anonymous">
-    <link rel="stylesheet" href="css/this.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="smart.css" crossorigin="anonymous">
 
     <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700">
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
-    <style>
-        body {
-            font-family: Roboto, Arial, sans-serif;
-            font-weight: 500;
-            font-size: 14px;
-        }
-
-        ul.nav li {
-            padding-top: 2%;
-        }
-
-        .logo {
-            position: absolute;
-            z-index: 20;
-        }
-
-        .section {
-            height: 50vw;
-        }
-
-        /*.first-section:hover {*/
-        /*background-image: url(imgs/first-section-background-min.jpg);*/
-        /*background-size: 100%;*/
-        /*background-repeat: no-repeat;*/
-        /*}*/
-
-        .first-section {
-            background-image: url(imgs/first-section-background-min.jpg);
-            background-size: 100%;
-            background-repeat: no-repeat;
-        }
-
-        .second-section {
-            padding-top: 5%;
-            padding-bottom: 5%;
-        }
-
-        /*.third-section:hover {*/
-        /*background-image: url(imgs/third-section-background-min.jpg);*/
-        /*background-size: 100%;*/
-        /*background-repeat: no-repeat;*/
-        /*}*/
-
-        .third-section {
-            background-image: url(imgs/third-section-background-min.jpg);
-            background-size: 100%;
-            background-repeat: no-repeat;
-        }
-
-        .fourth-section {
-        }
-
-        /*.fifth-section:hover {*/
-        /*background-image: url(imgs/fifth-section-background.jpg);*/
-        /*background-size: 100%;*/
-        /*background-repeat: no-repeat;*/
-        /*}*/
-
-        .fifth-section {
-            background-image: url(imgs/fifth-section-background.jpg);
-            background-size: 100%;
-            background-repeat: no-repeat;
-        }
-
-        .section-info-text {
-            font-size: 28px;
-            letter-spacing: 1px;
-        }
-
-        .section-info-text-small {
-            font-size: 22px;
-            font-weight: 300;
-        }
-
-        .white-text {
-            color: white;
-        }
-
-        .first-button-section {
-            margin-top: 45%;
-            left: 25%;
-        }
-
-        /*AFTER BOX*/
-        .arrow_box {
-            width: 30%;
-            min-width: 150px;
-            min-height: 150px;
-            position: relative;
-            border: 5px solid #ffb718;
-            padding: 35px 25px 35px 25px;
-            font-size: 1.5em;
-            font-weight: 300;
-        }
-
-        .arrow_box:after, .arrow_box:before {
-            right: 0;
-            top: 50%;
-            border: solid transparent;
-            content: " ";
-            height: 0;
-            width: 0;
-            position: absolute;
-            pointer-events: none;
-        }
-
-        .arrow_box:after {
-            border-color: rgba(0, 0, 0, 0);
-            border-width: 20px;
-            margin-top: -20px;
-        }
-
-        .arrow_box:before {
-            border-color: rgba(255, 183, 24, 0);
-            border-right-color: #ffb718;
-            border-width: 15px;
-            margin-top: -15px;
-        }
-
-        /*READ MORE*/
-        .readmore_arrow {
-            width: 35%;
-            position: relative;
-            border: 3px solid #ffb718;
-            text-align: center;
-            padding: 10px 10px 10px 10px;
-            font-size: 18px;
-            font-weight: 300;
-        }
-
-        .readmore_arrow:after, .readmore_arrow:before {
-            right: 0;
-            top: 50%;
-            border: solid transparent;
-            content: " ";
-            height: 0;
-            width: 0;
-            position: absolute;
-            pointer-events: none;
-        }
-
-        .readmore_arrow:after {
-            border-color: rgba(0, 0, 0, 0);
-            border-width: 20px;
-            margin-top: -20px;
-        }
-
-        .readmore_arrow:before {
-            border-color: rgba(255, 183, 24, 0);
-            border-right-color: #ffb718;
-            border-width: 15px;
-            margin-top: -15px;
-        }
-
-        /*AIRPLANE MORE*/
-
-        .airplane-button-section {
-            margin-top: 20%;
-            left: 20%;
-        }
-
-        .airplane_block {
-            width: 25%;
-            min-height: 150px;
-            max-height: 150px;
-            position: absolute;
-            border: 5px solid #ffb718;
-            padding: 0% 15% 25% 13%;
-            font-weight: 300;
-        }
-
-        .advantages {
-            border: 5px solid #ffb718;
-            margin-right: 1%;
-            width: 250px;
-            height: 250px;
-        }
-
-        .advantage-text {
-            color: #ffb718;
-            font-weight: 400;
-            font-size: 22px;
-            padding-top: 25%;
-        }
-
-        .grow {
-            transition: all .2s ease-in-out;
-        }
-
-        .grow:hover {
-            transform: scale(1.1);
-        }
-
-        /*ovveride*/
-        .navbar-nav {
-            display: inline-block;
-            float: none;
-            vertical-align: top;
-        }
-
-        .row {
-            margin-left: 0;
-            margin-right: 0;
-        }
-
-        .container-fluid {
-            margin-left: 0;
-            margin-right: 0;
-            padding-right: 0;
-            padding-left: 0;
-        }
-
-        .cover {
-        }
-
-    </style>
 </head>
 <body text="#4f504f">
 <!--<div class="container">-->
 
-<div class="navbar-fixed-top text-right" style="color: #ffb718;">
-    <ul style="display:flex; list-style:none; justify-content: flex-end; ">
-        <h2><i id="downClick" class="fa fa-arrow-down" aria-hidden="true"></i></h2>
-        <h2><i id="upClick" class="fa fa-arrow-up" aria-hidden="true"></i></h2>
-    </ul>
-</div>
+<div class="container-fluid">
 
-<div class="container-fluid cover">
-
-
-    <div class="row">
-        <div class="col-xs-2 col-sm-2 col-md-2">
-            <a class="navbar-brand" href="/" style="padding-top: 0px;">
-                <img class="logo" src="imgs/logo.png" height="100px">
-            </a>
-        </div>
-        <div class="col-xs-10 col-sm-10 col-md-10">
-            <ul class="nav navbar-nav">
-                <li><a href="#">РЕШЕНИЯ</a></li>
-                <li><a href="#">УСЛУГИ</a></li>
-                <li><a href="#">О НАС</a></li>
-                <li><a href="#">КЛИЕНТЫ</a></li>
-                <li><a href="#" data-toggle="modal" data-target="#contactForm">СВЯЖИТЕСЬ С НАМИ</a></li>
-            </ul>
-        </div>
-    </div>
+    <div w3-include-html="menu.html"></div>
 
     <!--FIRST SECTION-->
     <div class="row section first-section">
@@ -294,7 +55,7 @@
                 непосредственно, ремонт оборудования.
             </p>
             <div class="readmore_arrow grow">
-                <a href="#" style="color: #ffb718;">ЧИТАТЬ ДАЛЕ</a>
+                <a href="/planned.html" style="color: #ffb718;">ЧИТАТЬ ДАЛЕ</a>
             </div>
         </div>
     </div>
@@ -435,26 +196,8 @@
 <script src="./js/jquery.easing.min.js"></script>
 <!-- Latest compiled and minified JavaScript -->
 <script src="bootstrap-3.3.7-dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
+<script src="http://www.w3schools.com/lib/w3data.js"></script>
 <script src="./js/wow.js" crossorigin="anonymous"></script>
-<script>
-    new WOW().init();
-
-    var scrolled = 0;
-    $(document).ready(function () {
-        $("#downClick").on("click", function () {
-            scrolled = scrolled + 300;
-            $("html, body").stop().animate({
-                scrollTop: scrolled
-            });
-        });
-
-        $("#upClick").on("click", function () {
-            scrolled = scrolled - 300;
-            $("html, body").stop().animate({
-                scrollTop: scrolled
-            });
-        });
-    });
-</script>
+<script src="smart.js" crossorigin="anonymous"></script>
 </body>
 </html>

@@ -1,0 +1,218 @@
+body {
+    font-family: Roboto, Arial, sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+ul.nav li {
+    padding-top: 2%;
+}
+
+.logo {
+    position: absolute;
+    z-index: 20;
+}
+
+.section {
+    height: 50vw;
+}
+
+/*.first-section:hover {*/
+/*background-image: url(imgs/first-section-background-min.jpg);*/
+/*background-size: 100%;*/
+/*background-repeat: no-repeat;*/
+/*}*/
+
+.first-section {
+    background-image: url(imgs/first-section-background-min.jpg);
+    background-size: 100%;
+    background-repeat: no-repeat;
+}
+
+.second-section {
+    padding-top: 5%;
+    padding-bottom: 5%;
+}
+
+/*.third-section:hover {*/
+/*background-image: url(imgs/third-section-background-min.jpg);*/
+/*background-size: 100%;*/
+/*background-repeat: no-repeat;*/
+/*}*/
+
+.third-section {
+    background-image: url(imgs/third-section-background-min.jpg);
+    background-size: 100%;
+    background-repeat: no-repeat;
+}
+
+.fourth-section {
+}
+
+/*.fifth-section:hover {*/
+/*background-image: url(imgs/fifth-section-background.jpg);*/
+/*background-size: 100%;*/
+/*background-repeat: no-repeat;*/
+/*}*/
+
+.fifth-section {
+    background-image: url(imgs/fifth-section-background.jpg);
+    background-size: 100%;
+    background-repeat: no-repeat;
+}
+
+.section-info-text {
+    font-size: 28px;
+    letter-spacing: 1px;
+}
+
+.section-info-text-small {
+    font-size: 22px;
+    font-weight: 300;
+}
+
+.white-text {
+    color: white;
+}
+
+.first-button-section {
+    margin-top: 45%;
+    left: 25%;
+}
+
+/*AFTER BOX*/
+.arrow_box {
+    width: 30%;
+    min-width: 150px;
+    min-height: 150px;
+    position: relative;
+    border: 5px solid #ffb718;
+    padding: 35px 25px 35px 25px;
+    font-size: 1.5em;
+    font-weight: 300;
+}
+
+.arrow_box:after, .arrow_box:before {
+    right: 0;
+    top: 50%;
+    border: solid transparent;
+    content: " ";
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+}
+
+.arrow_box:after {
+    border-color: rgba(0, 0, 0, 0);
+    border-width: 20px;
+    margin-top: -20px;
+}
+
+.arrow_box:before {
+    border-color: rgba(255, 183, 24, 0);
+    border-right-color: #ffb718;
+    border-width: 15px;
+    margin-top: -15px;
+}
+
+/*READ MORE*/
+.readmore_arrow {
+    width: 35%;
+    position: relative;
+    border: 3px solid #ffb718;
+    text-align: center;
+    padding: 10px 10px 10px 10px;
+    font-size: 18px;
+    font-weight: 300;
+}
+
+.readmore_arrow:after, .readmore_arrow:before {
+    right: 0;
+    top: 50%;
+    border: solid transparent;
+    content: " ";
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+}
+
+.readmore_arrow:after {
+    border-color: rgba(0, 0, 0, 0);
+    border-width: 20px;
+    margin-top: -20px;
+}
+
+.readmore_arrow:before {
+    border-color: rgba(255, 183, 24, 0);
+    border-right-color: #ffb718;
+    border-width: 15px;
+    margin-top: -15px;
+}
+
+/*AIRPLANE MORE*/
+
+.airplane-button-section {
+    margin-top: 20%;
+    left: 20%;
+}
+
+.airplane_block {
+    width: 25%;
+    min-height: 150px;
+    max-height: 150px;
+    position: absolute;
+    border: 5px solid #ffb718;
+    padding: 0% 15% 25% 13%;
+    font-weight: 300;
+}
+
+.advantages {
+    border: 5px solid #ffb718;
+    margin-right: 1%;
+    width: 250px;
+    height: 250px;
+}
+
+.advantage-text {
+    color: #ffb718;
+    font-weight: 400;
+    font-size: 22px;
+    padding-top: 25%;
+}
+
+.grow {
+    transition: all .2s ease-in-out;
+}
+
+.grow:hover {
+    transform: scale(1.1);
+}
+
+/*ovveride*/
+.navbar-nav {
+    display: inline-block;
+    float: none;
+    vertical-align: top;
+}
+
+.row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.container-fluid {
+    margin-left: 0;
+    margin-right: 0;
+    padding-right: 0;
+    padding-left: 0;
+}
+
+a:hover{
+    text-decoration: none;
+}
+
+a {
+    color: #4f504f;
+}
