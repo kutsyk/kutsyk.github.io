@@ -1,3 +1,14 @@
+<style>
+    .social-icons {
+        font-size: 28px;
+        color: #ffb718;
+        padding-right: 5%;
+    }
+
+    .social-icons:hover {
+        color: gray;
+    }
+</style>
 
 <div class="row navbar-fixed-top" style="background: white;">
     <div class="col-xs-2 col-sm-2 col-md-2">
@@ -7,17 +18,19 @@
     </div>
     <div class="col-xs-8 col-sm-8 col-md-8">
         <ul class="nav navbar-nav">
-            <li><a href="#">РЕШЕНИЯ</a></li>
-            <li><a href="#">УСЛУГИ</a></li>
+            <li><a href="services.html">УСЛУГИ</a></li>
             <li><a href="#">О НАС</a></li>
             <li><a href="#">КЛИЕНТЫ</a></li>
             <li><a href="#" data-toggle="modal" data-target="#contactForm">СВЯЖИТЕСЬ С НАМИ</a></li>
         </ul>
     </div>
     <div class="col-xs-2 col-sm-2 col-md-2">
-        <ul style="display:flex; list-style:none; justify-content: flex-end; ">
-            <h2><i id="downClick" class="fa fa-arrow-down" aria-hidden="true" onclick="scrollDown()"></i></h2>&nbsp;&nbsp;
-            <h2><i id="upClick" class="fa fa-arrow-up" aria-hidden="true" onclick="scrollUp()"></i></h2>
+        <ul style="display:flex; list-style:none; justify-content: flex-end; padding-top: 10%;">
+            <!--<h2><i id="downClick" class="fa fa-arrow-down" aria-hidden="true" onclick="scrollDown()"></i></h2>&nbsp;&nbsp;-->
+            <!--<h2><i id="upClick" class="fa fa-arrow-up" aria-hidden="true" onclick="scrollUp()"></i></h2>-->
+            <i class="fa fa-facebook-square social-icons"></i>
+            <i class="fa fa-linkedin-square social-icons"></i>
+            <i class="glyphicon glyphicon-envelope social-icons"></i>
         </ul>
     </div>
 </div>
