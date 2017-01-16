@@ -303,7 +303,7 @@
                         </div>
                     </div>
                 </form>
-                <button type="submit" class="readmore_arrow grow" style="width: 50%;">СВЯЖИТЕСЬ С НАМИ</button>
+                <button type="submit" class="readmore_arrow grow" onclick="contactUs()" style="width: 50%;">ОТПРАВИТЬ</button>
             </div>
         </div>
     </div>
@@ -314,6 +314,7 @@
 <!-- Latest compiled and minified JavaScript -->
 <script src="bootstrap-3.3.7-dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
 <script src="http://www.w3schools.com/lib/w3data.js"></script>
+<script type="text/javascript" src="https://cdn.emailjs.com/dist/email.min.js"></script>
 <script src="./js/wow.js" crossorigin="anonymous"></script>
 <script src="smart.js" crossorigin="anonymous"></script>
 <script>
@@ -335,6 +336,15 @@
             $(this).siblings(':first').children(':first-child').clone().appendTo($(this));
         }
     });
+
+    (function(){
+        emailjs.init("user_PaDPVFgteHnBHqirnoKKa");
+    })();
+
+    function contactUs() {
+        // parameters: service_id, template_id, template_parameters
+        emailjs.send("<YOUR SERVICE ID>","<YOUR TEMPLATE ID>",{name: "James", notes: "Check this out!"});
+    }
 </script>
 </body>
 </html>
