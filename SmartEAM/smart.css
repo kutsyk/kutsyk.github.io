@@ -17,12 +17,6 @@ ul.nav li {
     height: 50vw;
 }
 
-/*.first-section:hover {*/
-/*background-image: url(imgs/first-section-background-min.jpg);*/
-/*background-size: 100%;*/
-/*background-repeat: no-repeat;*/
-/*}*/
-
 .first-section {
     background-image: url(imgs/first-section-background-min.jpg);
     background-size: 100%;
