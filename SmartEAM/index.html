@@ -39,7 +39,8 @@
     <!--FIRST SECTION-->
     <div class="row section first-section">
         <div class="col-sm-1 col-md-1"></div>
-        <div class="col-xs-5 col-sm-5 col-md-5 section-info-text white-text" style="padding-top: 22%; padding-left: 5%;">
+        <div class="col-xs-5 col-sm-5 col-md-5 section-info-text white-text"
+             style="padding-top: 22%; padding-left: 5%;">
             <p>
                 СИСТЕМА ДЛЯ НАДЕЖНОЙ РАБОТЫ ОБОРУДОВАНИЯ
             </p>
@@ -84,7 +85,7 @@
             </div>
             <div class="row text-center" style="padding-top: 7%;">
                 <div class="col-xs-2 col-sm-2 col-md-2" style="padding-right: 0; padding-left: 0;"></div>
-                 <div class="col-xs-2 col-sm-2 col-md-2 advantages grow text-center" style="background-color: white;">
+                <div class="col-xs-2 col-sm-2 col-md-2 advantages grow text-center" style="background-color: white;">
                     <div class="row" style="padding-top: 5%;">
                         <img src="imgs/icons/1.png" style="height:50%;">
                     </div>
@@ -164,9 +165,9 @@
             </div>
         </div>
         <!--<div class="col-sm-6 col-md-6 text-center">-->
-            <!--<div class="airplane_block airplane-button-section">-->
-                <!--<a href="#" style="color: #ffb718;"></a>-->
-            <!--</div>-->
+        <!--<div class="airplane_block airplane-button-section">-->
+        <!--<a href="#" style="color: #ffb718;"></a>-->
+        <!--</div>-->
         <!--</div>-->
     </div>
     <div class="row text-center" style="padding-top: 2.5%;">
@@ -296,14 +297,26 @@
                             <input type="email" class="form-control" id="email">
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label class="control-label col-sm-4" for="info">Что Вас интересует?:</label>
-                        <div class="col-sm-8">
+                    <div class="form-group text-right">
+                        <div class="col-sm-1 col-md-1"></div>
+                        <div class="col-sm-3 col-md-3 text-left">
+                            <div class="radio">
+                                <label><input type="radio"  name="optradio" value="ИТ-система">ИТ-система</label>
+                            </div>
+                            <div class="radio">
+                                <label><input type="radio" name="optradio" value="Услуги">Услуги</label>
+                            </div>
+                            <div class="radio">
+                                <label><input type="radio" name="optradio" value="Другое">Другое</label>
+                            </div>
+                        </div>
+                        <div class="col-sm-8 text-left">
                             <textarea class="form-control" id="info" rows="5"></textarea>
                         </div>
                     </div>
                 </form>
-                <button type="submit" class="readmore_arrow grow" onclick="contactUs()" style="width: 50%;">ОТПРАВИТЬ</button>
+                <button type="submit" class="readmore_arrow grow" onclick="contactUs()" style="width: 50%;">ОТПРАВИТЬ
+                </button>
             </div>
         </div>
     </div>
@@ -314,10 +327,10 @@
 <!-- Latest compiled and minified JavaScript -->
 <script src="bootstrap-3.3.7-dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
 <script src="http://www.w3schools.com/lib/w3data.js"></script>
-<script type="text/javascript" src="https://cdn.emailjs.com/dist/email.min.js"></script>
+<script src="https://cdn.emailjs.com/dist/email.min.js"></script>
 <script src="./js/wow.js" crossorigin="anonymous"></script>
 <script src="smart.js" crossorigin="anonymous"></script>
-<script>
+<script type="text/javascript">
     $('#myCarousel').carousel({
         interval: 10000
     })
@@ -337,13 +350,25 @@
         }
     });
 
-    (function(){
+    (function () {
         emailjs.init("user_PaDPVFgteHnBHqirnoKKa");
     })();
 
     function contactUs() {
         // parameters: service_id, template_id, template_parameters
-        emailjs.send("<YOUR SERVICE ID>","<YOUR TEMPLATE ID>",{name: "James", notes: "Check this out!"});
+        emailjs.send("default_service", "smarteam_id", {
+            to_name: "Kirill",
+            from_name: $("#secondname").val() + ', ' + $('#name').val(),
+            email: $("#email").val(),
+            phone: $("#phone").val(),
+            theme: $("input[name='optradio']:checked").val(),
+            info: $("#info").val()
+        })
+                .then(function (response) {
+                    console.log("SUCCESS. status=%d, text=%s", response.status, response.text);
+                }, function (err) {
+                    console.log("FAILED. error=", err);
+                });
     }
 </script>
 </body>
