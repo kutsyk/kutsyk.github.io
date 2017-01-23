@@ -30,12 +30,9 @@
     </style>
 </head>
 <body text="#4f504f">
-<!--<div class="container">-->
 
 <div class="container-fluid">
-
     <div w3-include-html="menu.html"></div>
-
     <!--FIRST SECTION-->
     <div class="row section first-section">
         <div class="col-sm-1 col-md-1"></div>
@@ -176,13 +173,13 @@
         <div class="row">
             <div class="col-sm-1 col-md-1 text-right"></div>
             <div class="col-sm-3 col-md-3 text-right">
-                <img src="imgs/partners/comunalka/logo.png" style="height: 75px;">
+                <img src="imgs/partners/comunalka/logo.png" class="partners_logo">
             </div>
             <div class="col-sm-4 col-md-4 text-right">
-                <img src="imgs/partners/comunalka/nak.png" style="height: 75px;">
+                <img src="imgs/partners/comunalka/nak.png" class="partners_logo">
             </div>
             <div class="col-sm-3 col-md-3 text-right">
-                <img src="imgs/partners/himiya/farmak.jpg" style="height: 75px;">
+                <img src="imgs/partners/himiya/farmak.jpg" class="partners_logo">
             </div>
             <div class="col-sm-1 col-md-1 text-right"></div>
         </div>
@@ -190,13 +187,13 @@
         <div class="row" style="padding-top: 2.5%;">
             <div class="col-sm-1 col-md-1 text-right"></div>
             <div class="col-sm-3 col-md-3 text-right">
-                <img src="imgs/partners/machina/42338493.jpg" style="height: 75px;">
+                <img src="imgs/partners/machina/42338493.jpg" class="partners_logo">
             </div>
             <div class="col-sm-4 col-md-4 text-right">
-                <img src="imgs/partners/machina/DneprovagonMash.jpg" style="height: 75px;">
+                <img src="imgs/partners/machina/DneprovagonMash.jpg" class="partners_logo">
             </div>
             <div class="col-sm-3 col-md-3 text-right">
-                <img src="imgs/partners/machina/DAK.jpg" style="height: 75px;">
+                <img src="imgs/partners/machina/DAK.jpg" class="partners_logo">
             </div>
             <div class="col-sm-1 col-md-1 text-right"></div>
         </div>
@@ -204,40 +201,61 @@
         <div class="row" style="padding-top: 2.5%;">
             <div class="col-sm-1 col-md-1 text-right"></div>
             <div class="col-sm-3 col-md-3 text-right">
-                <img src="imgs/partners/machina/logotype.png" style="height: 75px;">
+                <img src="imgs/partners/machina/logotype.png" class="partners_logo">
             </div>
             <div class="col-sm-4 col-md-4 text-right">
-                <img src="imgs/partners/machina/lrzLogo.png" style="height: 75px;">
+                <img src="imgs/partners/machina/lrzLogo.png" class="partners_logo">
             </div>
             <div class="col-sm-3 col-md-3 text-right">
-                <img src="imgs/partners/machina/Zorya-Mashproekt.jpg" style="height: 75px;">
+                <img src="imgs/partners/machina/Zorya-Mashproekt.jpg" class="partners_logo">
             </div>
             <div class="col-sm-1 col-md-1 text-right"></div>
         </div>
 
         <div class="row" style="padding-top: 2.5%;">
             <div class="col-sm-4 col-md-4">
-                <img src="imgs/partners/himiya/logo.jpg" style="height: 75px;">
+                <img src="imgs/partners/himiya/logo.jpg" class="partners_logo">
             </div>
         </div>
     </div>
 
-</div>
-
-<div class="row" style="padding-top: 2.5%; padding-bottom: 2.5%;">
-    <div class="col-sm-1 col-md-1"></div>
-    <div class="col-sm-3 col-md-3" style="font-size: 24px;">
-        <p><b>Тел: </b> +38 050 320 24 65</p>
+    <div class="row" style="padding-top: 2.5%; height: 55vh;">
+        <div class="col-sm-4 col-md-4" style="background-color: #ffb718; height: 100%; color: white;">
+            <div class="row text-center" style="font-size: 22px; padding-top: 30%;">
+                <div class="col-sm-4 col-md-4 text-right">
+                    <b>Тел: </b>
+                </div>
+                <div class="col-sm-8 col-md-8 text-left">
+                    +38 050 320 24 65
+                </div>
+            </div>
+            <div class="row text-center" style="font-size: 22px;">
+                <div class="row text-center" style="font-size: 22px;">
+                    <div class="col-sm-4 col-md-4 text-right">
+                        <b>Email: </b>
+                    </div>
+                    <div class="col-sm-8 col-md-8 text-left">
+                        info@smart-eam.com
+                    </div>
+                </div>
+            </div>
+            <div class="row text-center" style="font-size: 22px;">
+                <div class="row text-center" style="font-size: 22px;">
+                    <div class="col-sm-4 col-md-4 text-right">
+                        <b>Адреса: </b>
+                    </div>
+                    <div class="col-sm-8 col-md-8 text-left">
+                        м. Київ, пр. Бажана, 14а
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-8 col-md-8">
+            <div id="map" style="height: 400px; width: 100%;"></div>
+        </div>
     </div>
-    <div class="col-sm-3 col-md-3" style="font-size: 24px;">
-        <p><b>Email: </b> info@smart-eam.com</p>
-    </div>
-    <div class="col-sm-4 col-md-4" style="font-size: 24px;">
-        <p><b>Адреси: </b> м. Київ, пр. Бажана, 14а</p>
-    </div>
 </div>
-</div>
-
+<div w3-include-html="footer.html"></div>
 <div id="contactForm" class="modal fade" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -303,8 +321,11 @@
 <script src="http://www.w3schools.com/lib/w3data.js"></script>
 <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
 <script src="./js/wow.js" crossorigin="anonymous"></script>
-<script src="smart.js" crossorigin="anonymous"></script>
+<script src="./smart.js" crossorigin="anonymous"></script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBtfDeglSyhHuemMKU6GqpX4vdtJAqYVqk&callback=initMap">
+</script>
 <script type="text/javascript">
+
     $('#myCarousel').carousel({
         interval: 10000
     })
@@ -344,6 +365,22 @@
                     console.log("FAILED. error=", err);
                 });
     }
+
+    function initMap() {
+        var uluru = {lat: 50.461218, lng: 30.521320};
+        var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 16,
+            center: uluru,
+            stylers: [
+                { color: "#99FF33" }
+            ]
+        });
+        var marker = new google.maps.Marker({
+            position: uluru,
+            map: map
+        });
+    }
+
 </script>
 </body>
 </html>
