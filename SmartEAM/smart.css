@@ -164,11 +164,24 @@ ul.nav li {
     height: 34%;
 }
 
+.allows {
+    background-color: #ffb718;
+    width: 250px;
+    height: 200px;
+}
+
+.allows-text {
+    color: white;
+    font-weight: 400;
+    font-size: 1.3vw;
+    padding-top: 20%;
+}
+
 .advantage-text {
     color: #ffb718;
     font-weight: 400;
     font-size: 1vw;
-    padding-top: 10%;
+    padding-top: 12%;
 }
 
 .grow {
