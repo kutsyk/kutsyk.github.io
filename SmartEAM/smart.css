@@ -167,15 +167,13 @@ ul.nav li {
 
 .allows {
     background-color: #ffb718;
-    width: 250px;
-    height: 200px;
 }
 
 .allows-text {
     color: white;
     font-weight: 400;
     font-size: 1.3vw;
-    padding-top: 20%;
+    padding: 25%;
 }
 
 .advantage-text {
