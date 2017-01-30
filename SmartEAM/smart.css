@@ -108,7 +108,7 @@ ul.nav li {
 
 /*READ MORE*/
 .readmore_arrow {
-    width: 35%;
+    width: 250px;
     position: relative;
     border: 3px solid #ffb718;
     text-align: center;
@@ -175,7 +175,7 @@ ul.nav li {
     color: white;
     font-weight: 400;
     font-size: 1.3vw;
-    padding-top: 25%;
+    padding-top: 33.5%;
 }
 
 .advantage-text {
