@@ -27,6 +27,10 @@
         .carousel-inner .item {
             background: white;
         }
+
+        .contact-bottom-style {
+            font-size: 1.5em;
+        }
     </style>
 </head>
 <body text="#4f504f">
@@ -169,31 +173,70 @@
 
     <div class="row" style="padding-top: 2.5%; height: 55vh;">
         <div class="col-sm-4 col-md-4" style="background-color: #ffb718; height: 100%; color: white;">
-            <div class="row text-center" style="font-size: 22px; padding-top: 30%; padding-bottom: 5%;">
-                <div class="col-sm-4 col-md-4 text-right">
-                    <b>Тел: </b>
+            <div class="text-right" style="margin-top: 2em;">
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4 text-left" for="secondname">Фамилия:</label>
+                        <div class="col-sm-8">
+                            <input type="secondname" class="form-control" id="secondname">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-4" for="name">Имя:</label>
+                        <div class="col-sm-8">
+                            <input type="name" class="form-control" id="name">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-4" for="phone">Контактный телефон:</label>
+                        <div class="col-sm-8">
+                            <input type="phone" class="form-control" id="phone">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-4" for="email">Электронная почта:</label>
+                        <div class="col-sm-8">
+                            <input type="email" class="form-control" id="email">
+                        </div>
+                    </div>
+                    <div class="form-group text-right">
+                        <div class="col-sm-1 col-md-1"></div>
+                        <div class="col-sm-3 col-md-3 text-left">
+                            <div class="radio">
+                                <label><input type="radio" name="optradio" value="ИТ-система">ИТ-система</label>
+                            </div>
+                            <div class="radio">
+                                <label><input type="radio" name="optradio" value="Услуги">Услуги</label>
+                            </div>
+                            <div class="radio">
+                                <label><input type="radio" name="optradio" value="Другое">Другое</label>
+                            </div>
+                        </div>
+                        <div class="col-sm-8 text-left">
+                            <textarea class="form-control" id="info" rows="5"></textarea>
+                        </div>
+                    </div>
+                </form>
+                <button type="submit" class="readmore_arrow grow" style="background-color: #4f504f;color: white;"
+                        onclick="contactUs()" style="width: 50%;">
+                    ОТПРАВИТЬ
+                </button>
+            </div>
+            <div class="row text-center">
+                <div class="col-sm-4 col-md-4 text-right contact-bottom-style">
+                    <span class="glyphicon glyphicon glyphicon-earphone" aria-hidden="true"></span>
                 </div>
-                <div class="col-sm-8 col-md-8 text-left">
+                <div class="col-sm-8 col-md-8 text-left contact-bottom-style">
                     +38 050 320 24 65
                 </div>
             </div>
-            <div class="row text-center" style="font-size: 22px; padding-bottom: 5%;">
-                <div class="row text-center" style="font-size: 22px;">
-                    <div class="col-sm-4 col-md-4 text-right">
-                        <b>Email: </b>
+            <div class="row text-center">
+                <div class="row text-center">
+                    <div class="col-sm-4 col-md-4 text-right contact-bottom-style">
+                        <i class="fa fa-envelope"></i>
                     </div>
-                    <div class="col-sm-8 col-md-8 text-left">
+                    <div class="col-sm-8 col-md-8 text-left contact-bottom-style">
                         info@smart-eam.com
-                    </div>
-                </div>
-            </div>
-            <div class="row text-center" style="font-size: 22px;">
-                <div class="row text-center" style="font-size: 22px;">
-                    <div class="col-sm-4 col-md-4 text-right">
-                        <b>Адреса: </b>
-                    </div>
-                    <div class="col-sm-8 col-md-8 text-left">
-                        м. Київ, пр. Бажана, 14а
                     </div>
                 </div>
             </div>
@@ -259,7 +302,7 @@
     }
 
     function initMap() {
-        var uluru = {lat: 50.461218, lng: 30.521320};
+        var uluru = {lat: 50.396028, lng: 30.624722};
         var map = new google.maps.Map(document.getElementById('map'), {
             zoom: 16,
             center: uluru,
