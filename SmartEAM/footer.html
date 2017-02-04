@@ -1,20 +1,18 @@
 <style>
 
     .arrow-container {
-        background-color: #ffb718;
-        height: 0.3em;
-        width: 100%;
+        border-top: #ffb718 solid 0.3em;
     }
 
     .arrow-container:hover {
-        background-color: white;
+        border-top: white solid 0.3em;
     }
 
     .arrow-container:hover .footer-arrow {
         margin-left: 48%;
         background: url('./imgs/arrows/arrow-HOVER.png');
         background-size: 10% auto;
-        height: 2em;
+        height: 1.6em;
         background-repeat: no-repeat;
     }
 
@@ -28,19 +26,16 @@
         background-repeat: no-repeat;
     }
 
+
     /*.footer-arrow:hover {*/
         /*margin-left: 48%;*/
+        /*position: relative;*/
+        /*top: -1.7em;*/
         /*background: url('./imgs/arrows/arrow-HOVER.png');*/
-        /*background-size: 10% auto;*/
-        /*height: 2em;*/
-        /*background-repeat: no-repeat;*/
     /*}*/
 </style>
 
-<!--<div class="arrow-container text-center">-->
-
-<!--</div>-->
-<div class="row" style="background-color: #4f504f; border-top: #ffb718 solid 0.3em;">
+<div class="row arrow-container" style="background-color: #4f504f;">
     <div class="footer-arrow" onclick="scrollUp()">
     </div>
     <div class="col-sm-3 col-md-3 text-right" style="margin: 2% 0 2% 0;">
