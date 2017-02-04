@@ -27,18 +27,27 @@
             font-weight: 400;
         }
 
+        .box-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
         .icon-box {
             height: 125px;
             width: 125px;
             background-color: #ffb718;
-            padding-top: 22%;
             color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .icon-text {
             padding-top: 10%;
             color: #4f504f;
-            font-size: 18px;
+            font-size: 0.6em;
             font-weight: 300;
         }
 
@@ -98,8 +107,6 @@
                 <source src="imgs/GRF_cogwheel_CLEAR.webm">
             </video>
         </div>
-        <!--</div>-->
-        <!--<div class="col-sm-1 col-md-1"></div>-->
     </div>
     <article>
         <div class="row text-center" style="padding-top: 5%; font-size: 28px;">
@@ -108,53 +115,63 @@
         <div class="row" style="padding-top: 2.5%; font-size: 28px;">
             <div class="col-sm-1 col-md-1"></div>
             <div class="col-sm-2 col-md-2">
-                <div class="row text-center" style="padding-left: 20%;">
-                    <div class="icon-box">
-                        BASE
+                <div class="row text-center">
+                    <div class="box-container">
+                        <div class="icon-box">
+                            BASE
+                        </div>
+                        <div class="row icon-text">
+                            Управление <br> работами ТОиР
+                        </div>
                     </div>
-                </div>
-                <div class="row icon-text text-center">
-                    Управление <br> работами ТОиР
                 </div>
             </div>
             <div class="col-sm-2 col-md-2">
-                <div class="row text-center" style="padding-left: 20%;">
-                    <div class="icon-box">
-                        BI
+                <div class="row text-center">
+                    <div class="box-container">
+                        <div class="icon-box">
+                            BI
+                        </div>
+                        <div class="row icon-text">
+                            Бизнес-анализ
+                        </div>
                     </div>
-                </div>
-                <div class="row text-center icon-text">
-                    Бизнес-анализ
                 </div>
             </div>
             <div class="col-sm-2 col-md-2">
-                <div class="row text-center" style="padding-left: 20%;">
-                    <div class="icon-box">
-                        RCM
+                <div class="row text-center">
+                    <div class="box-container">
+                        <div class="icon-box">
+                            RCM
+                        </div>
+                        <div class="row text-center icon-text">
+                            Управление <br> стратегиями ремонтов
+                        </div>
                     </div>
-                </div>
-                <div class="row icon-text text-center">
-                    Управление <br> стратегиями ремонтов
                 </div>
             </div>
             <div class="col-sm-2 col-md-2">
-                <div class="row text-center" style="padding-left: 20%;">
-                    <div class="icon-box">
-                        APPS
+                <div class="row text-center">
+                    <div class="box-container">
+                        <div class="icon-box">
+                            APPS
+                        </div>
+                        <div class="row text-center icon-text">
+                            Дополнительные <br> задачи
+                        </div>
                     </div>
-                </div>
-                <div class="row text-center icon-text">
-                    Дополнительные <br> задачи
                 </div>
             </div>
             <div class="col-sm-2 col-md-2">
-                <div class="row text-center" style="padding-left: 20%;">
-                    <div class="icon-box">
-                        FULL
+                <div class="row text-center">
+                    <div class="box-container">
+                        <div class="icon-box">
+                            FULL
+                        </div>
+                        <div class="row text-center icon-text">
+                            Управление <br> ресурсами
+                        </div>
                     </div>
-                </div>
-                <div class="row text-center icon-text">
-                    Управление <br> ресурсами
                 </div>
             </div>
             <div class="col-sm-1 col-md-1"></div>
@@ -182,7 +199,8 @@
             </div>
         </div>
         <div class="row text-center" style="padding-top: 2.5%; font-size: large; padding-bottom: 2.5%;">
-            <b>Вы получаете повышение надежности оборудования и <br>сокращение затрат на его обслуживание за счет:</b>
+            <b>Вы получаете повышение надежности оборудования и <br>сокращение затрат на его обслуживание за
+                счет:</b>
         </div>
         <div class="row">
             <div class="col-xs-2 col-md-2"></div>
@@ -219,7 +237,8 @@
                 <!--<div class="col-xs-1 col-md-1"></div>-->
                 <div class="col-xs-10 col-md-10">
                     <p class="article-text" style="padding-top: 2.5%;">
-                        Эта конфигурация подразумевает установку системы контроля и диагностики оборудования, которая
+                        Эта конфигурация подразумевает установку системы контроля и диагностики оборудования,
+                        которая
                         основываясь на текущем состоянии оборудования, разрабатывает наиболее эффективную стратегию
                         обслуживания и ремонтов.
                     </p>
@@ -228,9 +247,11 @@
             </div>
         </div>
         <div class="row text-center" style="padding-top: 2.5%; font-size: large; padding-bottom: 2.5%;">
-            <b>В этой конфигурации, пользователю доступны все услуги конфигурации “ SmartEAM - RCM”. Кроме <br> того,
+            <b>В этой конфигурации, пользователю доступны все услуги конфигурации “ SmartEAM - RCM”. Кроме <br>
+                того,
                 Вы
-                получаете значительное повышение надежности оборудования и сокращение затрат на его <br> обслуживание за
+                получаете значительное повышение надежности оборудования и сокращение затрат на его <br>
+                обслуживание за
                 счет:</b>
         </div>
         <div class="row">
@@ -240,7 +261,8 @@
                 осмотров и измерений), планы ППР (календарные и по наработке), на отказ.
             </div>
             <div class="col-xs-4 col-md-4 text-justify left-border-box">
-                Управления надежностью оборудования, предотвращения аварий, обеспечения контроля на основании ключевых
+                Управления надежностью оборудования, предотвращения аварий, обеспечения контроля на основании
+                ключевых
                 показателей КТГ и КИО
             </div>
             <div class="col-xs-2 col-md-2"></div>
@@ -269,7 +291,8 @@
                 <!--<div class="col-xs-1 col-md-1"></div>-->
                 <div class="col-xs-10 col-md-10">
                     <p class="article-text" style="padding-top: 2.5%;">
-                        Эта конфигурация подразумевает установку полной системы контроля производстенных процессов для
+                        Эта конфигурация подразумевает установку полной системы контроля производстенных процессов
+                        для
                         наиболее эффективного управления ресурсами и активами предприятия.
                     </p>
                 </div>
@@ -277,7 +300,8 @@
             </div>
         </div>
         <div class="row text-center" style="padding-top: 2.5%; font-size: large; padding-bottom: 2.5%;">
-            <b>В этой конфигурации, пользователю доступны все услуги конфигурации “ SmartEAM - BASE” и “SmartEAM -<br>
+            <b>В этой конфигурации, пользователю доступны все услуги конфигурации “ SmartEAM - BASE” и “SmartEAM
+                -<br>
                 RCM”.
                 Кроме того, Вы получаете возможности более эффективного управления ресурсами (людьми и ТМЦ) <br> за
                 счет:
@@ -315,7 +339,8 @@
                 <!--<div class="col-xs-1 col-md-1"></div>-->
                 <div class="col-xs-10 col-md-10">
                     <p class="article-text" style="padding-top: 2.5%;">
-                        Эта услуга позволяет подключить дополнительные услуги, повышающие эффективность работы системы
+                        Эта услуга позволяет подключить дополнительные услуги, повышающие эффективность работы
+                        системы
                         контроля оборудования
                     </p>
                 </div>
@@ -360,7 +385,8 @@
                 <!--<div class="col-xs-1 col-md-1"></div>-->
                 <div class="col-xs-10 col-md-10">
                     <p class="article-text" style="padding-top: 2.5%;">
-                        Эта услуга позволяет дополнительно подключить аналитический модуль для удобного и эффективного
+                        Эта услуга позволяет дополнительно подключить аналитический модуль для удобного и
+                        эффективного
                         мониторинга производственных процессов.
                     </p>
                 </div>
@@ -388,7 +414,8 @@
             </div>
             <div class="col-xs-2 col-md-2"></div>
         </div>
-        <div id="clients" class="row text-center" style="padding-top: 2.5%; font-size: large; padding-bottom: 2.5%;">
+        <div id="clients" class="row text-center"
+             style="padding-top: 2.5%; font-size: large; padding-bottom: 2.5%;">
             <b>Клиенты:</b>
         </div>
         <div class="row text-center" style="padding-top: 2.5%;">
