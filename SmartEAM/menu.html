@@ -41,7 +41,15 @@
         </ul>
     </div>
 </div>
-
+<div id="thankYou" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                Спасибо, мы свяжемся с вами в ближайшее время
+            </div>
+        </div>
+    </div>
+</div>
 <div id="contactForm" class="modal fade" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -93,7 +101,7 @@
                         </div>
                     </div>
                 </form>
-                <button type="submit" class="readmore_arrow grow" onclick="contactUs()"
+                <button type="submit" class="readmore_arrow grow" id="contactUsButton"
                         style="width: 50%; background-color: white; color: #ffb718; font-weight: bold;">ОТПРАВИТЬ
                 </button>
             </div>
@@ -112,62 +120,84 @@
 <script src="./js/wow.js" crossorigin="anonymous"></script>
 <!--<script src="smart.js" crossorigin="anonymous"></script>-->
 <script type="text/javascript">
-    $('#myCarousel').carousel({
-        interval: 10000
-    })
+    $(document).ready(function () {
 
-    $('.carousel .item').each(function () {
-        var next = $(this).next();
-        if (!next.length) {
-            next = $(this).siblings(':first');
-        }
-        next.children(':first-child').clone().appendTo($(this));
-
-        if (next.next().length > 0) {
-            next.next().children(':first-child').clone().appendTo($(this));
-        }
-        else {
-            $(this).siblings(':first').children(':first-child').clone().appendTo($(this));
-        }
-    });
-
-    (function () {
-        emailjs.init("user_PaDPVFgteHnBHqirnoKKa");
-    })();
-
-    function contactUs() {
-        // parameters: service_id, template_id, template_parameters
-        emailjs.send("default_service", "smarteam_id", {
-            to_name: "Kirill",
-            from_name: $("#secondname").val() + ', ' + $('#name').val(),
-            email: $("#email").val(),
-            phone: $("#phone").val(),
-            theme: $("input[name='optradio']:checked").val(),
-            info: $("#info").val()
+        $('#myCarousel').carousel({
+            interval: 10000
         })
-                .then(function (response) {
-                    console.log("SUCCESS. status=%d, text=%s", response.status, response.text);
-                }, function (err) {
-                    console.log("FAILED. error=", err);
-                });
-    }
 
-    new WOW().init();
-    var scrolled = 0;
+        $('.carousel .item').each(function () {
+            var next = $(this).next();
+            if (!next.length) {
+                next = $(this).siblings(':first');
+            }
+            next.children(':first-child').clone().appendTo($(this));
 
-    function scrollDown() {
-        scrolled = scrolled + 300;
-        $("html, body").stop().animate({
-            scrollTop: scrolled
+            if (next.next().length > 0) {
+                next.next().children(':first-child').clone().appendTo($(this));
+            }
+            else {
+                $(this).siblings(':first').children(':first-child').clone().appendTo($(this));
+            }
         });
-    }
 
-    function scrollUp() {
-        scrolled = scrolled - 300;
-        $("html, body").stop().animate({
-            scrollTop: scrolled
+        (function () {
+            emailjs.init("user_PaDPVFgteHnBHqirnoKKa");
+        })();
+
+        function contactUs() {
+            // parameters: service_id, template_id, template_parameters
+            emailjs.send("default_service", "smarteam_id", {
+                to_name: "Kirill",
+                from_name: $("#secondname").val() + ', ' + $('#name').val(),
+                email: $("#email").val(),
+                phone: $("#phone").val(),
+                theme: $("input[name='optradio']:checked").val(),
+                info: $("#info").val()
+            }).then(function (response) {
+                console.log("SUCCESS. status=%d, text=%s", response.status, response.text);
+            }, function (err) {
+                console.log("FAILED. error=", err);
+            });
+        }
+
+        $("#contactUsButton").click(function () {
+            // parameters: service_id, template_id, template_parameters
+            emailjs.send("default_service", "smarteam_id", {
+                to_name: "Kirill",
+                from_name: $("#secondname").val() + ', ' + $('#name').val(),
+                email: $("#email").val(),
+                phone: $("#phone").val(),
+                theme: $("input[name='optradio']:checked").val(),
+                info: $("#info").val()
+            }).then(function (response) {
+                console.log("SUCCESS. status=%d, text=%s", response.status, response.text);
+            }, function (err) {
+                console.log("FAILED. error=", err);
+            });
+            $('#contactForm').modal("hide");
+            $('#thankYou').modal("show");
         });
-    }
-    w3IncludeHTML();
+
+        new WOW().init();
+        var scrolled = 0;
+
+        function scrollDown() {
+            scrolled = scrolled + 300;
+            $("html, body").stop().animate({
+                scrollTop: scrolled
+            });
+        }
+
+        function scrollUp() {
+            scrolled = scrolled - 300;
+            $("html, body").stop().animate({
+                scrollTop: scrolled
+            });
+        }
+
+        w3IncludeHTML();
+
+    });
 
 </script>

@@ -78,13 +78,14 @@ ul.nav li {
 /*AFTER BOX*/
 .arrow_box {
     width: 30%;
-    min-width: 200px;
+    min-width: 175px;
     min-height: 150px;
     position: relative;
     border: 5px solid #ffb718;
     padding: 55px 35px 40px 20px;
     font-size: 1.8em;
     font-weight: 300;
+    text-decoration: none;
 }
 
 .arrow_box:after, .arrow_box:before {
