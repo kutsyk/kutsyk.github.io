@@ -43,6 +43,7 @@ ul.nav li {
     background-image: url(imgs/third-section-background-min.jpg);
     background-size: 100%;
     background-repeat: no-repeat;
+    height: 40vw;
 }
 
 .fourth-section {
