@@ -16,6 +16,7 @@
 
     <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700">
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
     <style>
         .after-pingwin-section {
             height: 30vw;
@@ -101,8 +102,9 @@
     <!--FIRST SECTION-->
     <div class="row section first-section">
         <div class="col-sm-1 col-md-1"></div>
+        <!--padding-top: 7em; padding-left: 2em;-->
         <div class="col-xs-5 col-sm-5 col-md-5 section-info-text white-text"
-             style="padding-top: 22%; padding-left: 5%;">
+             style="display: flex; flex-direction:column; align-items: center; justify-content: center; height: 48vw;">
             <p>
                 СИСТЕМА ДЛЯ НАДЕЖНОЙ РАБОТЫ ОБОРУДОВАНИЯ
             </p>
@@ -110,7 +112,7 @@
                 ИТ-система SmartEAM позволит повысить надежность оборудования и снизить затраты на содержание
             </p>
         </div>
-        <div class="col-xs-4 col-sm-4 col-md-4 text-right first-button-section">
+        <div class="col-xs-6 col-sm-6 col-md-6 text-right first-button-section">
             <a href="#services" style="color: #ffb718;">
                 <div class="arrow_box grow">
                     РЕШЕНИЯ
@@ -124,7 +126,8 @@
         </div>
     </div>
     <div class="row after-pingwin-section" id="services">
-        <div class="col-xs-4 col-sm-4 col-md-4 full-height" style="padding-left: 1.5em; padding-right: 0.75em;">
+        <div class="col-xs-1 col-sm-1 col-md-1 full-height"></div>
+        <div class="col-xs-3 col-sm-3 col-md-3 full-height" style="padding-left: 1.5em; padding-right: 0.75em;">
             <div class="row dotted">
                 <div class="white-box grow text-center">
                     УПРАВЛЕНИЕ ДАННЫМИ
@@ -163,7 +166,7 @@
             </div>
             <div class="row full-height dotted" style="height: 11.5em;"></div>
         </div>
-        <div class="col-xs-6 col-sm-6 col-md-6 full-height" style="padding-left: 0.75em;">
+        <div class="col-xs-5 col-sm-5 col-md-5 full-height" style="padding-left: 0.75em;">
             <div class="row dotted">
                 <div class="white-box grow text-center">
                     УПРАВЛЕНИЕ ОБОРУДОВАНИЕМ
@@ -225,7 +228,6 @@
                 </div>
             </div>
         </div>
-
         <div class="col-xs-2 col-sm-2 col-md-2 full-height" style="padding-left: 1.5em; padding-right: 1.5em;">
             <div class="row dotted">
                 <div class="white-box grow text-center">
@@ -254,6 +256,7 @@
 
             <div class="row dotted" style="height: 6.6em;"></div>
         </div>
+        <div class="col-xs-1 col-sm-1 col-md-1 full-height"></div>
     </div>
     <!--SECOND SECTION-->
     <div class="row second-section">
@@ -261,7 +264,7 @@
         <div class="col-xs-5 col-sm-5 col-md-5">
             <img src="./imgs/AICBERG1.jpg" class="wow animated slideInLeft" style="max-width: 90%;">
         </div>
-        <div class="col-sm-6 col-md-6" style="padding-top: 0px; font-size: 24px; font-weight: 600;">
+        <div class="col-sm-6 col-md-6" style="padding-top: 2em; font-size: 24px; font-weight: 600;">
             <p>
                 СКОЛЬКО СТОИТ БИЗНЕСУ НЕСВОЕВРЕМЕННОЕ ОБСЛУЖИВАНИЕ ОБОРУДОВАНИЯ
             </p>
@@ -356,9 +359,12 @@
         </div>
     </div>
     <!--FIFTH SECTION-->
-    <div class="row fifth-section" style="position: relative; height: 54vw; display: flex; align-items: flex-start; flex-direction: column; justify-content: center;">
+    <div class="row fifth-section"
+         style="position: relative; height: 54vw; display: flex; align-items: flex-start; flex-direction: column; justify-content: center;">
         <div class="col-sm-1 col-md-1"></div>
-        <div class="col-sm-5 col-md-5 section-info-text white-text" style="padding-left: 5em; display: flex; align-items: flex-start; flex-direction: column; justify-content: center;">
+        <div class="col-sm-5 col-md-5 section-info-text white-text"
+             style="padding-left: 5em; display: flex; align-items: flex-start; flex-direction: column;
+             justify-content: center; font-size: 1.5em;">
             <p>
                 А ВЫ ЗНАЕТЕ ПОЧЕМУ BOEING 747 ОДИН ИЗ САМЫХ НАДЕЖНЫХ САМОЛЕТОВ В МИРЕ?
             </p>
@@ -404,15 +410,28 @@
                     </div>
                     <div class="form-group text-right">
                         <div class="col-xs-1 col-sm-1 col-md-1"></div>
-                        <div class="col-xs-3 col-sm-3 col-md-3 text-left">
-                            <div class="radio">
-                                <label><input type="radio" name="optradio" value="ИТ-система">ИТ-система</label>
+                        <div class="col-xs-3 col-sm-3 col-md-3 text-left"
+                             style="padding-left: 0px; padding-right: 0px;">
+                            <div class="checkbox">
+                                <label style="font-size: 1em; padding-left: 0px;">
+                                    <input type="checkbox" value="ИТ-система" checked>
+                                    <span class="cr"><i class="cr-icon fa fa-check"></i></span>
+                                    ИТ-система
+                                </label>
                             </div>
-                            <div class="radio">
-                                <label><input type="radio" name="optradio" value="Услуги">Услуги</label>
+                            <div class="checkbox">
+                                <label style="font-size: 1em; padding-left: 0px;">
+                                    <input type="checkbox" value="Услуги" checked>
+                                    <span class="cr"><i class="cr-icon fa fa-check"></i></span>
+                                    Услуги
+                                </label>
                             </div>
-                            <div class="radio">
-                                <label><input type="radio" name="optradio" value="Другое">Другое</label>
+                            <div class="checkbox">
+                                <label style="font-size: 1em; padding-left: 0px;">
+                                    <input type="checkbox" value="Другое" checked>
+                                    <span class="cr"><i class="cr-icon fa fa-check"></i></span>
+                                    Другое
+                                </label>
                             </div>
                         </div>
                         <div class="col-xs-8 col-sm-8 col-md-8 text-left">
@@ -498,11 +517,11 @@
             theme: $("input[name='optradio']:checked").val(),
             info: $("#info").val()
         })
-                .then(function (response) {
-                    console.log("SUCCESS. status=%d, text=%s", response.status, response.text);
-                }, function (err) {
-                    console.log("FAILED. error=", err);
-                });
+            .then(function (response) {
+                console.log("SUCCESS. status=%d, text=%s", response.status, response.text);
+            }, function (err) {
+                console.log("FAILED. error=", err);
+            });
     }
 
     function initMap() {
