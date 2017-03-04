@@ -19,7 +19,7 @@
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
     <style>
         .after-pingwin-section {
-            height: 30vw;
+            height: 75%;
         }
 
         .full-height {
@@ -92,6 +92,20 @@
 
         .contact-bottom-style {
             font-size: 1.5em;
+        }
+
+        .cities {
+            position: absolute;
+            bottom: 2em;
+            left: 2em;
+            z-index: 11;
+        }
+
+        .city {
+            padding: 1em;
+            font-size: 1em;
+            background-color: white;
+            border: solid .2em #ffb718;
         }
     </style>
 </head>
@@ -214,7 +228,7 @@
                 </div>
             </div>
 
-            <div class="row dotted" style="padding: 0px; padding-top: 2.5%; padding-bottom: 5em;">
+            <div class="row dotted" style="padding: 0px; padding-top: 2.5%; padding-bottom: 5.7em;">
                 <div class="row">
                     <div class="col-xs-4 col-sm-4 col-md-4" style="padding: 0px;">
                     </div>
@@ -259,7 +273,7 @@
         <div class="col-xs-1 col-sm-1 col-md-1 full-height"></div>
     </div>
     <!--SECOND SECTION-->
-    <div class="row second-section">
+    <div class="row second-section-main">
         <div class="col-sm-1 col-md-1"></div>
         <div class="col-xs-5 col-sm-5 col-md-5">
             <img src="./imgs/AICBERG1.jpg" class="wow animated slideInLeft" style="max-width: 90%;">
@@ -380,7 +394,7 @@
         </div>
     </div>
 
-    <div class="row">
+    <div class="row" id="contact-form">
         <div class="col-xs-4 col-sm-4 col-md-4" style="background-color: #ffb718; height: 100%; color: white;">
             <div class="text-right" style="margin-top: 4em;">
                 <form class="form-horizontal">
@@ -435,12 +449,12 @@
                             </div>
                         </div>
                         <div class="col-xs-8 col-sm-8 col-md-8 text-left">
-                            <textarea class="form-control" id="info" rows="5"></textarea>
+                            <textarea class="form-control" id="info" rows="5" style="padding-left: 0px; padding-right: 0px;"></textarea>
                         </div>
                     </div>
                 </form>
                 <button type="submit" class="readmore_arrow grow" style="background-color: white; color: #ffb718;"
-                        onclick="contactUs()">
+                        onclick="contactUsMenu()">
                     ОТПРАВИТЬ
                 </button>
             </div>
@@ -465,7 +479,13 @@
             </div>
         </div>
         <div class="col-xs-8 col-sm-8 col-md-8">
-            <div id="map" style="height: 100%; width: 100%;"></div>
+            <div class="cities">
+                <button class="city" onclick="setAddress('kyiv')">Киев</button>
+                <button class="city" onclick="setAddress('minsk')">Минск</button>
+                <button class="city" onclick="setAddress('moskva')">Москва</button>
+            </div>
+            <div id="map" style="height: 100%; width: 100%;">
+            </div>
         </div>
     </div>
 </div>
@@ -483,6 +503,7 @@
         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBtfDeglSyhHuemMKU6GqpX4vdtJAqYVqk&callback=initMap">
 </script>
 <script type="text/javascript">
+    var map = {};
 
     $('#myCarousel').carousel({
         interval: 10000
@@ -507,6 +528,17 @@
         emailjs.init("user_PaDPVFgteHnBHqirnoKKa");
     })();
 
+    function setAddress(city)
+    {
+        if (city == 'kyiv')
+            map.setCenter({lat: 50.396028, lng: 30.624722});
+        else if (city == 'minsk')
+            map.setCenter({lat: 53.905656, lng: 27.553634});
+        else
+            map.setCenter({lat: 55.754689, lng: 37.615169});
+        map.setZoom(12);
+    }
+
     function contactUs() {
         // parameters: service_id, template_id, template_parameters
         emailjs.send("default_service", "smarteam_id", {
@@ -526,7 +558,7 @@
 
     function initMap() {
         var uluru = {lat: 50.396028, lng: 30.624722};
-        var map = new google.maps.Map(document.getElementById('map'), {
+        map = new google.maps.Map(document.getElementById('map'), {
             zoom: 16,
             center: uluru,
             styles: [

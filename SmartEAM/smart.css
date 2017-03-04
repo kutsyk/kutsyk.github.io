@@ -24,15 +24,21 @@ ul.nav li {
 }
 
 .second-section {
-    padding-top: 5%;
-    padding-bottom: 5%;
-    background-image: linear-gradient(bottom, rgba(193, 193, 193, 0.51) 52%, white 38%);
-    background-image: -o-linear-gradient(bottom, rgba(193, 193, 193, 0.51) 52%, white 38%);
-    background-image: -moz-linear-gradient(bottom, rgba(193, 193, 193, 0.51) 52%, white 38%);
-    background-image: -webkit-linear-gradient(bottom, rgba(193, 193, 193, 0.51) 52%, white 38%);
-    background-image: -ms-linear-gradient(bottom, rgba(193, 193, 193, 0.51) 52%, white 38%);
+    background-image: url("imgs/aicberg/ice_3.png");
+    background-size: 100%;
+    background-repeat: no-repeat;
+    height: 45vw;
 }
 
+.second-section-main {
+    padding-top: 5%;
+    padding-bottom: 5%;
+    background-image: linear-gradient(bottom, rgba(193, 193, 193, 0.51) 62%, white 38%);
+    background-image: -o-linear-gradient(bottom, rgba(193, 193, 193, 0.51) 62%, white 38%);
+    background-image: -moz-linear-gradient(bottom, rgba(193, 193, 193, 0.51) 62%, white 38%);
+    background-image: -webkit-linear-gradient(bottom, rgba(193, 193, 193, 0.51) 62%, white 38%);
+    background-image: -ms-linear-gradient(bottom, rgba(193, 193, 193, 0.51) 62%, white 38%);
+}
 /*.third-section:hover {*/
 /*background-image: url(imgs/third-section-background-min.jpg);*/
 /*background-size: 100%;*/

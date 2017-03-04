@@ -37,15 +37,28 @@
             <!--<h2><i id="upClick" class="fa fa-arrow-up" aria-hidden="true" onclick="scrollUp()"></i></h2>-->
             <i class="fa fa-facebook-square social-icons"></i>
             <i class="fa fa-linkedin-square social-icons"></i>
-            <i class="fa fa-envelope social-icons"></i>
+            <a href="#contact-form">
+                <i class="fa fa-envelope social-icons"></i>
+            </a>
         </ul>
     </div>
 </div>
 <div id="thankYou" class="modal fade" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-body text-center">
-                Спасибо, мы свяжемся с вами в ближайшее время
+            <div class="modal-header text-center">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <!--<h4 class="modal-title">Спасибо</h4>-->
+            </div>
+            <div class="modal-body text-center" style="display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 150px;
+    font-size: 2em;">
+                <div class="modal-body">
+                    Спасибо, мы свяжемся с вами в ближайшее время
+                </div>
             </div>
         </div>
     </div>
@@ -85,25 +98,29 @@
                     </div>
                     <div class="form-group text-right">
                         <div class="col-sm-1 col-md-1"></div>
-                        <div class="col-xs-3 col-sm-3 col-md-3 text-left" style="padding-left: 0px; padding-right: 0px;">
+                        <div class="col-xs-3 col-sm-3 col-md-3 text-left"
+                             style="padding-left: 0px; padding-right: 0px;">
                             <div class="checkbox">
                                 <label style="font-size: 1em; padding-left: 0px;">
-                                    <input type="checkbox" value="ИТ-система" checked>
-                                    <span class="cr" style="color: #ffb718; border: 1px solid;"><i class="cr-icon fa fa-check"></i></span>
+                                    <input type="checkbox" value="ИТ-система" checked name="category">
+                                    <span class="cr" style="color: #ffb718; border: 1px solid;"><i
+                                            class="cr-icon fa fa-check"></i></span>
                                     ИТ-система
                                 </label>
                             </div>
                             <div class="checkbox">
                                 <label style="font-size: 1em; padding-left: 0px;">
-                                    <input type="checkbox" value="Услуги" checked>
-                                    <span class="cr" style="color: #ffb718; border: 1px solid;"><i class="cr-icon fa fa-check"></i></span>
+                                    <input type="checkbox" value="Услуги" name="category">
+                                    <span class="cr" style="color: #ffb718; border: 1px solid;"><i
+                                            class="cr-icon fa fa-check"></i></span>
                                     Услуги
                                 </label>
                             </div>
                             <div class="checkbox">
                                 <label style="font-size: 1em; padding-left: 0px;">
-                                    <input type="checkbox" value="Другое" checked>
-                                    <span class="cr" style="color: #ffb718; border: 1px solid;"><i class="cr-icon fa fa-check"></i></span>
+                                    <input type="checkbox" value="Другое" name="category">
+                                    <span class="cr" style="color: #ffb718; border: 1px solid;"><i
+                                            class="cr-icon fa fa-check"></i></span>
                                     Другое
                                 </label>
                             </div>
@@ -113,7 +130,7 @@
                         </div>
                     </div>
                 </form>
-                <button type="submit" class="readmore_arrow grow" id="contactUsButton"
+                <button type="submit" class="readmore_arrow grow" onclick="contactUsMenu()"
                         style="width: 50%; background-color: white; color: #ffb718; font-weight: bold;">ОТПРАВИТЬ
                 </button>
             </div>
@@ -157,40 +174,26 @@
             emailjs.init("user_PaDPVFgteHnBHqirnoKKa");
         })();
 
-        function contactUs() {
-            // parameters: service_id, template_id, template_parameters
-            emailjs.send("default_service", "smarteam_id", {
-                to_name: "Kirill",
-                from_name: $("#secondname").val() + ', ' + $('#name').val(),
-                email: $("#email").val(),
-                phone: $("#phone").val(),
-                theme: $("input[name='optradio']:checked").val(),
-                info: $("#info").val()
-            }).then(function (response) {
-                console.log("SUCCESS. status=%d, text=%s", response.status, response.text);
-            }, function (err) {
-                console.log("FAILED. error=", err);
-            });
-        }
-
-        $("#contactUsButton").click(function () {
-            // parameters: service_id, template_id, template_parameters
-            emailjs.send("default_service", "smarteam_id", {
-                to_name: "Kirill",
-                from_name: $("#secondname").val() + ', ' + $('#name').val(),
-                email: $("#email").val(),
-                phone: $("#phone").val(),
-                theme: $("input[name='optradio']:checked").val(),
-                info: $("#info").val()
-            }).then(function (response) {
-                console.log("SUCCESS. status=%d, text=%s", response.status, response.text);
-            }, function (err) {
-                console.log("FAILED. error=", err);
-            });
-            $('#contactForm').modal("hide");
-            $('#thankYou').modal("show");
-        });
-
+//        $("#contactUsButton").click(function () {
+//            console.log("Hello");
+//            console.log($("input[name='category']:checked").val());
+//             parameters: service_id, template_id, template_parameters
+//            emailjs.send("default_service", "smarteam_id", {
+//                to_name: "Kirill",
+//                from_name: $("#secondname").val() + ', ' + $('#name').val(),
+//                email: $("#email").val(),
+//                phone: $("#phone").val(),
+//                theme: $("input[name='category']:checked").val(),
+//                info: $("#info").val()
+//            }).then(function (response) {
+//                console.log("SUCCESS. status=%d, text=%s", response.status, response.text);
+//            }, function (err) {
+//                console.log("FAILED. error=", err);
+//            });
+//            $('#contactForm').modal("hide");
+//            $('#thankYou').modal("show");
+//        });
+//
         new WOW().init();
         var scrolled = 0;
 
