@@ -87,7 +87,10 @@ Point : One Page Event and Conference HTML Template
 .navbar-brand{
 	width:100%;
 }
-.main_navigation{}
+.main_navigation{
+	margin-top: 5em;
+}
+
 .main_navigation li{
 	padding:3px 0;
 	-webkit-transition:all 1s ease;
