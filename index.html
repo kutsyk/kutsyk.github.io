@@ -44,6 +44,28 @@
 
     <link rel='shortcut icon' type='image/x-icon' href='/favicon.ico' />
     <style type="text/css">
+        html {
+          font-size: 18px;
+        }
+
+        @include media-breakpoint-up(sm) {
+          html {
+            font-size: 20px;
+          }
+        }
+
+        @include media-breakpoint-up(md) {
+          html {
+            font-size: 22px;
+          }
+        }
+
+        @include media-breakpoint-up(lg) {
+          html {
+            font-size: 30px;
+          }
+        }
+        
         .ava {
             margin-top: 1em;
             max-width: 16em;
@@ -56,9 +78,6 @@
         body {
             height: 100%;
             font-family: 'Titillium Web', sans-serif;
-        }
-        p {
-            font-size: 1.4em;
         }
     </style>
 
