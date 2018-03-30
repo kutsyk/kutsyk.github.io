@@ -1,168 +1,25 @@
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-<head>
-    <!-- Google Tag Manager -->
-    <script>(function (w, d, s, l, i) {
-        w[l] = w[l] || [];
-        w[l].push({
-            'gtm.start':
-                new Date().getTime(), event: 'gtm.js'
-        });
-        var f = d.getElementsByTagName(s)[0],
-            j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : '';
-        j.async = true;
-        j.src =
-            'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
-        f.parentNode.insertBefore(j, f);
-    })(window, document, 'script', 'dataLayer', 'GTM-WPGZJMQ');</script>
-    <!-- End Google Tag Manager -->
+---
+layout: default
+---
 
-    <title>Kutsyk Vasya - FullStack Software Developer</title>
+<div class="posts">
+  {% for post in site.posts %}
+    <article class="post">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="author" content="Vasyl Kutsyk">
-    <meta name="robots" content="index, follow">
-    <meta name="keywords"
-          content="Kutsyk Vasyl, Vasyl Kutsyk, Kutsyk, Vasyl, Vasya, Kutsyk Vasya, Куцик Василь, Куцик Вася, Куцик, Developer, MSP, FullStack Java Developer, Geek">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="canonical" href="https://kutsyk.github.io/">
-    <!-- Global Site Tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-107692294-1"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
+      <h1><a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></h1>
+      <span>Tags:
+      {% for tag in post.tags %}
+        {% capture tag_name %}{{ tag }}{% endcapture %}
+        <a href="/tag/{{ tag_name }}"><code class="highligher-rouge"><nobr>{{ tag_name }}</nobr></code>&nbsp;</a>
+      {% endfor %}
+      </span>
+      <hr>
+      <div class="entry">
+        {{ post.excerpt }}
+      </div>
 
-        function gtag() {
-            dataLayer.push(arguments);
-        }
 
-        gtag('js', new Date());
-
-        gtag('config', 'UA-107692294-1');
-    </script>
-
-    <link rel="stylesheet" href="bootstrap-4.0.0-alpha.6-dist/css/bootstrap.min.css" crossorigin="anonymous">
-    <link rel="stylesheet" href="bootstrap-4.0.0-alpha.6-dist/css/bootstrap-grid.min.css" crossorigin="anonymous">
-    <link rel="stylesheet" href="bootstrap-4.0.0-alpha.6-dist/css/bootstrap-reboot.min.css" crossorigin="anonymous">
-    <link rel="stylesheet" href="font-awesome-4.7.0/css/font-awesome.min.css" crossorigin="anonymous">
-
-    <link rel='shortcut icon' type='image/x-icon' href='/favicon.ico'/>
-    <style type="text/css">
-        .ava {
-            margin-top: 1em;
-            max-width: 16em;
-            max-height: 16em;
-        }
-
-        html {
-            height: 100%;
-        }
-
-        body {
-            height: 100%;
-            font-family: 'Titillium Web', sans-serif;
-        }
-    </style>
-
-</head>
-<body>
-<!-- Google Tag Manager (noscript) -->
-<noscript>
-    <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WPGZJMQ"
-            height="0" width="0" style="display:none;visibility:hidden"></iframe>
-</noscript>
-<!-- End Google Tag Manager (noscript) -->
-<div class="container">
-    <div class="row justify-content-center">
-        <img src="./ava2.jpg" class="ava img-thumbnail rounded mx-auto rounded">
-    </div>
-    <div class="row justify-content-center">
-        <h3>
-
-            Kutsyk Vasyl
-        </h3>
-    </div>
-    <div class="row justify-content-center">
-        <p>
-            Happy to greet you on my website.
-        </p>
-    </div>
-    <div class="row justify-content-center">
-        <p>
-            I am Full Stack Java Developer and former MSP.
-        </p>
-    </div>
-    <div class="row justify-content-center">
-        <p>
-            Here you can find all my social networks' links.
-        </p>
-        <p>Enjoy it!</p>
-    </div>
-    <hr/>
-    <div class="row justify-content-center">
-        <div class="row text-center onl_socialButtons">
-            <div class="col-md-1"></div>
-            <div class="col-md-2">
-                <a href="https://www.facebook.com/vasya.kutsyk" target="_blank" class="btn btn-lg"
-                   data-toggle="tooltip" data-placement="top" title="Facebook">
-                    <i class="fa fa-facebook fa-2x"></i>
-                    <span class="hidden-xs"></span>
-                </a>
-            </div>
-            <div class="col-md-2">
-                <a href="https://twitter.com/VKutsyk" target="_blank" class="btn btn-lg"
-                   data-toggle="tooltip" data-placement="top" title="Twitter">
-                    <i class="fa fa-twitter fa-2x"></i>
-                    <span class="hidden-xs"></span>
-                </a>
-            </div>
-            <div class="col-md-2">
-                <a href="https://github.com/kutsyk" target="_blank" class="btn btn-lg"
-                   data-toggle="tooltip" data-placement="top" title="GitHub">
-                    <i class="fa fa-github fa-2x"></i>
-                    <span class="hidden-xs"></span>
-                </a>
-            </div>
-            <div class="col-md-2">
-                <a href="https://www.linkedin.com/in/kutsyk/" target="_blank" class="btn btn-lg"
-                   data-toggle="tooltip" data-placement="top" title="LinkedIn">
-                    <i class="fa fa-linkedin fa-2x"></i>
-                    <span class="hidden-xs"></span>
-                </a>
-            </div>
-            <div class="col-md-2">
-                <a href="https://www.instagram.com/vasyl.kutsyk/" target="_blank" class="btn btn-block btn-lg"
-                   data-toggle="tooltip" data-placement="top" title="Instagram">
-                    <i class="fa fa-instagram fa-2x"></i>
-                    <span class="hidden-xs"></span>
-                </a>
-            </div>
-            <div class="col-md-1"></div>
-        </div>
-    </div>
-    <hr/>
-    <div class="row justify-content-start">
-        <h3>Publications: </h3>
-    </div>
-    <div class="row justify-content-start">
-        <div class="list-group">
-            <a target="_blank" href="https://www.programmez.com/magazine/article/windows-subsystem-linux-wsl-loutil-astucieux-pour-integrer-linux-windows"
-               class="list-group-item list-group-item-action flex-column">
-                <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">Windows Subsystem for Linux (WSL)</h5>
-                </div>
-                <div class="d-flex w-100 justify-content-start">
-                    <p class="mb-1">Authors: Vasyl Kutsyk, Ihor Leontiev, Vincent Thavonekham</p>
-                </div>
-                <div class="d-flex w-100 justify-content-start">
-                    <small>Windows Subsystem for Linux (WSL), l’outil astucieux pour intégrer Linux à Windows</small>
-                </div>
-                <div class="d-flex w-100 justify-content-between">
-                    <small>October 2017</small>
-                    <small>Programmez! n° 212</small>
-                </div>
-            </a>
-        </div>
-    </div>
+      <a href="{{ site.baseurl }}{{ post.url }}" class="read-more">Read More</a>
+    </article>
+  {% endfor %}
 </div>
-</body>
-</html>
