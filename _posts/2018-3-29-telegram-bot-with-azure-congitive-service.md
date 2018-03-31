@@ -13,13 +13,13 @@ We will create Telegram Bot that is able to recognise text using **OCR(Optical c
 ## Creating a new bot
 ---
 First of all we need register our telegram bot, for this we will use Bot that is called [BotFather](https://telegram.me/BotFather).
-Use the `/newbot` command to create a new bot. The BotFather will ask you for a name and username, then generate an authorization token for your new bot.
+Use the <kbd>/newbot</kbd> command to create a new bot. The BotFather will ask you for a name and username, then generate an authorization token for your new bot.
 
 The name of your bot is displayed in contact details and elsewhere.
 
-The `Username` is a short name, to be used in mentions and telegram.me links. Usernames are 5-32 characters long and are case insensitive, but may only include Latin characters, numbers, and underscores. Your bot's username must end in `bot`, e.g. `tetris_bot` or `TetrisBot`.
+The <kbd>Username</kbd> is a short name, to be used in mentions and telegram.me links. Usernames are 5-32 characters long and are case insensitive, but may only include Latin characters, numbers, and underscores. Your bot's username must end in `bot`, e.g. `tetris_bot` or `TetrisBot`.
 
-The token is a string along the lines of `XXXXXXXXX:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX` that is required to authorize the bot and send requests to the [Bot API](https://core.telegram.org/bots/api).
+The token is a string along the lines of <kbd>XXXXXXXXX:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX<kbd> that is required to authorize the bot and send requests to the [Bot API](https://core.telegram.org/bots/api).
 
 ## Creating a new computer vision service
 ---
@@ -46,7 +46,7 @@ Service is created and we can use it in any project we want. Here is what Comput
 ---
 This time we will use Javascript to create a bot and to connect to Azure.
 Create a folder where you want to hold you bot project and using command line run:
-`npm init`
+<kbd>npm init</kbd>
 
 After initialisation of NodeJs project in your folder should appear file package.json. With my configurations it looks like this:
 {% highlight json %}
@@ -64,7 +64,7 @@ After initialisation of NodeJs project in your folder should appear file package
 {% endhighlight %}
 
 Now will create **bot.js** file.
-`echo >> bot.js`
+<kbd>echo >> bot.js</kbd>
 
 Before starting to write code we need to install libraries that we will use in our bot.
 {% highlight bash %}
@@ -89,15 +89,15 @@ Telegram bot configuration variables.
     telegram = new Telegram(botKey);
 {% endhighlight %}
 
-Next we need get Azure service configuration variables. Be attentive with `uriBaselink`, you should take it from your service `Endpoint` property:
+Next we need get Azure service configuration variables. Be attentive with <kbd>uriBaselink</kbd>, you should take it from your service <kbd>Endpoint</kbd> property:
 
 ![](https://cdn-images-1.medium.com/max/1000/0*5s8NZmjIGhDYhEHR.)
 
-And `azureCongitiveServiceKey` you should take from keys of your service.
+And <kbd>azureCongitiveServiceKey</kbd> you should take from keys of your service.
 
 ![](https://cdn-images-1.medium.com/max/1000/0*U0pz-rqaCRhA_6li.)
 
-We pass parameter to the service through url `language=unk` to be able to detect any language.
+We pass parameter to the service through url <kbd>language=unk</kbd> to be able to detect any language.
 {% highlight javascript %}
 const azureCongitiveServiceKey = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
    uriBase = "https://northeurope.api.cognitive.microsoft.com/vision/v1.0/ocr?language=unk",
@@ -221,19 +221,19 @@ const extractTextFromResponse = (response) => {
 };
 {% endhighlight %}
 
-Next step is to configure bot. We will create command `/help` that will show text the explains how to use bot.
+Next step is to configure bot. We will create command <kbd>/help</kbd> that will show text the explains how to use bot.
 
 `bot.command(‘help’, (ctx) => ctx.reply(‘This bot recognise text from image. Just send a picture for it.’));`
 
 We should add start our bot using command:
 
- `bot.startPolling();`
+ <kbd>bot.startPolling();</kbd>
 
 Now we can start our bot using command 
 
-`node bot.js`
+<kbd>node bot.js</kbd>
 
-And open our bot in telegram and send command `/help`.
+And open our bot in telegram and send command <kbd>/help</kbd>.
 
  ![/help](https://cdn-images-1.medium.com/max/1000/0*LOQRQZ5GphgyahWL.)
 
@@ -261,7 +261,7 @@ bot.on('photo', (ctx) => {
 });
 {% endhighlight %}
 
-`ctx.replyWithHTML` help us format response with HTML styles, so our error response looks like this: `No text was detected.`
+<kbd>ctx.replyWithHTML</kbd> help us format response with HTML styles, so our error response looks like this: `No text was detected.`
 
 **Full bot code:**
 
