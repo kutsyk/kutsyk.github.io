@@ -2,10 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="0e25fd38-3524-4d52-96f1-541c8be946e6" name="Default" comment="">
-      <change type="MOVED" beforePath="$PROJECT_DIR$/_posts/2018-02-10-Maven-Docker-Azure.html" afterPath="$PROJECT_DIR$/draft/2018-02-10-Maven-Docker-Azure.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/_posts/2017-10-20-windows-subsystem-for-linux.html" afterPath="$PROJECT_DIR$/_posts/2017-10-20-windows-subsystem-for-linux.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/_posts/2018-3-29-telegram-bot-with-azure-congitive-service.md" afterPath="$PROJECT_DIR$/_posts/2018-3-29-telegram-bot-with-azure-congitive-service.md" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -19,11 +17,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
-      <file leaf-file-name="2018-02-10-Maven-Docker-Azure.html" pinned="false" current-in-tab="true">
+      <file leaf-file-name="2018-02-10-Maven-Docker-Azure.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/draft/2018-02-10-Maven-Docker-Azure.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="466">
-              <caret line="179" column="0" lean-forward="true" selection-start-line="179" selection-start-column="0" selection-end-line="179" selection-end-column="0" />
+            <state relative-caret-position="403">
+              <caret line="158" column="0" lean-forward="true" selection-start-line="158" selection-start-column="0" selection-end-line="158" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -33,8 +31,8 @@
         <entry file="file://$PROJECT_DIR$/_posts/2018-3-29-telegram-bot-with-azure-congitive-service.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
-              <first_editor relative-caret-position="48">
-                <caret line="346" column="0" lean-forward="false" selection-start-line="346" selection-start-column="0" selection-end-line="370" selection-end-column="0" />
+              <first_editor relative-caret-position="231">
+                <caret line="11" column="0" lean-forward="false" selection-start-line="11" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
                 <folding />
               </first_editor>
               <second_editor />
@@ -42,11 +40,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="2017-10-20-windows-subsystem-for-linux.html" pinned="false" current-in-tab="false">
+      <file leaf-file-name="2017-10-20-windows-subsystem-for-linux.html" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/_posts/2017-10-20-windows-subsystem-for-linux.html">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="84">
-              <caret line="4" column="0" lean-forward="false" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="14" />
+              <caret line="4" column="0" lean-forward="false" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -72,6 +70,7 @@
       <find>de&gt;${err}&lt;/co</find>
       <find>add processing of received</find>
       <find>`</find>
+      <find>excerpt</find>
     </findStrings>
     <dirStrings>
       <dir>C:\Users\VKU3744\Desktop\kutsyk.github.io\_sass\bootstrap</dir>
@@ -106,8 +105,8 @@
         <option value="$PROJECT_DIR$/_layouts/default.html" />
         <option value="$PROJECT_DIR$/_posts/2018-02-10-Maven-Docker-Azure.html" />
         <option value="$PROJECT_DIR$/_posts/2018-3-29-telegram-bot-with-azure-congitive-service.md" />
-        <option value="$PROJECT_DIR$/_posts/2017-10-20-windows-subsystem-for-linux.html" />
         <option value="$PROJECT_DIR$/draft/2018-02-10-Maven-Docker-Azure.html" />
+        <option value="$PROJECT_DIR$/_posts/2017-10-20-windows-subsystem-for-linux.html" />
       </list>
     </option>
   </component>
@@ -201,7 +200,7 @@
       <workItem from="1522424552353" duration="3061000" />
       <workItem from="1522528238957" duration="4473000" />
       <workItem from="1522606122359" duration="2519000" />
-      <workItem from="1522691883819" duration="1180000" />
+      <workItem from="1522691883819" duration="1758000" />
     </task>
     <task id="LOCAL-00001" summary="Jekyll added. Blog created.">
       <created>1522427549378</created>
@@ -217,14 +216,22 @@
       <option name="project" value="LOCAL" />
       <updated>1522532648314</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="comments added">
+      <created>1522693145150</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1522693145150</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="19082000" />
+    <option name="totallyTimeSpent" value="19660000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-9" y="-9" width="1938" height="1048" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18508725" sideWeight="0.5" order="1" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -453,10 +460,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/_posts/2017-10-20-windows-subsystem-for-linux.html">
+    <entry file="file://$PROJECT_DIR$/draft/2018-02-10-Maven-Docker-Azure.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="84">
-          <caret line="4" column="0" lean-forward="false" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="14" />
+        <state relative-caret-position="403">
+          <caret line="158" column="0" lean-forward="true" selection-start-line="158" selection-start-column="0" selection-end-line="158" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -464,8 +471,8 @@
     <entry file="file://$PROJECT_DIR$/_posts/2018-3-29-telegram-bot-with-azure-congitive-service.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor relative-caret-position="48">
-            <caret line="346" column="0" lean-forward="false" selection-start-line="346" selection-start-column="0" selection-end-line="370" selection-end-column="0" />
+          <first_editor relative-caret-position="231">
+            <caret line="11" column="0" lean-forward="false" selection-start-line="11" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
             <folding />
           </first_editor>
           <second_editor />
@@ -478,10 +485,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/draft/2018-02-10-Maven-Docker-Azure.html">
+    <entry file="file://$PROJECT_DIR$/_posts/2017-10-20-windows-subsystem-for-linux.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="466">
-          <caret line="179" column="0" lean-forward="true" selection-start-line="179" selection-start-column="0" selection-end-line="179" selection-end-column="0" />
+        <state relative-caret-position="84">
+          <caret line="4" column="0" lean-forward="false" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
           <folding />
         </state>
       </provider>
