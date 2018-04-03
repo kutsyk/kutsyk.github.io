@@ -59,7 +59,8 @@ comments: true
     </p>
     <p>
         Now we should create Docker file to build image containing this project.
-        First we should create jar package of our app:
+        In process of building image we should include JAR file wich should be runned by docker,
+        so we should create jar package of our app:
     </p>
     <p>
         <kbd>
@@ -68,15 +69,16 @@ comments: true
 
     </p>
     <p>
-        Here is how looks our Dockerfile:
-        {% highlight bash %}
-        FROM openjdk:8-jdk-alpine
-        MAINTAINER Vasyl Kutsyk
-        LABEL version="1.0"
-        LABEL description="MavenDockerVsts Backend image."
-        ADD target/gs-rest-service-0.1.0.jar rest.jar
-        ENTRYPOINT ["java", "-jar", "/rest.jar"]
-        {% endhighlight %}
+        Now when we have <b>.jar</b> file in our target directory, let's create <b>Dockerfile</b> with next content:
+
+{% highlight bash %}
+FROM openjdk:8-jdk-alpine
+MAINTAINER Vasyl Kutsyk
+LABEL version="1.0"
+LABEL description="MavenDockerVsts Backend image."
+ADD target/gs-rest-service-0.1.0.jar rest.jar
+ENTRYPOINT ["java", "-jar", "/rest.jar"]
+{% endhighlight %}
     </p>
     <p>
         Now let’s build our image.
@@ -86,36 +88,36 @@ comments: true
     <p>
         Output:
         {% highlight bash %}
-        Sending build context to Docker daemon 14.8MB
-        Step 1/6 : FROM openjdk:8-jdk-alpine
-        8-jdk-alpine: Pulling from library/openjdk
-        ff3a5c916c92: Already exists
-        5de5f69f42d7: Already exists
-        fd869c8b9b59: Already exists
-        Digest: sha256:4cd17a64b67df1a929a9c6dedf513afcdc48f3ca0b7fddee6489d0246a14390b
-        Status: Downloaded newer image for openjdk:8-jdk-alpine
-        — -> 224765a6bdbe
-        Step 2/6 : MAINTAINER Vasyl Kutsyk
-        — -> Running in 2bbf10201e7a
-        Removing intermediate container 2bbf10201e7a
-        — -> 39dd9c72a5d5
-        Step 3/6 : LABEL version=”1.0"
-        — -> Running in 6f48bd714461
-        Removing intermediate container 6f48bd714461
-        — -> fc13d1739f5d
-        Step 4/6 : LABEL description=”MavenDockerVsts Backend image.”
-        — -> Running in a0de12fdfa80
-        Removing intermediate container a0de12fdfa80
-        — -> 7186ea958189
-        Step 5/6 : ADD target/gs-rest-service-0.1.0.jar rest.jar
-        — -> 70de11083809
-        Step 6/6 : ENTRYPOINT [“java”, “-jar”, “/rest.jar”]
-        — -> Running in 06124a8826bb
-        Removing intermediate container 06124a8826bb
-        — -> 176381ba3526
-        Successfully built 176381ba3526
-        Successfully tagged rest:latest
-        {% endhighlight %}
+Sending build context to Docker daemon 14.8MB
+Step 1/6 : FROM openjdk:8-jdk-alpine
+8-jdk-alpine: Pulling from library/openjdk
+ff3a5c916c92: Already exists
+5de5f69f42d7: Already exists
+fd869c8b9b59: Already exists
+Digest: sha256:4cd17a64b67df1a929a9c6dedf513afcdc48f3ca0b7fddee6489d0246a14390b
+Status: Downloaded newer image for openjdk:8-jdk-alpine
+— -> 224765a6bdbe
+Step 2/6 : MAINTAINER Vasyl Kutsyk
+— -> Running in 2bbf10201e7a
+Removing intermediate container 2bbf10201e7a
+— -> 39dd9c72a5d5
+Step 3/6 : LABEL version=”1.0"
+— -> Running in 6f48bd714461
+Removing intermediate container 6f48bd714461
+— -> fc13d1739f5d
+Step 4/6 : LABEL description=”MavenDockerVsts Backend image.”
+— -> Running in a0de12fdfa80
+Removing intermediate container a0de12fdfa80
+— -> 7186ea958189
+Step 5/6 : ADD target/gs-rest-service-0.1.0.jar rest.jar
+— -> 70de11083809
+Step 6/6 : ENTRYPOINT [“java”, “-jar”, “/rest.jar”]
+— -> Running in 06124a8826bb
+Removing intermediate container 06124a8826bb
+— -> 176381ba3526
+Successfully built 176381ba3526
+Successfully tagged rest:latest
+{% endhighlight %}
     </p>
     <p>
         Now we should check our image localy.
@@ -127,23 +129,23 @@ comments: true
     <p>
         Output:
         {% highlight bash %}
-        REPOSITORY   TAG              IMAGE ID     CREATED            SIZE
-        rest         latest           176381ba352  About an hour ago  116MB
-        openjdk      8-jdk-alpine     224765a6bdbe 7 weeks ago        102MB
+REPOSITORY   TAG              IMAGE ID     CREATED            SIZE
+rest         latest           176381ba352  About an hour ago  116MB
+openjdk      8-jdk-alpine     224765a6bdbe 7 weeks ago        102MB
         {% endhighlight %}
     </p>
     <p>
         Now lets start our project:
-        <kdb>docker run -p 8080:8080 -t rest</kdb>
-        {% highlight java %}
-        /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
-        ( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
-        \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
-        '  |____| .__|_| |_|_| |_\__, | / / / /
-        =========|_|==============|___/=/_/_/_/
-        :: Spring Boot ::        (v1.5.9.RELEASE)
-        ...
-        {% endhighlight %}
+        <kbd>docker run -p 8080:8080 -t rest</kbd>
+{% highlight java %}
+/\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+\\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+'  |____| .__|_| |_|_| |_\__, | / / / /
+=========|_|==============|___/=/_/_/_/
+:: Spring Boot ::        (v1.5.9.RELEASE)
+...
+{% endhighlight %}
     </p>
     <p>
         Everything works well and we can deploy this script and configure build and deployment with it.

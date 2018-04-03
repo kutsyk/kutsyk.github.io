@@ -51,17 +51,17 @@ Create a folder where you want to hold you bot project and using command line ru
 
 After initialisation of NodeJs project in your folder should appear file package.json. With my configurations it looks like this:
 {% highlight json %}
-    {
-        "name": "bot",
-        "version": "1.0.0",
-        "description": "",
-        "main": "bot.js",
-        "scripts": {
-            "test": "echo \"Error: no test specified\" && exit 1"
-        },
-        "author": "Kutsyk Vasyl",
-        "license": "ISC"
-    }
+{
+    "name": "bot",
+    "version": "1.0.0",
+    "description": "",
+    "main": "bot.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "Kutsyk Vasyl",
+    "license": "ISC"
+}
 {% endhighlight %}
 
 Now will create **bot.js** file.
@@ -69,25 +69,25 @@ Now will create **bot.js** file.
 
 Before starting to write code we need to install libraries that we will use in our bot.
 {% highlight bash %}
-    npm install telegraf --save
-    npm install request --save
+npm install telegraf --save
+npm install request --save
 {% endhighlight %}
 
 We will use ES6 with NodeJS to create bot based on Telegraf library.  Now we can proceed to codding.
 
 Initialising variables that will be used in bot.
 {% highlight javascript %}
-    const Telegraf = require('telegraf'),
-    Telegram = require('telegraf/telegram'),
-    session = require('telegraf/session'),
-    request = require('request');
+const Telegraf = require('telegraf'),
+Telegram = require('telegraf/telegram'),
+session = require('telegraf/session'),
+request = require('request');
 {% endhighlight %}
 
 Telegram bot configuration variables.
 {% highlight javascript %}
-    const botKey = "XXXXXXXXX:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    bot = new Telegraf(botKey),
-    telegram = new Telegram(botKey);
+const botKey = "XXXXXXXXX:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+bot = new Telegraf(botKey),
+telegram = new Telegram(botKey);
 {% endhighlight %}
 
 Next we need get Azure service configuration variables. Be attentive with <kbd>uriBaselink</kbd>, you should take it from your service <kbd>Endpoint</kbd> property:
@@ -101,16 +101,16 @@ And <kbd>azureCongitiveServiceKey</kbd> you should take from keys of your servic
 We pass parameter to the service through url <kbd>language=unk</kbd> to be able to detect any language.
 {% highlight javascript %}
 const azureCongitiveServiceKey = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-   uriBase = "https://northeurope.api.cognitive.microsoft.com/vision/v1.0/ocr?language=unk",
-   headers = {
-       "Content-Type": "application/json",
-       "Ocp-Apim-Subscription-Key": azureCongitiveServiceKey
-   },
-   options = {
-       url: uriBase,
-       method: 'POST',
-       headers: headers
-   };
+uriBase = "https://northeurope.api.cognitive.microsoft.com/vision/v1.0/ocr?language=unk",
+headers = {
+    "Content-Type": "application/json",
+    "Ocp-Apim-Subscription-Key": azureCongitiveServiceKey
+},
+options = {
+    url: uriBase,
+    method: 'POST',
+    headers: headers
+};
 {% endhighlight %}
 
 From documentation of [ Computer Vision API](https://westcentralus.dev.cognitive.microsoft.com/docs/services/56f91f2d778daf23d8ec6739/operations/56f91f2e778daf14a499e1fc) response will be next. The OCR results in the hierarchy of region/line/word. The results include text, bounding box for regions, lines and words.
@@ -142,69 +142,69 @@ From documentation of [ Computer Vision API](https://westcentralus.dev.cognitive
 
 
 {% highlight json %}
+{
+  "language": "en",
+  "textAngle": -2.0000000000000338,
+  "orientation": "Up",
+  "regions": [
     {
-      "language": "en",
-      "textAngle": -2.0000000000000338,
-      "orientation": "Up",
-      "regions": [
+      "boundingBox": "462,379,497,258",
+      "lines": [
         {
-          "boundingBox": "462,379,497,258",
-          "lines": [
+          "boundingBox": "462,379,497,74",
+          "words": [
             {
-              "boundingBox": "462,379,497,74",
-              "words": [
-                {
-                  "boundingBox": "462,379,41,73",
-                  "text": "A"
-                },
-                {
-                  "boundingBox": "523,379,153,73",
-                  "text": "GOAL"
-                },
-                {
-                  "boundingBox": "694,379,265,74",
-                  "text": "WITHOUT"
-                }
-              ]
+              "boundingBox": "462,379,41,73",
+              "text": "A"
             },
             {
-              "boundingBox": "565,471,289,74",
-              "words": [
-                {
-                  "boundingBox": "565,471,41,73",
-                  "text": "A"
-                },
-                {
-                  "boundingBox": "626,471,150,73",
-                  "text": "PLAN"
-                },
-                {
-                  "boundingBox": "801,472,53,73",
-                  "text": "IS"
-                }
-              ]
+              "boundingBox": "523,379,153,73",
+              "text": "GOAL"
             },
             {
-              "boundingBox": "519,563,375,74",
-              "words": [
-                {
-                  "boundingBox": "519,563,149,74",
-                  "text": "JUST"
-                },
-                {
-                  "boundingBox": "683,564,41,72",
-                  "text": "A"
-                },
-                {
-                  "boundingBox": "741,564,153,73",
-                  "text": "WISH"
-                }
-              ]
+              "boundingBox": "694,379,265,74",
+              "text": "WITHOUT"
+            }
+          ]
+        },
+        {
+          "boundingBox": "565,471,289,74",
+          "words": [
+            {
+              "boundingBox": "565,471,41,73",
+              "text": "A"
+            },
+            {
+              "boundingBox": "626,471,150,73",
+              "text": "PLAN"
+            },
+            {
+              "boundingBox": "801,472,53,73",
+              "text": "IS"
+            }
+          ]
+        },
+        {
+          "boundingBox": "519,563,375,74",
+          "words": [
+            {
+              "boundingBox": "519,563,149,74",
+              "text": "JUST"
+            },
+            {
+              "boundingBox": "683,564,41,72",
+              "text": "A"
+            },
+            {
+              "boundingBox": "741,564,153,73",
+              "text": "WISH"
             }
           ]
         }
       ]
     }
+  ]
+}
 {% endhighlight %}
 
 So we need helper function to format content of response:
@@ -267,68 +267,58 @@ bot.on('photo', (ctx) => {
 **Full bot code:**
 
 {% highlight javascript %}
-    /**
-    * This is telegram bot for recognising text from images
-    *
-    * @author Vasyl Kutsyk
-    * @licence MIT
-    *
-    */
-    
-    const Telegraf = require('telegraf'),
-       Telegram = require('telegraf/telegram'),
-       request = require('request');
-    
-    const azureCongitiveServiceKey = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-       uriBase = "https://northeurope.api.cognitive.microsoft.com/vision/v1.0/ocr?language=unk",
-       headers = {
-           "Content-Type": "application/json",
-           "Ocp-Apim-Subscription-Key": azureCongitiveServiceKey
-       },
-       options = {
-           url: uriBase,
-           method: 'POST',
-           headers: headers
-       };
-    const botKey = "XXXXXXXXX:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-       bot = new Telegraf(botKey),
-       telegram = new Telegram(botKey);
-    
-    const extractTextFromResponse = (response) => {
-       let text = '';
-       response.regions.forEach((region) => {
-           region.lines.forEach((line) => {
-               line.words.forEach((word) => {
-                   text += word.text + ' ';
-               });
-           });
-       });
-       return text;
+/** 
+* This is telegram bot for recognising text from images 
+* 
+* @author Vasyl Kutsyk 
+* @licence MIT 
+**/
+const Telegraf = require('telegraf'),
+    Telegram = require('telegraf/telegram'),
+    request = require('request');
+const azureCongitiveServiceKey = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    uriBase = "https://northeurope.api.cognitive.microsoft.com/vision/v1.0/ocr?language=unk",
+    headers = {
+        "Content-Type": "application/json",
+        "Ocp-Apim-Subscription-Key": azureCongitiveServiceKey
+    },
+    options = {
+        url: uriBase,
+        method: 'POST',
+        headers: headers
     };
-    
-    bot.command('help', (ctx) => ctx.reply('This bot recognise text from image. Just send a picture for it.'));
-    
-    bot.on('photo', (ctx) => {
-       let receivedPhoto = ctx.update.message.photo;
-       let receivedPhotoFileId = receivedPhoto[receivedPhoto.length - 1].file_id;
-       telegram.getFileLink(receivedPhotoFileId).then((fileLink) => {
-           options.body = `{"url": "${fileLink}"}`;
-           request(options, (err, res, body) => {
-               if (!err && res.statusCode === 200) {
-                   let response = JSON.parse(body);
-                   if (response.regions.length > 0)
-                       ctx.reply(extractTextFromResponse(response));
-                   else
-                       ctx.replyWithHTML("<code>No text was detected.</code>");
-               }
-               else {
-                   ctx.replyWithHTML(`<code>${err}</code>`);
-               }
-           });
-       }).catch((error) => ctx.replyWithHTML(`<code>${error}</code>`))
+const botKey = "XXXXXXXXX:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    bot = new Telegraf(botKey),
+    telegram = new Telegram(botKey);
+const extractTextFromResponse = (response) => {
+    let text = '';
+    response.regions.forEach((region) => {
+        region.lines.forEach((line) => {
+            line.words.forEach((word) => {
+                text += word.text + ' ';
+            });
+        });
     });
-    
-    bot.startPolling();
+    return text;
+};
+bot.command('help', (ctx) => ctx.reply('This bot recognise text from image. Just send a picture for it.'));
+bot.on('photo', (ctx) => {
+    let receivedPhoto = ctx.update.message.photo;
+    let receivedPhotoFileId = receivedPhoto[receivedPhoto.length - 1].file_id;
+    telegram.getFileLink(receivedPhotoFileId).then((fileLink) => {
+        options.body = `{"url": "${fileLink}"}`;
+        request(options, (err, res, body) => {
+            if (!err && res.statusCode === 200) {
+                let response = JSON.parse(body);
+                if (response.regions.length > 0) ctx.reply(extractTextFromResponse(response));
+                else ctx.replyWithHTML("<code>No text was detected.</code>");
+            } else {
+                ctx.replyWithHTML(`<code>${err}</code>`);
+            }
+        });
+    }).catch((error) => ctx.replyWithHTML(`<code>${error}</code>`))
+});
+bot.startPolling();
 {% endhighlight %}
 
 ## Result
