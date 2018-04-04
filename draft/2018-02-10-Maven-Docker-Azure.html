@@ -12,9 +12,9 @@ comments: true
         Azure Web App for containers.
     </p>
     <p>
-        Our platform for organising task and configuring all CI/CD process is VSTS(Visual Studio Team Services). VSTS
-        has a
-        big advantage of contronling task managment and CI/CD from one place for free. 
+        Our platform for organising task and configuring all CI/CD process is <a
+            href="https://www.visualstudio.com/team-services/">VSTS(Visual Studio Team Services)</a>.
+        VSTS has a big advantage of contronling task managment and CI/CD from one place for free. 
         So in general we had to build the following architecture:
     <div class="row  mt-2">
         <figure>
@@ -71,14 +71,14 @@ comments: true
     <p>
         Now when we have <b>.jar</b> file in our target directory, let's create <b>Dockerfile</b> with next content:
 
-{% highlight bash %}
-FROM openjdk:8-jdk-alpine
-MAINTAINER Vasyl Kutsyk
-LABEL version="1.0"
-LABEL description="MavenDockerVsts Backend image."
-ADD target/gs-rest-service-0.1.0.jar rest.jar
-ENTRYPOINT ["java", "-jar", "/rest.jar"]
-{% endhighlight %}
+        {% highlight bash %}
+        FROM openjdk:8-jdk-alpine
+        MAINTAINER Vasyl Kutsyk
+        LABEL version="1.0"
+        LABEL description="MavenDockerVsts Backend image."
+        ADD target/gs-rest-service-0.1.0.jar rest.jar
+        ENTRYPOINT ["java", "-jar", "/rest.jar"]
+        {% endhighlight %}
     </p>
     <p>
         Now let’s build our image.
@@ -88,36 +88,36 @@ ENTRYPOINT ["java", "-jar", "/rest.jar"]
     <p>
         Output:
         {% highlight bash %}
-Sending build context to Docker daemon 14.8MB
-Step 1/6 : FROM openjdk:8-jdk-alpine
-8-jdk-alpine: Pulling from library/openjdk
-ff3a5c916c92: Already exists
-5de5f69f42d7: Already exists
-fd869c8b9b59: Already exists
-Digest: sha256:4cd17a64b67df1a929a9c6dedf513afcdc48f3ca0b7fddee6489d0246a14390b
-Status: Downloaded newer image for openjdk:8-jdk-alpine
-— -> 224765a6bdbe
-Step 2/6 : MAINTAINER Vasyl Kutsyk
-— -> Running in 2bbf10201e7a
-Removing intermediate container 2bbf10201e7a
-— -> 39dd9c72a5d5
-Step 3/6 : LABEL version=”1.0"
-— -> Running in 6f48bd714461
-Removing intermediate container 6f48bd714461
-— -> fc13d1739f5d
-Step 4/6 : LABEL description=”MavenDockerVsts Backend image.”
-— -> Running in a0de12fdfa80
-Removing intermediate container a0de12fdfa80
-— -> 7186ea958189
-Step 5/6 : ADD target/gs-rest-service-0.1.0.jar rest.jar
-— -> 70de11083809
-Step 6/6 : ENTRYPOINT [“java”, “-jar”, “/rest.jar”]
-— -> Running in 06124a8826bb
-Removing intermediate container 06124a8826bb
-— -> 176381ba3526
-Successfully built 176381ba3526
-Successfully tagged rest:latest
-{% endhighlight %}
+        Sending build context to Docker daemon 14.8MB
+        Step 1/6 : FROM openjdk:8-jdk-alpine
+        8-jdk-alpine: Pulling from library/openjdk
+        ff3a5c916c92: Already exists
+        5de5f69f42d7: Already exists
+        fd869c8b9b59: Already exists
+        Digest: sha256:4cd17a64b67df1a929a9c6dedf513afcdc48f3ca0b7fddee6489d0246a14390b
+        Status: Downloaded newer image for openjdk:8-jdk-alpine
+        — -> 224765a6bdbe
+        Step 2/6 : MAINTAINER Vasyl Kutsyk
+        — -> Running in 2bbf10201e7a
+        Removing intermediate container 2bbf10201e7a
+        — -> 39dd9c72a5d5
+        Step 3/6 : LABEL version=”1.0"
+        — -> Running in 6f48bd714461
+        Removing intermediate container 6f48bd714461
+        — -> fc13d1739f5d
+        Step 4/6 : LABEL description=”MavenDockerVsts Backend image.”
+        — -> Running in a0de12fdfa80
+        Removing intermediate container a0de12fdfa80
+        — -> 7186ea958189
+        Step 5/6 : ADD target/gs-rest-service-0.1.0.jar rest.jar
+        — -> 70de11083809
+        Step 6/6 : ENTRYPOINT [“java”, “-jar”, “/rest.jar”]
+        — -> Running in 06124a8826bb
+        Removing intermediate container 06124a8826bb
+        — -> 176381ba3526
+        Successfully built 176381ba3526
+        Successfully tagged rest:latest
+        {% endhighlight %}
     </p>
     <p>
         Now we should check our image localy.
@@ -129,31 +129,74 @@ Successfully tagged rest:latest
     <p>
         Output:
         {% highlight bash %}
-REPOSITORY   TAG              IMAGE ID     CREATED            SIZE
-rest         latest           176381ba352  About an hour ago  116MB
-openjdk      8-jdk-alpine     224765a6bdbe 7 weeks ago        102MB
+        REPOSITORY TAG IMAGE ID CREATED SIZE
+        rest latest 176381ba352 About an hour ago 116MB
+        openjdk 8-jdk-alpine 224765a6bdbe 7 weeks ago 102MB
         {% endhighlight %}
     </p>
     <p>
         Now lets start our project:
         <kbd>docker run -p 8080:8080 -t rest</kbd>
-{% highlight java %}
-/\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
-( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
-\\/  ___)| |_)| | | | | || (_| |  ) ) ) )
-'  |____| .__|_| |_|_| |_\__, | / / / /
-=========|_|==============|___/=/_/_/_/
-:: Spring Boot ::        (v1.5.9.RELEASE)
-...
-{% endhighlight %}
+        {% highlight java %}
+        /\\ / ___'_ __ _ _(_)_ __ __ _ \ \ \ \
+        ( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+        \\/ ___)| |_)| | | | | || (_| | ) ) ) )
+        ' |____| .__|_| |_|_| |_\__, | / / / /
+        =========|_|==============|___/=/_/_/_/
+        :: Spring Boot :: (v1.5.9.RELEASE)
+        ...
+        {% endhighlight %}
     </p>
     <p>
         Everything works well and we can deploy this script and configure build and deployment with it.
     </p>
+
+    <h2>
+        Configuring Azure Environment
+    </h2>
+
     <p>
-        First of all we should install <a href="https://marketplace.visualstudio.com/items?itemName=ms-vscs-rm.docker">Docker Extension for VSTS</a>
+        If you don't have Azure account you should go and create one - <a href="https://azure.microsoft.com/en-us/">Create</a>.
     </p>
 
+    <div>
+        <ol>
+            <li>
+                <div>If you have Docker registry you can skip this step. We will create <a
+                        href="https://azure.microsoft.com/en-us/services/container-registry/">
+                    Azure Container Registry</a> to store images of our project:
+                </div>
+                <div>
+                    <ul>
+                        <li>Go to Search and type <b>docker</b></li>
+                        <li>Choose Azure Container Registry - Create
+                            <img src="/assets/img/posts/2018-02-10/Azure%20Create%20Docker%20Container%20Registry.PNG"
+                                 alt="Create Container Registry">
+                        </li>
+                        <li>
+                            Fill information:
+                            <br>
+                            <img src="/assets/img/posts/2018-02-10/Container%20Registry%20Fill%20information.PNG"
+                                 alt="Fill information">
+                        </li>
+                        <li>
+                            After resource will be created we should enable Admin access to enable Azure pull images
+                            from registry:
+                            <img src="/assets/img/posts/2018-02-10/Container%20Registry%20Enable%20Admin.PNG"
+                                 alt="Admin credentials">
+                        </li>
+                    </ul>
+                </div>
+            </li>
+        </ol>
+    </div>
+    <div>
+        <h2>Configure VSTS</h2>
+        <p>
+            First of all for working with Docker images and files in VSTS we need to install
+			<a href="https://marketplace.visualstudio.com/items?itemName=ms-vscs-rm.docker">Docker plugin for VSTS</a>.
+        </p>
+    </div>
 </div>
 {% if page.comments %}
 <div id="disqus_thread"></div>
@@ -168,7 +211,7 @@ openjdk      8-jdk-alpine     224765a6bdbe 7 weeks ago        102MB
     this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     */
-    (function() { // DON'T EDIT BELOW THIS LINE
+    (function () { // DON'T EDIT BELOW THIS LINE
         var d = document, s = d.createElement('script');
         s.src = 'https://kutsyk.disqus.com/embed.js';
         s.setAttribute('data-timestamp', +new Date());
@@ -176,6 +219,7 @@ openjdk      8-jdk-alpine     224765a6bdbe 7 weeks ago        102MB
     })();
 </script>
 <script id="dsq-count-scr" src="//kutsyk.disqus.com/count.js" async></script>
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by
+    Disqus.</a></noscript>
 
 {% endif %}
