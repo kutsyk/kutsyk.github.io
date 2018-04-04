@@ -358,3 +358,33 @@ s.setAttribute('data-timestamp', +new Date());
 <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
                             
 {% endif %}
+
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "NewsArticle",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://google.com/article"
+  },
+  "headline": "Telegram Bot for image recognition with Azure Cognitive Services",
+  "image": [
+    "https://kutsyk.github.io//assets/img/posts/2018-3-29-telegram-bot-with-azure-congitive-service/new_comp_vision.png",
+   ],
+  "datePublished": "2018-03-29T08:00:00+08:00",
+  "dateModified": "2018-03-29T09:20:00+08:00",
+  "author": {
+    "@type": "Person",
+    "name": "Vasyl Kutsyk"
+  },
+   "publisher": {
+    "@type": "Organization",
+    "name": "Kutsyk",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://kutsyk.github.io/images/main_photo.jpg"
+    }
+  },
+  "description": "We will create Telegram Bot that is able to recognise text using OCR"
+}
+</script>
