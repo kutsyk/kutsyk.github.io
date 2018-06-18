@@ -2,7 +2,7 @@
 layout: post
 title: Telegram Bot for image recognition with Azure Cognitive Services
 comments: true
-tags: azure
+tags: azure telegram bot javascript nodejs AI
 excerpt_separator: <!--more-->
 ---
 
