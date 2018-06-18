@@ -1,10 +1,4 @@
----
-layout: page
-title: About
-permalink: /about/
----
-
-Vasyl Kutsyk   
+About me
 
 ## A bit more Information
 
@@ -16,4 +10,4 @@ So the main thing is not to stop exploring the word. <b>#freedomofexploting</b>
 
 ## Contact me
 
-[vasyl.kutsyk@gmail.com](mailto:vasyl.kutsyk@gmail.com)
+[vasyl.kutsyk AT gmail.com](mailto:vasyl.kutsyk AT gmail.com)
