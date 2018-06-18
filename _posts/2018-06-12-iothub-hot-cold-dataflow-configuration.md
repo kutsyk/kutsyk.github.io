@@ -38,15 +38,18 @@ Run the function as it is to open log streaming and see what is going on.
 
 __Logs:__
 
+{% highlight bash %}
 > 2018-06-18T19:06:43  Welcome, you are now connected to log-streaming service.
 > 2018-06-18T19:07:04.568 [Info] Function started (Id=a60af5f3-ad37-4a45-a450-2c3ac89fca81)
 > 2018-06-18T19:07:04.583 [Info] C# Event Hub trigger function processed a message: Test Message
 > 2018-06-18T19:07:04.583 [Info] Function completed (Success, Id=a60af5f3-ad37-4a45-a450-2c3ac89fca81, Duration=11ms)
+{% endhighlight %}
 
 Run your Device Emulator to check if messages are received via Function App.
 
 __Logs:__
 
+{% highlight bash %}
 > 2018-06-18T19:06:43  Welcome, you are now connected to log-streaming service.
 > 2018-06-18T19:07:04.568 [Info] Function started (Id=a60af5f3-ad37-4a45-a450-2c3ac89fca81)
 > 2018-06-18T19:07:04.583 [Info] C# Event Hub trigger function processed a message: Test Message
@@ -57,6 +60,7 @@ __Logs:__
 > 2018-06-18T19:09:56.815 [Info] C# Event Hub trigger function processed a message: {"deviceId":"AAABBB","time":1529348996,"seqNumber":1,"data":"3015001E0004186DEA983F80","snr":0,"station":"","rssi":0,"ack":false}
 > 2018-06-18T19:09:56.815 [Info] Function completed (Success, Id=2d9db652-62e6-4ab9-a9a5-ddf8be7d23e4, Duration=0ms)
 > 2018-06-18T19:09:57.862 [Info] Function started
+{% endhighlight %}
 
 Nice, we are receiving messages into our IotHub and from IotHub they are delivered into Function App
 
