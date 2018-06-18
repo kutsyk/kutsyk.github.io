@@ -1,12 +1,10 @@
 ---
 layout: post
-title: IoTHub, Blob Storage and Function App. Configuring `Cold` and `Hot` path of data processing.
+title: IoTHub, Blob Storage and Function App. Configuring Cold and Hot path of data processing.
 comments: true
 tags: azure iothub storage blob function workflow
 excerpt_separator: <!--more-->
 ---
-
-# IoTHub, Blob Storage and Function App. Configuring `Cold` and `Hot` path of data processing.
 
 Here is how you can efficient and working workflow of data from IoTHub into Function App and Blob storage, the same data.
 
