@@ -9,18 +9,15 @@ canvas {
 }
 </style>
 </head>
-<body style="height: 100%; text-align: center;" onload="startGame()">
+<body style="margin-bottom: 0; height: 100%; text-align: center;" onload="startGame()">
 <script>
 document.addEventListener("touchstart", function(event) {
-    console.log('touch');
-    console.log();
     if (event.changedTouches[0].pageX > myGamePiece.x)
         moveRight();
     else moveLeft();
 }, false);
 
 document.addEventListener("touchend", function(event) {
-    console.log('touch end');
     clearmove();
 }, false);
 
@@ -39,11 +36,16 @@ var fromBottom = 48;
 var myGamePiece;
 var myObstacles = [];
 var myScore;
+var generalWidth = document.body.clientWidth < 600 ? document.body.clientWidth : 600;
+var car = new Image();
+car.src = "car.png";
+var vest = new Image();
+vest.src = "vest.png";
 
 function startGame() {
-    myGamePiece = new component(30, 30, "red", document.body.clientWidth/2 - 30, document.body.clientHeight - fromBottom - 40);
+    myGamePiece = new component(30, 30, "red",  generalWidth/2 - 30, document.body.clientHeight - fromBottom - 80, "car");
     myGamePiece.gravity = 0;
-    myScore = new component("30px", "Consolas", "black", document.body.clientWidth/2 - 75, 36, "text");
+    myScore = new component("30px", "Consolas", "black",  generalWidth/2 - 75, 36, "text");
     myGameArea.start();
 }
 
@@ -51,7 +53,7 @@ var myGameArea = {
     canvas : document.createElement("canvas"),
     start : function() {
 
-        this.canvas.width = document.body.clientWidth < 600 ? document.body.clientWidth : 600;
+        this.canvas.width =  generalWidth;
         this.canvas.height = document.body.clientHeight - fromBottom;
         this.context = this.canvas.getContext("2d");
         document.body.insertBefore(this.canvas, document.body.childNodes[0]);
@@ -76,13 +78,21 @@ function component(width, height, color, x, y, type) {
     this.gravitySpeed = 0;
     this.update = function() {
         ctx = myGameArea.context;
-        if (this.type == "text") {
+        if (this.type == "text") {  
             ctx.font = this.width + " " + this.height;
             ctx.fillStyle = color;
             ctx.fillText(this.text, this.x, this.y);
+        } else if (this.type == "car") {
+            ctx.drawImage(car, this.x, this.y);
         } else {
-            ctx.fillStyle = color;
-            ctx.fillRect(this.x, this.y, this.width, this.height);
+            // ctx.fillStyle = color;
+            var vC = 0;
+            while (vC < this.width){
+                ctx.drawImage(vest, this.x + vC, this.y);
+                vC += 16;
+            }
+            
+            // ctx.fillRect(this.x, this.y, this.width, this.height);
         }
     }
     this.newPos = function() {
