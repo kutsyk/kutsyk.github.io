@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html style="height: 100%;">
+<html style="height: 100%; overflow: hidden;">
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <style>
@@ -41,6 +41,8 @@ var car = new Image();
 car.src = "car.png";
 var vest = new Image();
 vest.src = "vest.png";
+var flag = new Image();
+flag.src = "flag.png";
 
 function startGame() {
     myGamePiece = new component(30, 30, "red",  generalWidth/2 - 30, document.body.clientHeight - fromBottom - 80, "car");
@@ -89,7 +91,7 @@ function component(width, height, color, x, y, type) {
             var vC = 0;
             while (vC < this.width){
                 ctx.drawImage(vest, this.x + vC, this.y);
-                vC += 16;
+                vC += 20.5;
             }
             
             // ctx.fillRect(this.x, this.y, this.width, this.height);
@@ -140,6 +142,7 @@ function updateGameArea() {
     var x, height, gap, minHeight, maxHeight, minGap, maxGap;
     for (i = 0; i < myObstacles.length; i += 1) {
         if (myGamePiece.crashWith(myObstacles[i])) {
+            myGameArea.context.drawImage(flag, myGamePiece.x + 20, myGamePiece.y);
             return;
         } 
     }
@@ -154,8 +157,6 @@ function updateGameArea() {
         minGap = 50;
         maxGap = 200;
         gap = Math.floor(Math.random()*(maxGap-minGap+1)+minGap);
-        // myObstacles.push(new component(10, height, "green", x, 0));
-        // myObstacles.push(new component(10, x - height - gap, "green", x, height + gap));
         myObstacles.push(new component(height, 10, "green", 0, y));
         myObstacles.push(new component(x - height - gap, 10, "green", height + gap, y));
     }
@@ -196,8 +197,5 @@ function clearmove(e) {
 }
 
 </script>
-<br>
-<button ontouchstart="moveLeft()" onmousedown="moveLeft()" onmouseup="clearmove()">LEFT</button>
-<button ontouchstart="moveRight()" onmousedown="moveRight()" onmouseup="clearmove()">RIGHT</button>
 </body>
 </html>
