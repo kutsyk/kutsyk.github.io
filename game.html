@@ -13,7 +13,19 @@ canvas {
 </head>
 <body style="margin-bottom: 0; height: 100%; text-align: center;" onload="startGame()">
 <script>
-document.body.requestFullscreen();
+var body = document.body;
+if (body.requestFullscreen) {
+    docelem.requestFullscreen();
+}
+else if (body.mozRequestFullScreen) {
+    body.mozRequestFullScreen();
+}
+else if (body.webkitRequestFullScreen) {
+    body.webkitRequestFullScreen();
+}
+else if (body.msRequestFullscreen) {
+    body.msRequestFullscreen();
+}    
 
 document.addEventListener("touchstart", function(event) {
     if (event.changedTouches[0].pageX > myGamePiece.x)
