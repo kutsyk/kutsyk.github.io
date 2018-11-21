@@ -2,6 +2,8 @@
 <html style="height: 100%; overflow: hidden;">
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <style>
 canvas {
     border:1px solid #d3d3d3;
@@ -11,7 +13,7 @@ canvas {
 </head>
 <body style="margin-bottom: 0; height: 100%; text-align: center;" onload="startGame()">
 <script>
-document.documentElement.requestFullscreen();
+document.body.requestFullscreen();
 
 document.addEventListener("touchstart", function(event) {
     if (event.changedTouches[0].pageX > myGamePiece.x)
