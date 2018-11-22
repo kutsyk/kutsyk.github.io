@@ -2,7 +2,21 @@
 <html style="height: 100%; overflow: hidden;">
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta property="og:url"           content="http://kutsyk.github.io/start" />
+<meta property="og:type"          content="website" />
+<meta property="og:site_name" content="Gilets Jaune" />
+<meta property="og:title"         content="Gilets Jaune" />
+<meta property="og:image"         content="https://www.manutan.fr/img/S/GRP/ST/AIG1955073.jpg" />
+<meta property="og:image:width" content="800" />
+<meta property="og:image:height" content="480" />
+<meta property="og:image:secure_url"         content="https://www.manutan.fr/img/S/GRP/ST/AIG1955073.jpg" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:alt" content="A shiny yellow gilet" />
+<meta property="og:description"   content="Try to pass as more as possible gilets." />
+
+
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
 <style>
 .bg { 
     color: white;
@@ -92,12 +106,42 @@ center > h4 { color: #c5c5c5; margin-top: 50px; }
 <title>Gilets jaune</title>
 </head>
 <body style="margin-bottom: 0; height: 100%; text-align: center;">
+<script>
+	window.fbAsyncInit = function() {
+	  FB.init({
+		appId            : '2326510077422254',
+		autoLogAppEvents : true,
+		xfbml            : true,
+		version          : 'v3.2'
+	  });
+	};
+
+	(function(d, s, id){
+	   var js, fjs = d.getElementsByTagName(s)[0];
+	   if (d.getElementById(id)) {return;}
+	   js = d.createElement(s); js.id = id;
+	   js.src = "https://connect.facebook.net/fr_FR/sdk.js";
+	   fjs.parentNode.insertBefore(js, fjs);
+	 }(document, 'script', 'facebook-jssdk'));
+</script>
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = 'https://connect.facebook.net/fr_FR/sdk.js#xfbml=1&version=v3.2&appId=2326510077422254&autoLogAppEvents=1';
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
 
 <div class="container-fluid bg" style="height: 100%;">
     <div class="row align-items-center" style="height: 100%;">
         <div class="col">
-            <a class="btn btn-warning" href="./game.html">Go!</a>
+			<a class="btn btn-warning" href="./game.html">Go!</a>
          	<div class="col align-items-center">
+				<div class="row justify-content-center align-items-center" style="padding-top: 16px;">
+					<div class="fb-share-button" data-href="http://kutsyk.github.io/start" data-layout="button" data-size="large" data-mobile-iframe="true"><a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fkutsyk.github.io%2Fstart&amp;src=sdkpreparse" class="fb-xfbml-parse-ignore">Partager</a></div>
+				</div>
 				<div class="row justify-content-center align-items-center">
 					<div>User your keyboard: </div>
 					<div class="row align-items-center">
