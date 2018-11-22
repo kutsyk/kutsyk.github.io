@@ -57,6 +57,8 @@ var myScore;
 var generalWidth = document.body.clientWidth < 600 ? document.body.clientWidth : 600;
 var car = new Image();
 car.src = "car.png";
+var macron = new Image();
+macron.src = "macron.png";
 var vest = new Image();
 vest.src = "vest.png";
 var flag = new Image();
@@ -96,6 +98,7 @@ function component(width, height, color, x, y, type) {
     this.y = y;
     this.gravity = 0;
     this.gravitySpeed = 0;
+    this.marconCounter = 0;
     this.update = function() {
         ctx = myGameArea.context;
         if (this.type == "text") {  
@@ -103,7 +106,17 @@ function component(width, height, color, x, y, type) {
             ctx.fillStyle = color;
             ctx.fillText(this.text, this.x, this.y);
         } else if (this.type == "car") {
-            ctx.drawImage(car, this.x, this.y);
+            if (myGameArea.frameNo % 1000 == 0)
+            {
+                this.marconCounter = 100;
+            }
+            if (this.marconCounter > 0)
+            {
+                ctx.drawImage(macron, this.x, this.y);
+                this.marconCounter -= 1;
+            }
+            else
+                ctx.drawImage(car, this.x, this.y);
         } else {
             ctx.fillStyle = color;
             ctx.fillRect(this.x, this.y, this.width, this.height);
