@@ -100,6 +100,21 @@ center > h4 { color: #c5c5c5; margin-top: 50px; }
 		ul#keys-freebie > li { float: left; margin-right: 20px; margin-bottom: 20px; padding: 10px 10px; }
 		ul#keys-freebie > li:last-child { margin-right: 0; }
 		ul#keys-freebie > li > span { margin-bottom: 10px; }
+
+/* Top left text */
+.top-left {
+    position: absolute;
+    top: 8px;
+    left: 16px;
+}
+
+/* Top right text */
+.top-right {
+    position: absolute;
+    top: 8px;
+    right: 16px;
+}
+
 </style>
 <title>Gilets jaunes</title>
 </head>
@@ -141,12 +156,14 @@ center > h4 { color: #c5c5c5; margin-top: 50px; }
 					<div class="fb-share-button" data-href="http://kutsyk.github.io/start" data-layout="button" data-size="large" data-mobile-iframe="true"><a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fkutsyk.github.io%2Fstart&amp;src=sdkpreparse" class="fb-xfbml-parse-ignore">Partager</a></div>
 				</div>
 				<div class="row justify-content-center align-items-center">
-					<div>User your keyboard: </div>
 					<div class="row align-items-center">
 						<div class="key special">
 								<span>
 									&larr;
 								</span>
+						</div>
+						<div>
+							OR 
 						</div>
 						<div class="key special">
 								<span>
@@ -156,7 +173,14 @@ center > h4 { color: #c5c5c5; margin-top: 50px; }
 					</div>
 				</div>
 				<div class="row justify-content-center align-items-center">
-					<div>Or touch sides of the screen.</div>
+					<div class="btn btn-secondary">
+						For sides on mobile:
+						<div style="position: relative;">
+						<div class="top-left">&larr;</div>
+						<div class="top-right">&rarr;</div>
+						<div><p><img src="./tap.png"/></p></div>
+					</div>
+					</div>
 				</div>
 			</div>
         </div>
