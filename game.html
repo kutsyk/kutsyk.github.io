@@ -12,7 +12,7 @@ canvas {
 </style>
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-<title>Gilets jaune. Go!</title>
+<title>Gilets jaunes. Go!</title>
 </head>
 <body style="margin-bottom: 0; height: 100%; text-align: center;" onload="startGame()">
 <script>
@@ -257,12 +257,12 @@ function restart(e) {
 function share()
 {
     FB.ui({ method: 'feed',
-    link: 'http://kutsyk.github.io/start',
+    link: 'http://giletsjaunes.club/',
     picture: 'https://www.manutan.fr/img/S/GRP/ST/AIG1955073.jpg',
     name: 'I scored '+ myGameArea.frameNo +' points on this ridiculous game...',
     description: 'I scored '+ myGameArea.frameNo +' points on bypassing gilets jaune.',
     actions: [
-        { name: 'Gilets jaune', link: 'http://kutsyk.github.io/start' }
+        { name: 'Gilets jaunes', link: 'http://giletsjaunes.club/' }
     ],
     display: 'popup'
   }, function (response)
