@@ -129,13 +129,13 @@ function component(width, height, color, x, y, type) {
             {
                 this.marconCounter = 100;
             }
-            // if (this.marconCounter > 0)
-            // {
-            //     ctx.drawImage(macron, this.x, this.y);
-            //     this.marconCounter -= 1;
-            // }
-            // else
-            ctx.drawImage(car, this.x, this.y);
+            if (this.marconCounter > 0)
+            {
+                ctx.drawImage(macron, this.x, this.y);
+                this.marconCounter -= 1;
+            }
+            else
+                ctx.drawImage(car, this.x, this.y);
         } else {
             ctx.fillStyle = color;
             ctx.fillRect(this.x, this.y, this.width, this.height);
