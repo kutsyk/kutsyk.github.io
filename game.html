@@ -10,6 +10,7 @@ canvas {
     background-color: #f1f1f1;
 }
 </style>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
 <title>Gilets jaune. Go!</title>
 </head>
 <body style="margin-bottom: 0; height: 100%; text-align: center;" onload="startGame()">
@@ -160,6 +161,9 @@ function updateGameArea() {
     for (i = 0; i < myObstacles.length; i += 1) {
         if (myGamePiece.crashWith(myObstacles[i])) {
             myGameArea.context.drawImage(flag, myGamePiece.x + 20, myGamePiece.y);
+            var restCont = document.getElementById("restartContainer");
+            restCont.style.zIndex = "1"; 
+            clearInterval(myGameArea.interval);
             return;
         } 
     }
@@ -213,7 +217,19 @@ function clearmove(e) {
     myGamePiece.speedY = 0;
 }
 
+function restart(e) {
+    location.reload();
+}
+
 </script>
+<div id="restartContainer" class="container-fluid" style="height: 100%; position: fixed; top: 0; left: 0; background:rgba(255,255,255,0.7); z-index: -2;">
+    <div class="row align-items-center" style="height: 100%;">
+        <div class="col">
+            <button class="btn btn-warning" onclick="restart()">Restart</button>
+        <div>
+    </div>
+</div>
+
 <div id="fb-root"></div>
 <script>(function(d, s, id) {
   var js, fjs = d.getElementsByTagName(s)[0];
@@ -222,7 +238,11 @@ function clearmove(e) {
   js.src = 'https://connect.facebook.net/fr_FR/sdk.js#xfbml=1&version=v3.2&appId=2326510077422254&autoLogAppEvents=1';
   fjs.parentNode.insertBefore(js, fjs);
 }(document, 'script', 'facebook-jssdk'));</script>
-<div class="fb-share-button" data-href="http://kutsyk.github.io/start" data-layout="button_count" data-size="small" data-mobile-iframe="true"><a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fkutsyk.github.io%2Fstart&amp;src=sdkpreparse" class="fb-xfbml-parse-ignore">Partager</a></div>
-
+        <div class="fb-share-button" 
+        data-href="http://kutsyk.github.io/start"
+         data-layout="button_count" data-size="small" 
+         data-mobile-iframe="true">
+         <a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fkutsyk.github.io%2Fstart&amp;src=sdkpreparse" class="fb-xfbml-parse-ignore">Partager</a>
+        </div>
 </body>
 </html>
