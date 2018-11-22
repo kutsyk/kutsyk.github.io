@@ -105,14 +105,13 @@ function component(width, height, color, x, y, type) {
         } else if (this.type == "car") {
             ctx.drawImage(car, this.x, this.y);
         } else {
-            // ctx.fillStyle = color;
+            ctx.fillStyle = color;
+            ctx.fillRect(this.x, this.y, this.width, this.height);
             var vC = 0;
             while (vC < this.width){
                 ctx.drawImage(vest, this.x + vC, this.y);
                 vC += 20.5;
             }
-            
-            // ctx.fillRect(this.x, this.y, this.width, this.height);
         }
     }
     this.newPos = function() {
@@ -176,7 +175,7 @@ function updateGameArea() {
         minHeight = 20;
         maxHeight = 200;
         height = Math.floor(Math.random()*(maxHeight-minHeight+1)+minHeight);
-        minGap = 50;
+        minGap = 64;
         maxGap = 200;
         gap = Math.floor(Math.random()*(maxGap-minGap+1)+minGap);
         myObstacles.push(new component(height, 10, "green", 0, y));
