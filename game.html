@@ -163,6 +163,7 @@ function updateGameArea() {
             myGameArea.context.drawImage(flag, myGamePiece.x + 20, myGamePiece.y);
             var restCont = document.getElementById("restartContainer");
             restCont.style.zIndex = "1"; 
+            restCont.style.visibility = "visible";
             clearInterval(myGameArea.interval);
             return;
         } 
@@ -222,7 +223,7 @@ function restart(e) {
 }
 
 </script>
-<div id="restartContainer" class="container-fluid" style="height: 100%; position: fixed; top: 0; left: 0; background:rgba(255,255,255,0.7); z-index: -2;">
+<div id="restartContainer" class="container-fluid" style="height: 100%; position: fixed; top: 0; left: 0; background:rgba(255,255,255,0.7); z-index: -2;  visibility: hidden;">
     <div class="row align-items-center" style="height: 100%;">
         <div class="col">
             <button class="btn btn-warning" onclick="restart()">Restart</button>
