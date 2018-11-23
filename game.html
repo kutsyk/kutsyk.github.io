@@ -31,6 +31,25 @@ canvas {
 <title>Gilets jaunes. Go!</title>
 </head>
 <body style="margin-bottom: 0; height: 100%; text-align: center;" onload="startGame()" class="disable-doubletap-to-zoom bg">
+    <div class="container-fluid" style="height: 100%; position: fixed; top: 0; left: 0;">
+<div class="row align-items-end" style="height: 100%;">
+    <div class="col">
+        <div class="row align-items-end" style="height: 100%; margin-top: 16px; justify-content: center;">
+            <div class="col" style="max-width: 600px;">
+                    <button class="btn btn-outline-primary" style="position: absolute; left: 32px; 
+                    background-color: rgba(0, 123, 255, 0.45);
+                    bottom: 64px; padding: 24px;"
+                    id="leftBut"
+                    onmousedown="moveLeft()" onmouseup="clearmove()"><i class="fa fa-angle-left" style="font-size:32px"></i></button>
+                    <button class="btn btn-outline-primary" style="position: absolute; right: 32px; 
+                    background-color: rgba(0, 123, 255, 0.45); bottom: 64px; padding: 24px;"
+                    id="rightBut"
+                    onmousedown="moveRight()" onmouseup="clearmove()"><i class="fa fa-angle-right" style="font-size:32px"></i></button>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
 <script>
         window.fbAsyncInit = function() {
           FB.init({
@@ -50,24 +69,27 @@ canvas {
          }(document, 'script', 'facebook-jssdk'));
     </script>
 <script>
-var body = document.body;
-if (body.requestFullscreen) {
-    docelem.requestFullscreen();
-}
-else if (body.mozRequestFullScreen) {
-    body.mozRequestFullScreen();
-}
-else if (body.webkitRequestFullScreen) {
-    body.webkitRequestFullScreen();
-}
-else if (body.msRequestFullscreen) {
-    body.msRequestFullscreen();
-}    
+document.getElementById("rightBut").addEventListener("touchstart", function(event) {
+    moveRight();
+}, false);
+
+document.getElementById("rightBut").addEventListener("touchend", function(event) {
+    clearmove();
+}, false);
+
+document.getElementById("leftBut").addEventListener("touchstart", function(event) {
+    moveLeft();
+}, false);
+
+document.getElementById("leftBut").addEventListener("touchend", function(event) {
+    clearmove();
+}, false);
 
 document.addEventListener("touchstart", function(event) {
     if (event.changedTouches[0].pageX > myGamePiece.x)
         moveRight();
-    else moveLeft();
+    else
+        moveLeft();
 }, false);
 
 document.addEventListener("touchend", function(event) {
@@ -196,7 +218,7 @@ function component(width, height, color, x, y, type) {
         var othertop = otherobj.y;
         var otherbottom = otherobj.y + (otherobj.height);
         var crash = true;
-        if ((mybottom < othertop) || (mytop > otherbottom) || (myright < otherleft) || (myleft > otherright)) {
+        if ((mybottom < othertop) || (mytop > otherbottom) || (myright < otherleft) || (myleft + 5 > otherright)) {
             crash = false;
         }
         return crash;
@@ -234,6 +256,8 @@ function updateGameArea() {
         myObstacles[i].y += 1 + speedUpCoef();
         myObstacles[i].update();
     }
+    if (myObstacles.length > 10)
+        myObstacles.slice(myObstacles.length - 10, 10);
     myScore.text="SCORE: " + myGameArea.frameNo;
     myScore.update();
     myGamePiece.newPos();
