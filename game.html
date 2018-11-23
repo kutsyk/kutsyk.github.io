@@ -85,17 +85,6 @@ document.getElementById("leftBut").addEventListener("touchend", function(event) 
     clearmove();
 }, false);
 
-document.addEventListener("touchstart", function(event) {
-    if (event.changedTouches[0].pageX > myGamePiece.x)
-        moveRight();
-    else
-        moveLeft();
-}, false);
-
-document.addEventListener("touchend", function(event) {
-    clearmove();
-}, false);
-
 document.addEventListener("keydown", function(event) {
     if (event.which == 39)
         moveRight();
