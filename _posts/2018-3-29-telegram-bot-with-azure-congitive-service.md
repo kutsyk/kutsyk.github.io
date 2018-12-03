@@ -6,6 +6,8 @@ tags: azure telegram bot javascript nodejs AI
 excerpt_separator: <!--more-->
 ---
 
+![Bot](https://fiverr-res.cloudinary.com/images/t_main1,q_auto,f_auto/gigs/104091794/original/bf7b9db97edc4280295f3286e31fadbb016f3466/write-telegram-bots-for-you.png)
+
 Telegram **Bots** are simply Telegram accounts operated by software – not people – and they'll often have AI features. They can do anything – teach, play, search, broadcast, remind, connect, integrate with other services, or even pass commands to the Internet of Things.
 
 We will create Telegram Bot that is able to recognise text using **OCR(Optical character recognition)**  from incoming image and respond with recognised text. If image doesn’t contain any text it will respond with message: `No text was detected`.
