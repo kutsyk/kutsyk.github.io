@@ -3,6 +3,11 @@ layout: post
 title: API Management in Azure - briefly.
 comments: true
 tags: azure function API management
+keywords:
+  - azure
+  - API
+  - management
+image: https://cdn-images-1.medium.com/max/800/1*ezLkH8bj_59SICLI5Yv4xw.png
 excerpt_separator: <!--more-->
 ---
 
