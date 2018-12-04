@@ -11,7 +11,7 @@ image: https://cdn-images-1.medium.com/max/800/1*ezLkH8bj_59SICLI5Yv4xw.png
 excerpt_separator: <!--more-->
 ---
 
-We had a task to combine two big enterprise APIs. One of them was ten years old and operated based on SOAP standard, and another one was RESTfull and working with well-known logic. Of course, as soon as we understood the need of the client, we knew that Azure API management would be an accurate tool for them.
+We had a task to combine two big enterprise APIs. One of them was ten years old and operated based on SOAP standard, and another one was RESTfull and working with well-known logic. Of course, as soon as we understood the need of the client, we knew that Azure API management would be an accurate tool for them. [Read in Medium] (https://medium.com/@VKutsyk/api-management-in-azure-briefly-48ab9754d1a7)
 
 ![Archi](https://cdn-images-1.medium.com/max/800/1*ezLkH8bj_59SICLI5Yv4xw.png)
 <!--more-->

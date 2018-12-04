@@ -11,6 +11,8 @@ excerpt_separator: <!--more-->
 Telegram **Bots** are simply Telegram accounts operated by software – not people – and they'll often have AI features. They can do anything – teach, play, search, broadcast, remind, connect, integrate with other services, or even pass commands to the Internet of Things.
 
 We will create Telegram Bot that is able to recognise text using **OCR(Optical character recognition)**  from incoming image and respond with recognised text. If image doesn’t contain any text it will respond with message: `No text was detected`.
+[Read in Medium] (https://medium.com/@VKutsyk/telegram-bot-for-text-recognition-2e073de2e012)
+
 <!--more-->
 
 ## Creating a new bot

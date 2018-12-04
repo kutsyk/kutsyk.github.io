@@ -7,6 +7,7 @@ excerpt_separator: <!--more-->
 ---
 
 In this article I will tell you how to build efficient and working workflow of the same data from IoTHub into Function App and Blob storage.
+[Read in Medium] (https://medium.com/@VKutsyk/iothub-blob-storage-and-function-app-configuring-cold-and-hot-path-of-data-processing-3a5bfb43ca90)
 
 ![Archi](https://docs.microsoft.com/en-us/azure/iot-hub/media/iot-hub-store-data-in-azure-table-storage/1_route-to-storage.png)
 <!--more-->
