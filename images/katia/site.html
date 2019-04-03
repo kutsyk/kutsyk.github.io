@@ -1,11 +1,10 @@
-
 <html>
 
 <head>
     <title>РОНАЛЬД РАДИТЬ</title>
     <style>
         body {
-            font-family: Andale Mono, monospace;
+            font-family: 'Roboto', Arial, sans-serif;
             margin: 0;
         }
 
@@ -13,17 +12,40 @@
             text-align: center;
         }
 
+        .text-style {
+            font-weight: 300;
+            font-size: 18px;
+        }
+
+        .intro {
+            height: 100vh;
+            background-image: url("background.jpg");
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
+        .intro-text {
+            color: #BF0F1E;
+            position: absolute;
+            font-size: 72px;
+            word-spacing: 2px;
+            width: 50%;
+            padding-left: 10%;
+        }
+
         .header {
-            background-color: #DD1324;
+            background-color: #E7B307;
             padding: 8px;
             color: white;
         }
 
         .burgers {
-            width: 100%; text-align: center;
+            width: 100%;
+            text-align: center;
         }
 
-        tr td {
+        .burgers-table tr td {
             border-bottom: 1px solid #ddd;
             padding: 4px;
             width: 33%;
@@ -36,24 +58,25 @@
 </head>
 
 <body>
-    <div class="center-text header">
-        <p>
-            <h1>РОНАЛЬД РАДИТЬ</h1>
-        </p>
-        <p> <audio controls src="imlovingit.mp3">
+    <div class="intro">
+        <div class="intro-text">
+            <p>
+                <h1>РОНАЛЬД РАДИТЬ</h1>
+            </p>
+            <audio controls src="imlovingit.mp3">
                 <code>аудіо</code>.
-            </audio></p>
+            </audio>
+        </div>
     </div>
-    <div class="center-text">
-        <p>
-            <h2>Ми – посланці Рональда з Макдонії. І ми тут, щоб відкрити вам світ найсмачнішої їжі!</h2>
+    <div class="center-text text-style">
+        <p style="font-size: 28px;">
+            Ми – посланці Рональда з Макдонії. І ми тут, щоб відкрити вам світ найсмачнішої їжі!
         </p>
         <p>
-            <img src="b56848f1-9b79-492e-bdba-bbcef0cae21e.jpg"
-                alt="">
+            <img src="b56848f1-9b79-492e-bdba-bbcef0cae21e.jpg" alt="">
         </p>
     </div>
-    <div class="center-text">
+    <div class="center-text text-style">
         <div>
             <p>
                 Активні макдональчани живуть у скаженому ритмі буднів. Їм завжди потрібно поповнювати запас енергії. І
@@ -68,27 +91,58 @@
             </p>
         </div>
         <hr>
-        <div class="center-text">Наша безмежна країна налічує 35 тисяч містечок, до яких навідуються 70 млн відвідувачів
-            і смакують фірмовими бургерами.</div>
-        <hr>
     </div>
-    <div class="center-text">
-        <p>Топ-страви макдональчан – це чізбургер, гамбургер, філе-о-фіш, бігмак, макчікен та бігтейсті! Ми ретельно
-            продегустували усі ці страви, перевірили, які складники вони містять, аби ви обрали для себе найапетитніший
-            бургер. Але ми не посоромилися скласти і власні рейтинги!</p>
-        <p><i>
-            <ul style="text-align: center; ">
-                <br>❤ Який бургер ідеально підходить для тих, хто худне?
-                <br>❤ А який для тих, хто хоче наїстися за вигідну ціну?
-                <br>❤ Скільки бургерів потрібно з’їсти чоловікові та жінці, аби задовільнити добову норму калорій?
-                <br>❤ І, найголовніше, які бургери стали переможцями нашого дегустаційного марафону!</br>
-            </ul>
-        </i></p>
+    <div>
+        <table class="text-style">
+            <tr>
+                <td>
+                    <p>
+                        Наша безмежна країна налічує 35 тисяч містечок, до яких навідуються 70 млн
+                        відвідувачів
+                        і смакують фірмовими бургерами.
+                    </p>
+                    <p>
+                        Топ-страви макдональчан – це чізбургер, гамбургер, філе-о-фіш, бігмак, макчікен та бігтейсті! Ми
+                        ретельно
+                        продегустували усі ці страви, перевірили, які складники вони містять, аби ви обрали для себе
+                        найапетитніший
+                        бургер. Але ми не посоромилися скласти і власні рейтинги!
+                    </p>
+                </td>
+                <td>
+                    <img src="all-horiz.jpg" width="480px;" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div style="width: 50%; margin: 0 auto; padding: 24px;">
+        <table cellspacing="16" cellpadding="16">
+            <tr>
+                <td style="width: auto;"><img src="waist.png" align="middle"></td>
+                <td style="width: auto;"><b style="padding-left: 24px;">Який бургер ідеально підходить для тих, хто
+                        худне?</b></td>
+            </tr>
+            <tr>
+                <td style="width: auto;"><img src="piggy-bank.png" align="middle"></td>
+                <td style="width: auto;"><b style="padding-left: 24px;">А який для тих, хто хоче наїстися за вигідну
+                        ціну?</b></td>
+            </tr>
+            <tr>
+                <td style="width: auto;"><img src="newlyweds.png" align="middle"></td>
+                <td style="width: auto;"><b style="padding-left: 24px;">Скільки бургерів потрібно з’їсти чоловікові
+                        та жінці, аби задовільнити добову норму калорій?</b></td>
+            </tr>
+            <tr>
+                <td style="width: auto;"><img src="competition.png" align="middle"></td>
+                <td style="width: auto;"><b style="padding-left: 24px;">І, найголовніше, які бургери стали
+                        переможцями нашого дегустаційного марафону!</b></td>
+            </tr>
+        </table>
     </div>
     <div class="header center-text">
         <h2>Найцікавіше нижче!</h2>
     </div>
-    <table class="burgers">
+    <table class="burgers burgers-table text-style">
         <tr>
             <td>
                 <p>
@@ -148,27 +202,29 @@
         </tr>
     </table>
     <hr>
-    <div class="center-text">
-        <table>
+    <div class="center-text text-style">
+        <table cellspacing="16" cellpadding="28" class="text-style">
             <tr>
                 <td>
-                    <img src="graph1.PNG" align="left" />
                     Незабаром літо! Усі макдональчани хочуть неперевершено виглядати на пляжі. Тому вони
                     піклуються про свою фігуру, а ми – разом з ними. Тож ми визначили, які бургери містять найбільше
                     свіжих
                     овочів та найменше калорій.
                 </td>
-            </tr>
-            <tr>
                 <td>
-                    <img src="graph2.PNG" align="right" />
                     Але серед макдональчан є і ті, хто хоче добряче попоїсти та зберегти гроші у гаманці. Саме для них –
                     наступний графік!
                 </td>
             </tr>
+            <tr>
+                <td><img src="graph1.PNG" /></td>
+                <td>
+                    <img src="graph2.PNG" />
+                </td>
+            </tr>
         </table>
     </div>
-    <div class="header">
+    <div class="header ">
         <h3 style="text-align: center;">Макдонія – країна рівності та гендерної справедливості. Ми
             боремося за однакові права та можливості і вважаємо, що кожен може їсти стільки, скільки заманеться! Втім,
             пам’ятаймо, що ВООЗ встановив добову норму калорій для жінок та чоловіків. Вона складає 2200 ккал та 2700
