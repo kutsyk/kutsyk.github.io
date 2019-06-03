@@ -12,8 +12,6 @@ image: https://cdn-images-1.medium.com/max/3114/1*3ftnau4BYtNSVS6cFet4Nw.png
 excerpt_separator: <!--more-->
 ---
 
-# Docker Compose CI/CD in Azure DevOPs
-
 Hola amigos.
 
 For one of our clients who is a very big shark in medical device development, we had to develop a solution which will be easily deployable in the cloud or on-premise infrastructure. So as you already thought we knew that we will work with containers.
