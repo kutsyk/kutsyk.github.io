@@ -112,3 +112,58 @@ Our continuous deployment for docker-compose is done. Now as soon as you want to
 Thanks for reading!
 
 If you have other errors during deployment or you interested in another topic, please add comments and **upvote 👍**. We‘re interested in the dialog.
+
+{% if page.comments %} 
+<div id="disqus_thread"></div>
+<script>
+
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+/*
+var disqus_config = function () {
+this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://kutsyk.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<script id="dsq-count-scr" src="//kutsyk.disqus.com/count.js" async></script>    
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+                            
+{% endif %}
+
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "NewsArticle",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://google.com/article"
+  },
+  "headline": "API Management in Azure - briefly.",
+  "image": [
+    "https://cdn-images-1.medium.com/max/800/1*ezLkH8bj_59SICLI5Yv4xw.png",
+   ],
+  "datePublished": "2018-12-03T08:00:00+08:00",
+  "dateModified": "2018-12-03T09:20:00+08:00",
+  "author": {
+    "@type": "Person",
+    "name": "Vasyl Kutsyk"
+  },
+   "publisher": {
+    "@type": "Organization",
+    "name": "Kutsyk",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://kutsyk.github.io/images/main_photo.jpg"
+    }
+  },
+  "description": "We had a task to combine two big enterprise APIs. One of them was ten years old and operated based on SOAP standard, and another one was RESTfull and working with well-known logic. Of course, as soon as we understood the need of the client, we knew that Azure API management would be an accurate tool for them."
+}
+</script>
