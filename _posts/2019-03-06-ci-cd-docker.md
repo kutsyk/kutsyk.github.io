@@ -146,7 +146,7 @@ s.setAttribute('data-timestamp', +new Date());
     "@type": "WebPage",
     "@id": "https://google.com/article"
   },
-  "headline": "API Management in Azure - briefly.",
+  "headline": "Docker Compose CI/CD in Azure DevOPs.",
   "image": [
     "https://cdn-images-1.medium.com/max/800/1*ezLkH8bj_59SICLI5Yv4xw.png",
    ],
@@ -164,6 +164,6 @@ s.setAttribute('data-timestamp', +new Date());
       "url": "https://kutsyk.github.io/images/main_photo.jpg"
     }
   },
-  "description": "We had a task to combine two big enterprise APIs. One of them was ten years old and operated based on SOAP standard, and another one was RESTfull and working with well-known logic. Of course, as soon as we understood the need of the client, we knew that Azure API management would be an accurate tool for them."
+  "description": "For one of our clients who is a very big shark in medical device development, we had to develop a solution which will be easily deployable in the cloud or on-premise infrastructure. So as you already thought we knew that we will work with containers."
 }
 </script>
