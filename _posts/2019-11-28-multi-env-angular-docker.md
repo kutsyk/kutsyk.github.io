@@ -14,7 +14,9 @@ keywords:
 image: https://miro.medium.com/max/2880/1*RaY9644zkGeonLCc44IxuQ.png
 excerpt_separator: <!--more-->
 ---
-[original](https://medium.com/@VKutsyk/angular-with-dynamic-backend-uri-in-docker-compose-c914d9531cf7)
+[👉 original](https://medium.com/@VKutsyk/angular-with-dynamic-backend-uri-in-docker-compose-c914d9531cf7)
+
+![Multi-environmental Angular application with docker-compose](https://miro.medium.com/max/2880/1*RaY9644zkGeonLCc44IxuQ.png)
 
 Hola!
 
