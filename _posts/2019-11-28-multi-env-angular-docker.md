@@ -41,7 +41,7 @@ As we don’t develop a centralized backend, we need our Frontend application to
 
 If you worked with Angular applications you know that it’s not working from the box, so we will add our own Service, which will manage backend URI.
 
-## Standard WebApp worflow
+## Standard WebApp workflow
 
 ![WebApp workflow](https://cdn-images-1.medium.com/max/2000/1*asxMrTcNTWmkCnYJtwrefg.png)*WebApp workflow*
 
