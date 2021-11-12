@@ -1,25 +1,137 @@
----
-layout: default
----
+<!doctype html>
+<html lang="en">
 
-<div class="posts">
-  {% for post in site.posts %}
-    <article class="post">
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-      <h1><a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></h1>
-      <span>Tags:
-      {% for tag in post.tags %}
-        {% capture tag_name %}{{ tag }}{% endcapture %}
-        <a href="/tag/{{ tag_name }}"><code class="highligher-rouge"><nobr>{{ tag_name }}</nobr></code>&nbsp;</a>
-      {% endfor %}
-      </span>
-      <hr>
-      <div class="entry">
-        {{ post.excerpt }}
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+
+  <title>Vasyl Kutsyk | Site Reliability Engineer</title>
+  <style>
+    html {
+      height: 100%;
+    }
+
+    body {
+      background: linear-gradient(270deg, #00ffbd, #ff008c);
+      background-size: 400% 400%;
+      -webkit-animation: AnimationName 30s ease infinite;
+      -moz-animation: AnimationName 30s ease infinite;
+      -o-animation: AnimationName 30s ease infinite;
+      animation: AnimationName 30s ease infinite;
+      color: white;
+      height: 100%;
+      min-height: 100%;
+    }
+
+    main {
+      height: 100%;
+    }
+
+    @-webkit-keyframes AnimationName {
+      0% {
+        background-position: 0% 50%
+      }
+
+      50% {
+        background-position: 100% 50%
+      }
+
+      100% {
+        background-position: 0% 50%
+      }
+    }
+
+    @-moz-keyframes AnimationName {
+      0% {
+        background-position: 0% 50%
+      }
+
+      50% {
+        background-position: 100% 50%
+      }
+
+      100% {
+        background-position: 0% 50%
+      }
+    }
+
+    @-o-keyframes AnimationName {
+      0% {
+        background-position: 0% 50%
+      }
+
+      50% {
+        background-position: 100% 50%
+      }
+
+      100% {
+        background-position: 0% 50%
+      }
+    }
+
+    @keyframes AnimationName {
+      0% {
+        background-position: 0% 50%
+      }
+
+      50% {
+        background-position: 100% 50%
+      }
+
+      100% {
+        background-position: 0% 50%
+      }
+    }
+  </style>
+</head>
+
+<body class="text-center">
+  <div role="main" class="container" style="height: 100%;">
+    <div class="row align-items-center" style="height: 100%;">
+      <div class="col">
+        <img src="./ava.jpg" width="200px" class="img-fluid img-thumbnail rounded" alt="Responsive image">
+        <h1><b>Vasyl Kutsyk</b></h1>
+        <p class="lead">
+          <i class="fas fa-laptop-code"></i> Site Reliability Engineer
+        </p>
+
+        <div class="row">
+          <div class="col" style="text-align: right;">
+            <a href="https://kutsyk.medium.com/" target="_blank" aria-current="true" style="color: white; font-size: 3em;">
+              <i class="fab fa-medium"></i>
+            </a>
+          </div>
+          <div class="col" style="text-align: left;">
+            <a href="https://www.linkedin.com/in/kutsyk/" target="_blank" style="color: white; font-size: 3em;">
+              <i class="fab fa-linkedin"></i>
+            </a>
+          </div>
+        </div>
       </div>
+    </div>
+  </div>
 
+  <!-- Optional JavaScript; choose one of the two! -->
 
-      <a href="{{ site.baseurl }}{{ post.url }}" class="read-more">Read More</a>
-    </article>
-  {% endfor %}
-</div>
+  <!-- Option 1: Bootstrap Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+    crossorigin="anonymous"></script>
+  <script src="https://kit.fontawesome.com/41a553d06a.js" crossorigin="anonymous"></script>
+  <!-- Option 2: Separate Popper and Bootstrap JS -->
+
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"
+    integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"
+    integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13"
+    crossorigin="anonymous"></script>
+
+</body>
+
+</html>
