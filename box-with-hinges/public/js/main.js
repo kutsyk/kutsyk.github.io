@@ -250,7 +250,7 @@ async function generate() {
         const blob = new Blob([svgText], {type: 'image/svg+xml;charset=utf-8'});
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = `box_with_hinges_w{params.width}_h{params.height}_d{params.depth}_k{params.kerf}.svg`;
+        a.download = `box_with_hinges_w${params.width}_h${params.height}_d${params.depth}_k${params.kerf}.svg`;
         a.click();
         URL.revokeObjectURL(a.href);
     });
