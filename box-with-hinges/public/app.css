@@ -88,3 +88,25 @@ svg [stroke] { vector-effect: non-scaling-stroke; }
 .pc-tree .children { margin-left: 1.25rem; border-left: 1px dashed rgba(255,255,255,.15); padding-left:.75rem; }
 .pc-tree .btn-icon { padding:.125rem .35rem; }
 .pc-tree input.rename { width: 100%; }
+.pc-tree .pc-tree-sum { cursor: pointer; user-select: none; }
+.pc-tree-ico { width: 1.25rem; display: inline-block; text-align: center; opacity: .8; }
+.pc-tree-item .btn { padding: .1rem .4rem; }
+.pc-tree-add .btn { padding: .2rem .6rem; }
+
+/* Bootsnipp-like tree */
+.tree { margin:0; padding:0 0 0 .75rem; }
+.tree ul { margin:0; padding:0 0 0 1.25rem; position:relative; }
+.tree li { list-style-type:none; margin:0; padding:.25rem 0 .25rem .5rem; position:relative; }
+.tree li::before, .tree li::after {
+    content:"";
+    position:absolute; left:-.75rem;
+}
+.tree li::before { border-left:1px solid var(--bs-border-color, #dee2e6); top:-.25rem; bottom:.5rem; }
+.tree li::after  { border-top:1px solid var(--bs-border-color, #dee2e6); top:.9rem; width:.75rem; }
+.tree li:last-child::before { height:1rem; bottom:auto; }
+.tree i.toggle { width:1rem; display:inline-block; cursor:pointer; opacity:.8; }
+.tree .label { cursor:pointer; user-select:none; }
+.tree .meta  { color:var(--bs-secondary-color,#6c757d); font-size:.85em; margin-left:.5rem; }
+.tree .badge-cell { margin-right:.5rem; }
+.tree .actions .btn { --bs-btn-padding-y: .075rem; --bs-btn-padding-x: .35rem; --bs-btn-font-size: .75rem; }
+.tree .active-cell { background: rgba(99,102,241,.12); border-radius:.25rem; padding:.1rem .25rem; }

@@ -377,9 +377,9 @@ export function initEditing() {
     setEditUI(false);
 }
 
-export function pc_getPanelState(panelName) {
-    return panelState(panelName);
-}
+// export function pc_getPanelState(panelName) {
+//     return panelState(panelName);
+// }
 
 // create item at a grid cell
 export function pc_createItemInCell(panelName, kind, cell) {
