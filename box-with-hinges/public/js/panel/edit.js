@@ -16,7 +16,7 @@ import {nid, bindSvgDeselect} from './utils.js';
 import {renderAll} from './render.js';
 import {bus} from './signal-bus.js';
 import {pi_onGeometryChanged} from './../panel-interaction.js';
-import {pc_getCellConfig} from "../panel-state-bridge.js";
+import {pc_getCellConfig, pc_setCellConfig} from "../panel-state-bridge.js";
 
 // ---------- small utils ----------
 const nowPanel = () => getCurrentPanel() || 'Front';
@@ -628,6 +628,72 @@ function bindPalette() {
     const svgBtn = document.querySelector('[data-pc-add="svg"]') || document.querySelector('#pc-preset-svg') || document.querySelector('[data-role="pc-add-svg"]');
     makeDraggable(svgBtn, 'svg');
     clickToAdd(svgBtn, 'svg');
+}
+
+function _syncCellConfigButton() {
+    const btn = document.getElementById('pc-cell-config-open');
+    if (!btn) return;
+    const ac = getActiveCell();
+    const enabled = !!(ac && ac.panel && ac.row && ac.col);
+    btn.disabled = !enabled;
+    btn.title = enabled ? `Edit cell R${ac?.row} C${ac?.col}` : 'Select a cell in the preview';
+}
+document.addEventListener('pc:activeCellChanged', _syncCellConfigButton);
+
+// populate modal from current active cell
+function _fillCellModal() {
+    const ac = getActiveCell();
+    const rI = document.getElementById('pcm-cell-row');
+    const cI = document.getElementById('pcm-cell-col');
+    const pI = document.getElementById('pcm-cell-pad');
+    const ah = document.getElementById('pcm-cell-align-h');
+    const av = document.getElementById('pcm-cell-align-v');
+    if (!ac || !rI || !cI || !pI || !ah || !av) return;
+
+    rI.value = ac.row || '';
+    cI.value = ac.col || '';
+    const cfg = pc_getCellConfig(ac.panel, ac.row, ac.col) || {};
+    pI.value = cfg.pad ?? '';
+    ah.value = cfg.ah || '';
+    av.value = cfg.av || '';
+}
+
+// save modal → state
+function _saveCellModal() {
+    const ac = getActiveCell(); if (!ac || !ac.panel) return;
+    const pad = document.getElementById('pcm-cell-pad')?.value;
+    const ah  = document.getElementById('pcm-cell-align-h')?.value || '';
+    const av  = document.getElementById('pcm-cell-align-v')?.value || '';
+    pc_setCellConfig(ac.panel, ac.row, ac.col, {
+        pad: pad === '' ? undefined : Number(pad),
+        ah: ah || undefined,
+        av: av || undefined
+    });
+    const svg = getCurrentSvg(); if (svg) { renderAll(svg); pi_onGeometryChanged(svg); }
+}
+
+// clear modal → state
+function _clearCellModal() {
+    const ac = getActiveCell(); if (!ac || !ac.panel) return;
+    pc_setCellConfig(ac.panel, ac.row, ac.col, null);
+    _fillCellModal();
+    const svg = getCurrentSvg(); if (svg) { renderAll(svg); pi_onGeometryChanged(svg); }
+}
+
+// bind once in initEditing()
+export function bindCellConfigModal() {
+    const btnOpen = document.getElementById('pc-cell-config-open');
+    if (btnOpen && !btnOpen._pcBound) {
+        btnOpen._pcBound = true;
+        btnOpen.addEventListener('click', _fillCellModal);
+    }
+    const btnSave = document.getElementById('pcm-cell-save');
+    const btnClear = document.getElementById('pcm-cell-clear');
+    btnSave?.addEventListener('click', _saveCellModal);
+    btnClear?.addEventListener('click', _clearCellModal);
+
+    // initial state
+    _syncCellConfigButton();
 }
 
 // ---------- init ----------
