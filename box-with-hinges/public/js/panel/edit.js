@@ -5,7 +5,7 @@ import {
     getSelectedItemId, setSelectedItemId,
     getEditItemId, setEditItemId,
     getEditOriginal, setEditOriginal,
-    getCurrentSvg, setCurrentSvg
+    getCurrentSvg, setCurrentSvg, setActiveCell
 } from './state.js';
 import { nid } from './utils.js';
 import { renderAll } from './render.js';
@@ -310,6 +310,7 @@ export function initEditing() {
     els.type?.addEventListener('change', () => { toggleTypeProps(els.type.value); commitEditors(); });
 
     els.panel?.addEventListener('change', () => {
+        setActiveCell(null);
         setCurrentPanel(els.panel.value);
         clearSelection();
         rebuildItemsList();

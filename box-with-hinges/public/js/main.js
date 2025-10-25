@@ -1,10 +1,10 @@
-import { generateSvg } from './geometry.js';
+import {generateSvg} from './geometry.js';
 import {colorPanels, mountSvg} from './renderer.js';
 import {addLabels} from './labels.js';
 import {initInfiniteGrid} from "./grid.js";
 import {initRulers} from "./ruler.js";
-import { pc_onGeometryChanged } from './panel-content.js';
-import { pi_onGeometryChanged, pi_beforeDownload } from './panel-interaction.js';
+import {pc_onGeometryChanged} from './panel-content.js';
+import {pi_onGeometryChanged, pi_beforeDownload} from './panel-interaction.js';
 
 const $ = (s) => document.querySelector(s);
 
@@ -22,18 +22,18 @@ const els = {
     gridInfo: $('#gridInfo'),
 
     // NEW: slider + number pairs + badges
-    widthRange:   $('#width'),
-    widthNum:     $('#widthNum'),
-    widthBadge:   $('#widthBadge'),
-    depthRange:   $('#depth'),
-    depthNum:     $('#depthNum'),
-    depthBadge:   $('#depthBadge'),
-    heightRange:  $('#height'),
-    heightNum:    $('#heightNum'),
-    heightBadge:  $('#heightBadge'),
-    tabRange:     $('#tabWidth'),
-    tabNum:       $('#tabWidthNum'),
-    tabBadge:     $('#tabWidthBadge'),
+    widthRange: $('#width'),
+    widthNum: $('#widthNum'),
+    widthBadge: $('#widthBadge'),
+    depthRange: $('#depth'),
+    depthNum: $('#depthNum'),
+    depthBadge: $('#depthBadge'),
+    heightRange: $('#height'),
+    heightNum: $('#heightNum'),
+    heightBadge: $('#heightBadge'),
+    tabRange: $('#tabWidth'),
+    tabNum: $('#tabWidthNum'),
+    tabBadge: $('#tabWidthBadge'),
 };
 
 let pz = null;
@@ -43,20 +43,25 @@ let rulers = null;
 
 // -------- helpers --------
 const fmt = (n) => (Math.round(n * 100) / 100).toString();
-const mm  = (n) => `${Number(n).toFixed(0)} mm`;
+const mm = (n) => `${Number(n).toFixed(0)} mm`;
 
-function setStatus(s) { els.status && (els.status.textContent = s); }
+function setStatus(s) {
+    els.status && (els.status.textContent = s);
+}
 
 function updateBadges() {
-    if (els.widthBadge)  els.widthBadge.textContent  = mm(els.widthRange?.value ?? 0);
-    if (els.depthBadge)  els.depthBadge.textContent  = mm(els.depthRange?.value ?? 0);
+    if (els.widthBadge) els.widthBadge.textContent = mm(els.widthRange?.value ?? 0);
+    if (els.depthBadge) els.depthBadge.textContent = mm(els.depthRange?.value ?? 0);
     if (els.heightBadge) els.heightBadge.textContent = mm(els.heightRange?.value ?? 0);
-    if (els.tabBadge)    els.tabBadge.textContent    = mm(els.tabRange?.value ?? 0);
+    if (els.tabBadge) els.tabBadge.textContent = mm(els.tabRange?.value ?? 0);
 }
 
 function debounce(fn, ms) {
     let t;
-    return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+    return (...args) => {
+        clearTimeout(t);
+        t = setTimeout(() => fn(...args), ms);
+    };
 }
 
 function syncPair(rangeEl, numEl, onChange) {
@@ -150,13 +155,14 @@ function loadParams() {
         });
 
         // mirror ranges into numbers
-        if (els.widthRange && els.widthNum)   els.widthNum.value  = els.widthRange.value;
-        if (els.depthRange && els.depthNum)   els.depthNum.value  = els.depthRange.value;
+        if (els.widthRange && els.widthNum) els.widthNum.value = els.widthRange.value;
+        if (els.depthRange && els.depthNum) els.depthNum.value = els.depthRange.value;
         if (els.heightRange && els.heightNum) els.heightNum.value = els.heightRange.value;
-        if (els.tabRange && els.tabNum)       els.tabNum.value    = els.tabRange.value;
+        if (els.tabRange && els.tabNum) els.tabNum.value = els.tabRange.value;
 
         updateBadges();
-    } catch {}
+    } catch {
+    }
 }
 
 // -------- preview helpers --------
@@ -207,7 +213,10 @@ async function generate() {
 
         if (params.showLabels) addLabels(svg);
 
-        if (pz) { pz.destroy(); pz = null; }
+        if (pz) {
+            pz.destroy();
+            pz = null;
+        }
         // eslint-disable-next-line no-undef
         pz = svgPanZoom(svg, {
             zoomEnabled: true,
@@ -215,9 +224,16 @@ async function generate() {
             fit: false, center: false,
             minZoom: 0.1, maxZoom: 20,
             zoomScaleSensitivity: 0.2,
-            onZoom: () => { updateZoomLabel(); rulers && rulers.update(); },
-            onPan:  () => { rulers && rulers.update(); }
+            dblClickZoomEnabled: false,
+            onZoom: () => {
+                updateZoomLabel();
+                rulers && rulers.update();
+            },
+            onPan: () => {
+                rulers && rulers.update();
+            }
         });
+        if (pz.disableDblClickZoom) pz.disableDblClickZoom();
         updateZoomLabel();
 
         els.download.disabled = false;
@@ -233,14 +249,17 @@ async function generate() {
     loadParams();
 
     // Pair sliders with number inputs + live preview
-    syncPair(els.widthRange,  els.widthNum,  debouncedGenerate);
-    syncPair(els.depthRange,  els.depthNum,  debouncedGenerate);
+    syncPair(els.widthRange, els.widthNum, debouncedGenerate);
+    syncPair(els.depthRange, els.depthNum, debouncedGenerate);
     syncPair(els.heightRange, els.heightNum, debouncedGenerate);
-    syncPair(els.tabRange,    els.tabNum,    debouncedGenerate);
+    syncPair(els.tabRange, els.tabNum, debouncedGenerate);
     updateBadges();
 
     // Submit still works
-    els.form.addEventListener('submit', (e) => { e.preventDefault(); generate(); });
+    els.form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        generate();
+    });
 
     // Other fields live-update on change
     els.form.thickness.addEventListener('change', debouncedGenerate);
@@ -263,7 +282,7 @@ async function generate() {
         tempContainer.appendChild(svgNode);
         pc_onGeometryChanged(svgNode.cloneNode(true)); // ensure layers exist in preview; not needed to mutate temp
         // Re-render into export node
-        ['Bottom','Lid','Front','Back','Left','Right'].forEach(name => {
+        ['Bottom', 'Lid', 'Front', 'Back', 'Left', 'Right'].forEach(name => {
             // remove any old pcLayer from export node; will be rebuilt by current preview already
             // If you want exact current overlays, instead copy them from live DOM:
             const live = document.querySelector(`#contentLayer`)?.closest('svg');
@@ -298,10 +317,10 @@ async function generate() {
     els.resetBtn?.addEventListener('click', () => {
         els.form.reset();
         // mirror ranges into numbers
-        if (els.widthRange && els.widthNum)   els.widthNum.value  = els.widthRange.value;
-        if (els.depthRange && els.depthNum)   els.depthNum.value  = els.depthRange.value;
+        if (els.widthRange && els.widthNum) els.widthNum.value = els.widthRange.value;
+        if (els.depthRange && els.depthNum) els.depthNum.value = els.depthRange.value;
         if (els.heightRange && els.heightNum) els.heightNum.value = els.heightRange.value;
-        if (els.tabRange && els.tabNum)       els.tabNum.value    = els.tabRange.value;
+        if (els.tabRange && els.tabNum) els.tabNum.value = els.tabRange.value;
         els.showLabels.checked = true;
         updateBadges();
         setStatus('Parameters reset');
@@ -311,21 +330,40 @@ async function generate() {
     });
 
     // Zoom controls
-    els.zoomIn && (els.zoomIn.onclick = () => { pz && pz.zoomBy(1.2); updateZoomLabel(); });
-    els.zoomOut && (els.zoomOut.onclick = () => { pz && pz.zoomBy(1/1.2); updateZoomLabel(); });
-    els.zoomReset && (els.zoomReset.onclick = () => { pz && pz.zoom(1); updateZoomLabel(); });
+    els.zoomIn && (els.zoomIn.onclick = () => {
+        pz && pz.zoomBy(1.2);
+        updateZoomLabel();
+    });
+    els.zoomOut && (els.zoomOut.onclick = () => {
+        pz && pz.zoomBy(1 / 1.2);
+        updateZoomLabel();
+    });
+    els.zoomReset && (els.zoomReset.onclick = () => {
+        pz && pz.zoom(1);
+        updateZoomLabel();
+    });
     els.fitBtn && (els.fitBtn.onclick = () => {
-        const svg = els.out.querySelector('svg'); if (!svg) return;
-        pz && pz.destroy(); fitToContent(svg, 10);
+        const svg = els.out.querySelector('svg');
+        if (!svg) return;
+        pz && pz.destroy();
+        fitToContent(svg, 10);
         gridCtl = initInfiniteGrid(svg, () => (pz ? pz.getZoom() : 1), () => baseVbWidth || 1);
-        rulers = initRulers(els.out, svg, () => (pz ? pz.getZoom() : 1)); rulers.update();
+        rulers = initRulers(els.out, svg, () => (pz ? pz.getZoom() : 1));
+        rulers.update();
         // eslint-disable-next-line no-undef
         pz = svgPanZoom(svg, {
-            zoomEnabled:true, controlIconsEnabled:false, fit:false, center:false,
-            minZoom:0.1, maxZoom:20, zoomScaleSensitivity:0.2,
-            onZoom: () => { updateZoomLabel(); rulers && rulers.update(); },
-            onPan:  () => { rulers && rulers.update(); }
+            zoomEnabled: true, controlIconsEnabled: false, fit: false, center: false,
+            minZoom: 0.1, maxZoom: 20, zoomScaleSensitivity: 0.2,
+            dblClickZoomEnabled: false,
+            onZoom: () => {
+                updateZoomLabel();
+                rulers && rulers.update();
+            },
+            onPan: () => {
+                rulers && rulers.update();
+            }
         });
+        if (pz.disableDblClickZoom) pz.disableDblClickZoom();
         window.pz = pz;
         window.addEventListener('resize', () => rulers && rulers.update());
         updateZoomLabel();
@@ -333,9 +371,20 @@ async function generate() {
 
     window.addEventListener('keydown', (e) => {
         if (!pz) return;
-        if (e.key === '+') { pz.zoomBy(1.2); updateZoomLabel(); }
-        if (e.key === '-') { pz.zoomBy(1/1.2); updateZoomLabel(); }
-        if (e.key === '0') { pz.zoom(1); updateZoomLabel(); }
-        if (e.key.toLowerCase() === 'f') { els.fitBtn?.click(); }
+        if (e.key === '+') {
+            pz.zoomBy(1.2);
+            updateZoomLabel();
+        }
+        if (e.key === '-') {
+            pz.zoomBy(1 / 1.2);
+            updateZoomLabel();
+        }
+        if (e.key === '0') {
+            pz.zoom(1);
+            updateZoomLabel();
+        }
+        if (e.key.toLowerCase() === 'f') {
+            els.fitBtn?.click();
+        }
     });
 })();

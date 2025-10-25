@@ -12,6 +12,7 @@ let selectedItemId = null;
 let editItemId = null;
 let editOriginal = null;
 let currentSvg = null;
+let _activeCell = null;
 
 function loadState() {
     try {
@@ -49,3 +50,6 @@ export function setEditOriginal(v)   { editOriginal = v; }
 export function getEditOriginal()    { return editOriginal; }
 export function setCurrentSvg(v)     { currentSvg = v; }
 export function getCurrentSvg()      { return currentSvg; }
+export function setActiveCell(v) { _activeCell = v ? { panel:v.panel, row:v.row, col:v.col } : null; }
+export function getActiveCell()  { return _activeCell; }
+

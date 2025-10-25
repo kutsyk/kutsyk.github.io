@@ -2,6 +2,8 @@
 // Clickable/dblclickable per-cell overlay, drag-from-palette drop-to-panel,
 // active-cell highlight, font-change trigger, and export-time stripping of UI-only nodes.
 
+import {getActiveCell, setActiveCell} from "./panel/state.js";
+
 const NS = 'http://www.w3.org/2000/svg';
 const UI_ATTR = 'data-pc-ui';
 
@@ -100,11 +102,6 @@ function setCellInForm(row, col) {
     if (els.row) { els.row.value = String(row); els.row.dispatchEvent(new Event('input', { bubbles: true })); }
     if (els.col) { els.col.value = String(col); els.col.dispatchEvent(new Event('input', { bubbles: true })); }
 }
-function setActiveCellState(panelName, hit) {
-    const pane = pc_getPanelState(panelName);
-    pane._ui = pane._ui || {};
-    pane._ui.activeCell = { row: hit.row, col: hit.col };
-}
 
 // ------- overlay painting -------
 function renderOverlayForPanel(svg, panelName) {
@@ -120,7 +117,9 @@ function renderOverlayForPanel(svg, panelName) {
     const ov = ensureOverlayHost(host, panelName);
     const bbox = host.getBBox();
     const grid = buildGrid(bbox, p.layout);
-    const active = p._ui?.activeCell || { row: 1, col: 1 };
+    const ac = getActiveCell();
+    const active = (ac && ac.panel === panelName) ? { row: ac.row, col: ac.col } : null;
+
 
     // per-cell overlay, click = select cell, dblclick = select panel+cell into form
     for (let r = 1; r <= grid.rows; r++) {
@@ -131,10 +130,13 @@ function renderOverlayForPanel(svg, panelName) {
             cell.setAttribute('y', rect.y);
             cell.setAttribute('width', rect.w);
             cell.setAttribute('height', rect.h);
-            cell.setAttribute('fill', (active.row === r && active.col === c) ? 'rgba(99,102,241,.18)' : 'transparent');
             cell.setAttribute('stroke', 'transparent');
             cell.setAttribute('stroke-width', '0.3');
             cell.setAttribute(UI_ATTR, '1');
+
+            const isActive = !!active && active.row === r && active.col === c;
+            cell.setAttribute('fill', isActive ? 'rgba(99,102,241,.18)' : 'transparent');
+
             cell.dataset.row = String(r);
             cell.dataset.col = String(c);
 
@@ -142,16 +144,22 @@ function renderOverlayForPanel(svg, panelName) {
             cell.addEventListener('mouseleave', () => cell.setAttribute('stroke', 'transparent'));
 
             cell.addEventListener('click', async () => {
-                setActiveCellState(panelName, { row: r, col: c });
+                setActiveCell({ panel: panelName, row: r, col: c });
+                pi_refreshAllOverlays(svg);
+                renderOverlayForPanel(svg, panelName);
                 const mod = await ensurePC();
                 mod.pc_clearSelection?.();                 // NEW: hide delete cross
                 renderOverlayForPanel(svg, panelName);
             });
 
             cell.addEventListener('dblclick', (e) => {
+                e.preventDefault();
                 e.stopPropagation();
+                e.stopImmediatePropagation();
+
                 selectPanelInForm(panelName);
-                setActiveCellState(panelName, { row: r, col: c });
+                setActiveCell({ panel: panelName, row: r, col: c });
+                pi_refreshAllOverlays(svg);
                 setCellInForm(r, c);
                 renderOverlayForPanel(svg, panelName);
             });
@@ -167,8 +175,14 @@ function renderOverlayForPanel(svg, panelName) {
 function attachPanelBackgroundDblclick(svg, host, panelName, grid) {
     // ensure only one listener
     host.removeEventListener('dblclick', host._pcBgDbl);
-    host._pcBgDbl = async (e) => {
-        if (e.target && e.target.hasAttribute && e.target.hasAttribute(UI_ATTR)) return;
+    host._pcBgDbl = (e) => {
+        if (e.target && e.target.hasAttribute && e.target.hasAttribute(UI_ATTR)) return; // overlay handled
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+
+        // hit-test → set active cell
+        // if (e.target && e.target.hasAttribute && e.target.hasAttribute(UI_ATTR)) return;
         const p = pointInSvgUserSpace(svg, e.clientX, e.clientY);
         let hit = { row: 1, col: 1 };
         for (let r = 1; r <= grid.rows; r++) {
@@ -180,16 +194,22 @@ function attachPanelBackgroundDblclick(svg, host, panelName, grid) {
             }
         }
         selectPanelInForm(panelName);
-        setActiveCellState(panelName, hit);
+        setActiveCell({ panel: panelName, row: hit.row, col: hit.col });
+        pi_refreshAllOverlays(svg);
         setCellInForm(hit.row, hit.col);
-
-        const mod = await ensurePC();
-        mod.pc_clearSelection?.();
-
         renderOverlayForPanel(svg, panelName);
     };
-
     host.addEventListener('dblclick', host._pcBgDbl);
+
+    host.removeEventListener('click', host._pcBgClick);
+    host._pcBgClick = (e) => {
+        if (e.target && e.target.hasAttribute && e.target.hasAttribute(UI_ATTR)) return;
+        setActiveCell(null);
+        pi_refreshAllOverlays(svg);
+        renderOverlayForPanel(svg, panelName);
+    };
+    host.addEventListener('click', host._pcBgClick);
+
 }
 
 // ------- drag palette -------
@@ -222,40 +242,46 @@ function attachDropToPanel(svg, name) {
 
     host.addEventListener('drop', async (e) => {
         e.preventDefault();
+
         const type = e.dataTransfer?.getData('text/plain') || 'text';
         const pane = pc_getPanelState(name);
         if (pane.layout?.mode !== 'grid') return;
 
-        const pxy = pointInSvgUserSpace(svg, e.clientX, e.clientY);
+        const pxy  = pointInSvgUserSpace(svg, e.clientX, e.clientY);
         const grid = buildGrid(host.getBBox(), pane.layout);
 
+        // hit-test
         let hit = { row: 1, col: 1 };
-        for (let r = 1; r <= grid.rows; r++) {
-            for (let c = 1; c <= grid.cols; c++) {
-                const rect = cellRect(grid, r, c);
+        for (let rr = 1; rr <= grid.rows; rr++) {
+            for (let cc = 1; cc <= grid.cols; cc++) {
+                const rect = cellRect(grid, rr, cc);
                 if (pxy.x >= rect.x && pxy.x <= rect.x + rect.w && pxy.y >= rect.y && pxy.y <= rect.y + rect.h) {
-                    hit = { row: r, col: c };
+                    hit = { row: rr, col: cc };
                 }
             }
         }
 
+        // create item in that cell
         let newId = pc_addItemAtGridCell(name, type, hit);
         if (!newId) {
             const items = pc_getPanelState(name).items;
             newId = items.length ? items[items.length - 1].id : null;
         }
 
-        // set active panel + cell in form immediately
+        // sync UI and active cell (global)
         selectPanelInForm(name);
-        setActiveCellState(name, hit);
-        setCellInForm(hit.row, hit.col);
+        setActiveCell({ panel: name, row: hit.row, col: hit.col });   // <-- global active cell
+        setCellInForm(hit.row, hit.col);                               // <-- FIX: use hit.row/col
 
-        renderOverlayForPanel(svg, name);
+        // refresh
+        pi_refreshAllOverlays(svg);
         pc_renderAll(svg);
 
+        // enter edit mode
         const mod = await ensurePC();
         if (newId && typeof mod.pc_enterEdit === 'function') mod.pc_enterEdit(name, newId);
     });
+
 }
 
 // ------- font change hooks (optional) -------
@@ -285,4 +311,9 @@ export function pi_onGeometryChanged(svg) {
 }
 export function pi_beforeDownload(svgClone) {
     svgClone.querySelectorAll(`[${UI_ATTR}]`).forEach(n => n.remove());
+}
+
+import { PANELS } from './panel/constants.js';
+export function pi_refreshAllOverlays(svg) {
+    PANELS.forEach(name => renderOverlayForPanel(svg, name));
 }
