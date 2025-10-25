@@ -3,10 +3,31 @@
 // drag-and-drop targets. Renders on ALL detected panels.
 
 import {getCurrentPanel, setCurrentPanel, getActiveCell, setActiveCell, setSelectedItemId} from './panel/state.js';
-import {pc_getPanelState, pc_addItemAtGridCell, pc_renderAll} from './panel-state-bridge.js';
+import {
+    pc_getPanelState,
+    pc_addItemAtGridCell,
+    pc_renderAll,
+    pc_setItemSvg,
+    pc_setItemType,
+    pc_save
+} from './panel-state-bridge.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 const UI_ATTR = 'data-pc-ui';
+
+// --- global hint about what the user started dragging (palette) ---
+let _lastDragKind = null; // 'text' | 'svg' | null
+window.removeEventListener('dragstart', window._pcDragStartCap, true);
+window._pcDragStartCap = (e) => {
+    const t = e.target;
+    const k = (t && (t.getAttribute('data-pc-drag') || t.getAttribute('data-pc-add') || t.dataset?.pcDrag || '')).toLowerCase();
+    _lastDragKind = /svg/.test(k) ? 'svg' : /text/.test(k) ? 'text' : _lastDragKind;
+};
+window.addEventListener('dragstart', window._pcDragStartCap, true);
+window.addEventListener('dragend', () => {
+    _lastDragKind = null;
+}, true);
+
 
 const PANEL_COLORS = {
     Front: '#6366f1', Back: '#06b6d4', Left: '#84cc16',
@@ -233,6 +254,8 @@ function renderPanelOverlay(svg, name, host, showGrid) {
                 pi_onGeometryChanged(svg);
             });
 
+            hit.style.cursor = 'copy';
+
             // --- DnD: allow dropping "text" or "svg" onto a specific cell ---
             hit.addEventListener('dragenter', () => {
                 hit.setAttribute('stroke', hexToRgba(color, .7));
@@ -251,7 +274,15 @@ function renderPanelOverlay(svg, name, host, showGrid) {
             hit.addEventListener('drop', async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                const type = e.dataTransfer?.getData('text/plain') || 'text';
+                const files = e.dataTransfer?.files;
+                const hasSvgFile = !!(files && [...files].some(f => (f.type && f.type.includes('svg')) || (f.name && /\.svg$/i.test(f.name))));
+                let type = e.dataTransfer?.getData('text/plain');
+                if (!type) type = hasSvgFile ? 'svg' : (_lastDragKind || 'text');
+                type = /svg/i.test(type) ? 'svg' : 'text';
+                console.log(type);
+
+                if (type && /svg/i.test(type)) type = 'svg';
+                else type = hasSvgFile ? 'svg' : 'text';
 
                 const rr = Number(hit.getAttribute('data-pc-cell-row')) || r;
                 const cc = Number(hit.getAttribute('data-pc-cell-col')) || c;
@@ -259,13 +290,34 @@ function renderPanelOverlay(svg, name, host, showGrid) {
                 if (!pane || pane.layout?.mode !== 'grid') return;
                 // create item at this cell
                 const newId = pc_addItemAtGridCell(name, type, {row: rr, col: cc});
+                if (type === 'svg' && newId) pc_setItemType(name, newId, 'svg'); // force type before UI wakes up
+
+
+                // file-drop: if a real .svg file is dropped, load its content into the new item
+                if (hasSvgFile && files && files.length && newId) {
+                    const file = [...files].find(f =>
+                        (f.type && f.type.includes('svg')) || (f.name && /\.svg$/i.test(f.name))
+                    );
+                    if (file) {
+                        try {
+                            const txt = await file.text();
+                            pc_setItemSvg(name, newId, txt, file.name); // also renames item to file name
+                            type = 'svg'; // normalized
+                        } catch {
+                        }
+                    }
+                }
+
                 setCurrentPanel(name);
                 setActiveCell({panel: name, row: rr, col: cc});
                 if (newId) setSelectedItemId(newId);
+                // render content (now includes svg if provided) + overlays
                 pc_renderAll(svg);
                 pi_onGeometryChanged(svg);
+                pc_save();
                 try {
                     const mod = await import('./panel-content.js');
+                    if (type === 'svg' && typeof mod.pc_forceType === 'function') mod.pc_forceType('svg'); // ensure form toggles
                     if (newId && typeof mod.pc_activateEditorTab === 'function') mod.pc_activateEditorTab('object');
                     if (newId && typeof mod.pc_enterEdit === 'function') mod.pc_enterEdit(name, newId);
                 } catch {

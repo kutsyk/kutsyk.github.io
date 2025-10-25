@@ -1,7 +1,6 @@
-// public/js/edit.js
-// Editor logic: layout + item editing, selection, uploads, bindings.
-// Adds: explicit layout sync, mode-aware behaviors, and tab activation helpers.
-// Also wires drag sources for dropping into cells
+// public/js/panel/edit.js
+// Editor logic for Panel Content: layout + item editing, selection, uploads, bindings.
+// Refactored to avoid type-clobbering, unify DnD + click-to-add flows, and keep UI in sync.
 
 import {els, toggleLayoutGroups, toggleTypeProps} from './dom.js';
 import {
@@ -10,37 +9,37 @@ import {
     getSelectedItemId, setSelectedItemId,
     getEditItemId, setEditItemId,
     getEditOriginal, setEditOriginal,
-    getCurrentSvg, setCurrentSvg, setActiveCell,
-    setUiMode, getUiMode, UIMODES
+    getCurrentSvg, setCurrentSvg, setActiveCell, getActiveCell,
+    setUiMode, UIMODES
 } from './state.js';
-import {nid} from './utils.js';
+import {nid, bindSvgDeselect} from './utils.js';
 import {renderAll} from './render.js';
-import {bindSvgDeselect} from './utils.js';
 import {bus} from './signal-bus.js';
 import {pi_onGeometryChanged} from './../panel-interaction.js';
 
-// ----- drag sources (palette) -----
-function makeDraggable(el, type) {
-    if (!el) return;
-    el.setAttribute('draggable', 'true');
-    el.addEventListener('dragstart', (e) => {
-        try {
-            e.dataTransfer.setData('text/plain', type); // read by panel-interaction
-            e.dataTransfer.effectAllowed = 'copy';
-        } catch {
-        }
-    });
-}
-
-function bindDragSources() {
-    // Generic: any element declaring data-pc-drag="text" | "svg"
-    document.querySelectorAll('[data-pc-drag="text"]').forEach(el => makeDraggable(el, 'text'));
-    document.querySelectorAll('[data-pc-drag="svg"]').forEach(el => makeDraggable(el, 'svg'));
-    // Fallbacks for existing preset controls
-    makeDraggable(els.presetTitle, 'text');
-}
+// ---------- small utils ----------
+const nowPanel = () => getCurrentPanel() || 'Front';
+const activeSvg = () => getCurrentSvg();
+const mmNum = (v, d = 0) => (Number.isFinite(Number(v)) ? Number(v) : d);
+const normalizeKind = (k) => (String(k || '').toLowerCase().includes('svg') ? 'svg' : 'text');
+const ensureActiveCellOrDefault = () => getActiveCell() || {panel: nowPanel(), row: 1, col: 1};
 
 // ---------- selection ----------
+function setEditUI(enabled) {
+    const controls = [
+        els.type, els.name,
+        els.row, els.col, els.rowspan, els.colspan,
+        els.x, els.y, els.w, els.h,
+        els.alignH, els.alignV,
+        els.textarea, els.font, els.fontFamilyDDL, els.fontSize, els.line,
+        els.svgSrc, els.svgW, els.svgH, els.scale, els.preserve, els.invert,
+        els.rotate, els.mirrorX, els.mirrorY, els.stroke, els.opacity
+    ].filter(Boolean);
+    controls.forEach(c => c.disabled = !enabled);
+    if (els.confirm) els.confirm.disabled = !enabled;
+    if (els.cancel) els.cancel.disabled = !enabled;
+}
+
 function clearSelection() {
     const hadAny = !!(getSelectedItemId() || getEditItemId());
     setSelectedItemId(null);
@@ -49,7 +48,7 @@ function clearSelection() {
     setEditUI(false);
     if (hadAny) {
         rebuildItemsList();
-        renderAll(getCurrentSvg());
+        renderAll(activeSvg());
     }
 }
 
@@ -57,17 +56,17 @@ export function pc_clearSelection() {
     clearSelection();
 }
 
-// ---------- layout: commit + form sync ----------
+// ---------- layout ----------
 function commitLayout() {
     const p = panelState();
     p.layout.mode = els.layoutGrid?.checked ? 'grid' : 'free';
-    p.layout.rows = Math.max(1, Number(els.rows?.value || 1));
-    p.layout.cols = Math.max(1, Number(els.cols?.value || 1));
-    p.layout.gutter = Math.max(0, Number(els.gutter?.value || 0));
-    p.layout.padding = Math.max(0, Number(els.padding?.value || 0));
+    p.layout.rows = Math.max(1, mmNum(els.rows?.value, 2));
+    p.layout.cols = Math.max(1, mmNum(els.cols?.value, 2));
+    p.layout.gutter = Math.max(0, mmNum(els.gutter?.value, 2));
+    p.layout.padding = Math.max(0, mmNum(els.padding?.value, 4));
     saveState();
 
-    const svg = getCurrentSvg();
+    const svg = activeSvg();
     if (svg) {
         renderAll(svg);
         pi_onGeometryChanged(svg);
@@ -75,7 +74,7 @@ function commitLayout() {
 }
 
 function syncLayoutForm() {
-    const cur = getCurrentPanel?.() || 'Front';
+    const cur = nowPanel();
     const p = panelState(cur);
 
     if (els.panel) els.panel.value = cur;
@@ -91,7 +90,7 @@ function syncLayoutForm() {
     if (els.padding) els.padding.value = Number(p.layout?.padding ?? 4);
 }
 
-// ---------- legacy list (optional UI) ----------
+// ---------- items list (legacy/simple) ----------
 function rebuildItemsList() {
     const list = els.items;
     if (!list) return;
@@ -110,7 +109,7 @@ function rebuildItemsList() {
             it.visible = it.visible === false ? true : false;
             saveState();
             rebuildItemsList();
-            renderAll(getCurrentSvg());
+            renderAll(activeSvg());
         };
 
         const name = document.createElement('button');
@@ -121,7 +120,7 @@ function rebuildItemsList() {
             setSelectedItemId(it.id);
             syncEditorsToItem(it);
             highlightSelection();
-            renderAll(getCurrentSvg());
+            renderAll(activeSvg());
         };
 
         const edit = document.createElement('button');
@@ -129,15 +128,15 @@ function rebuildItemsList() {
         edit.className = 'btn btn-sm btn-outline-primary btn-icon';
         edit.innerHTML = '<i class="bi bi-pencil-square"></i>';
         edit.onclick = () => {
-            pc_activateEditorTab('object');   // ensure Object tab is active
-            pc_enterEdit(getCurrentPanel(), it.id);
-        }
+            pc_activateEditorTab('object');
+            pc_enterEdit(nowPanel(), it.id);
+        };
 
         const del = document.createElement('button');
         del.type = 'button';
         del.className = 'btn btn-sm btn-outline-danger btn-icon';
         del.innerHTML = '<i class="bi bi-trash"></i>';
-        del.onclick = () => deleteItem(getCurrentPanel(), it.id);
+        del.onclick = () => deleteItem(nowPanel(), it.id);
 
         row.append(eye, name, edit, del);
         list.appendChild(row);
@@ -161,7 +160,10 @@ function activeItem() {
 export function syncEditorsToItem(item) {
     if (!item) return;
 
-    els.type.value = item.type || 'text';
+    // Reflect type first and toggle visible control groups
+    if (els.type) els.type.value = item.type || 'text';
+    toggleTypeProps(item?.type || 'text');
+
     els.name.value = item.name || '';
 
     const g = item.grid || {row: 1, col: 1, rowSpan: 1, colSpan: 1};
@@ -187,54 +189,69 @@ export function syncEditorsToItem(item) {
         els.textarea.maxLength = 1000;
         els.textarea.value = (item.text?.value ?? '').slice(0, 1000);
     }
-    els.fontSize.value = item.text?.size ?? 4;
-    els.line.value = item.text?.line ?? 1.2;
+    if (els.fontSize) els.fontSize.value = item.text?.size ?? 4;
+    if (els.line) els.line.value = item.text?.line ?? 1.2;
 
-    els.scale.value = item.svg?.scale ?? 100;
-    els.preserve.checked = !!item.svg?.preserveAspect;
+    if (els.scale) els.scale.value = item.svg?.scale ?? 100;
+    if (els.preserve) els.preserve.checked = !!item.svg?.preserveAspect;
     if (els.svgW) els.svgW.value = item.svg?.w ?? '';
     if (els.svgH) els.svgH.value = item.svg?.h ?? '';
     if (els.invert) els.invert.checked = !!item.svg?.invert;
+    // show persisted filename if the UI provides a label (do NOT try to set file input value)
+    const nameLabel = document.getElementById('pc-svg-filename');
+    if (nameLabel) nameLabel.textContent = item.svg?.name || '';
 
-    els.rotate.value = item.transform?.rotate ?? 0;
-    els.mirrorX.checked = !!item.transform?.mirrorX;
-    els.mirrorY.checked = !!item.transform?.mirrorY;
-    els.stroke.value = item.style?.strokeW ?? 0.35;
-    els.opacity.value = (item.style?.opacity ?? 100);
+    if (els.rotate) els.rotate.value = item.transform?.rotate ?? 0;
+    if (els.mirrorX) els.mirrorX.checked = !!item.transform?.mirrorX;
+    if (els.mirrorY) els.mirrorY.checked = !!item.transform?.mirrorY;
+    if (els.stroke) els.stroke.value = item.style?.strokeW ?? 0.35;
+    if (els.opacity) els.opacity.value = (item.style?.opacity ?? 100);
+}
 
-    toggleTypeProps(item?.type || 'text');
+// Switch item type only when the Type <select> changes or an operation explicitly asks for it
+function switchItemType(newType) {
+    const p = panelState();
+    const it = p.items.find(i => i.id === (getEditItemId() || getSelectedItemId()));
+    if (!it) return;
+    const t = newType === 'svg' ? 'svg' : 'text';
+    if (it.type === t) return;
+
+    it.type = t;
+    if (t === 'svg') {
+        delete it.text;
+        it.svg = it.svg || {content: '', scale: 100, preserveAspect: true, w: undefined, h: undefined, invert: false};
+    } else {
+        delete it.svg;
+        const family = els.fontFamilyDDL?.value || els.font?.value || 'Inter';
+        it.text = it.text || {value: 'enter your text', font: family, size: 4, line: 1.2};
+    }
+    saveState();
+    toggleTypeProps(t);
+    syncEditorsToItem(it);
+    renderAll(activeSvg());
 }
 
 // ---------- edit workflow ----------
-function setEditUI(enabled) {
-    const controls = [
-        els.type, els.name,
-        els.row, els.col, els.rowspan, els.colspan,
-        els.x, els.y, els.w, els.h,
-        els.alignH, els.alignV,
-        els.textarea, els.font, els.fontFamilyDDL, els.fontSize, els.line,
-        els.svgSrc, els.svgW, els.svgH, els.scale, els.preserve, els.invert,
-        els.rotate, els.mirrorX, els.mirrorY, els.stroke, els.opacity
-    ].filter(Boolean);
-    controls.forEach(c => c.disabled = !enabled);
-    if (els.confirm) els.confirm.disabled = !enabled;
-    if (els.cancel) els.cancel.disabled = !enabled;
-}
-
 export function pc_enterEdit(panelName, itemId) {
-    pc_activateEditorTab('object');
-    setCurrentPanel(panelName || getCurrentPanel());
+    setCurrentPanel(panelName || nowPanel());
     setSelectedItemId(itemId);
-    const p = panelState(getCurrentPanel());
+
+    const p = panelState(nowPanel());
     const it = p.items.find(i => i.id === itemId);
+
     if (!it) return;
-    setUiMode(UIMODES.OBJECT); // lock into object mode while editing
+
+    setUiMode(UIMODES.OBJECT);
     setEditItemId(itemId);
     setEditOriginal(JSON.parse(JSON.stringify(it)));
+
+    pc_activateEditorTab('object');
+    toggleTypeProps(it.type || 'text');
+    syncEditorsToItem(it); // sets type select + toggles controls
     setEditUI(true);
-    syncEditorsToItem(it);
+    renderAll(activeSvg());
+
     highlightSelection();
-    renderAll(getCurrentSvg());
     setTimeout(() => {
         els.textarea?.focus();
         els.textarea?.select();
@@ -250,7 +267,7 @@ function onConfirm() {
 
 function onCancel() {
     if (!getEditItemId() || !getEditOriginal()) return;
-    const p = panelState(getCurrentPanel());
+    const p = panelState(nowPanel());
     const idx = p.items.findIndex(i => i.id === getEditItemId());
     if (idx >= 0) p.items[idx] = getEditOriginal();
     saveState();
@@ -259,18 +276,14 @@ function onCancel() {
     if (idx >= 0) syncEditorsToItem(p.items[idx]);
 }
 
-// ---------- live commit (layout always, then item if any) ----------
+// Live commit of current editor fields (does NOT touch layout or type)
 function commitEditors() {
     const p = panelState();
     const it = p.items.find(i => i.id === (getEditItemId() || getSelectedItemId()));
     if (!it) return;
 
-    it.type = els.type.value;
+    const currentType = it.type || 'text';
     it.name = els.name.value || it.name;
-
-    if (it.type === 'svg') {
-        delete it.text;
-    }
 
     if ((p.layout.mode || 'grid') === 'grid') {
         it.grid = it.grid || {};
@@ -288,7 +301,7 @@ function commitEditors() {
 
     it.align = {h: els.alignH.value, v: els.alignV.value};
 
-    if (it.type === 'text') {
+    if (currentType === 'text') {
         it.text = it.text || {};
         const chosenFamily = els.fontFamilyDDL?.value || els.font?.value || it.text.font || 'Inter';
         it.text.value = (els.textarea?.value || '').slice(0, 1000);
@@ -314,14 +327,14 @@ function commitEditors() {
         opacity: Number(els.opacity.value)
     };
 
-    renderAll(getCurrentSvg());
+    renderAll(activeSvg());
     if (!getEditItemId()) saveState();
 }
 
-// ---------- uploads ----------
+// ---------- uploads (SVG content) ----------
 function sanitizeSvg(src) {
     const temp = document.createElement('div');
-    temp.innerHTML = src;
+    temp.innerHTML = src || '';
     temp.querySelectorAll('script').forEach(n => n.remove());
     temp.querySelectorAll('*').forEach(n => {
         [...n.attributes].forEach(a => {
@@ -342,19 +355,14 @@ function bindSvgUpload() {
             const id = (getEditItemId() || getSelectedItemId());
             const it = p.items.find(i => i.id === id);
             if (!it) return;
-            if (it.type !== 'svg') {
-                it.type = 'svg';
-                it.svg = it.svg || {scale: 100, preserveAspect: true, invert: false};
-                delete it.text;
-                els.type && (els.type.value = 'svg');
-                toggleTypeProps('svg');
-            }
+            if (it.type !== 'svg') switchItemType('svg');
+            it.svg = it.svg || {scale: 100, preserveAspect: true, invert: false};
             it.svg.content = sanitizeSvg(txt);
-            it.name = f.name || it.name;
-            renderAll(getCurrentSvg());
+            it.svg.name = f.name || it.svg.name; // persist filename for display
+            it.name = it.name || it.svg.name || 'SVG';
+            renderAll(activeSvg());
             if (!getEditItemId()) saveState();
-        } catch (err) {
-            console.error('SVG read failed', err);
+        } catch (_err) {
         } finally {
             input.value = '';
         }
@@ -372,106 +380,10 @@ export function deleteItem(panelName, itemId) {
     }
     saveState();
     rebuildItemsList();
-    renderAll(getCurrentSvg());
+    renderAll(activeSvg());
 }
 
-// ---------- init ----------
-export function initEditing() {
-    // item controls → commitEditors
-    [
-        els.type, els.name, els.row, els.col, els.rowspan, els.colspan,
-        els.x, els.y, els.w, els.h, els.alignH, els.alignV,
-        els.textarea, els.font, els.fontFamilyDDL, els.fontSize, els.line,
-        els.scale, els.preserve, els.svgW, els.svgH, els.invert,
-        els.rotate, els.mirrorX, els.mirrorY, els.stroke, els.opacity
-    ].forEach(el => el && el.addEventListener('input', commitEditors));
-    els.type?.addEventListener('change', () => {
-        toggleTypeProps(els.type.value);
-        commitEditors();
-    });
-
-    // layout controls → commitLayout
-    [els.rows, els.cols, els.gutter, els.padding].forEach(el => el && el.addEventListener('input', commitLayout));
-    [els.layoutGrid, els.layoutFree, els.showGuides].forEach(el => el && el.addEventListener('change', () => {
-        if (typeof toggleLayoutGroups === 'function') toggleLayoutGroups();
-        commitLayout();
-    }));
-
-    // explicit save button for layout (optional explicit commit)
-    document.getElementById('pc-layout-save')?.addEventListener('click', () => commitLayout());
-
-    // when layout tab becomes visible, resync its fields
-    document.getElementById('pc-tabbtn-layout')?.addEventListener('shown.bs.tab', () => {
-        syncLayoutForm();
-    });
-
-    // panel selector
-    els.panel?.addEventListener('change', () => {
-        setActiveCell(null);
-        setCurrentPanel(els.panel.value);
-        clearSelection();
-        rebuildItemsList();
-        syncEditorsToItem(null);
-        syncLayoutForm();
-        commitLayout();
-    });
-
-    // keyboard: P / C / O modes
-    document.addEventListener('keydown', (e) => {
-        if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable)) return;
-        if (e.key === 'p' || e.key === 'P') setUiMode(UIMODES.PANEL);
-        if (e.key === 'c' || e.key === 'C') setUiMode(UIMODES.CELL);
-        if (e.key === 'o' || e.key === 'O') setUiMode(UIMODES.OBJECT);
-    });
-
-    // confirm / cancel
-    els.confirm?.addEventListener('click', onConfirm);
-    els.cancel?.addEventListener('click', onCancel);
-
-    // showGuides instant repaint
-    els.showGuides?.addEventListener('change', () => {
-        const svg = getCurrentSvg();
-        if (svg) renderAll(svg);
-    });
-
-    bindSvgUpload();
-
-    // expose to render module via bus
-    bus.setEnterEdit(pc_enterEdit);
-    bus.setCurrentPanelFn(() => getCurrentPanel());
-    bus.setDeleteRequest((panel, id) => deleteItem(panel, id));
-
-    // initial UI
-    toggleLayoutGroups();
-    syncLayoutForm();
-
-    const p = panelState();
-    setSelectedItemId(p.items[0]?.id || null);
-    rebuildItemsList();
-    syncEditorsToItem(activeItem());
-    toggleTypeProps(activeItem()?.type || 'text');
-    setEditUI(false);
-    setUiMode(UIMODES.CELL);
-    bindDragSources();
-    // keep Layout form in sync when panel is changed via mouse in preview / tree
-    document.addEventListener('pc:panelChanged', () => {
-        // reflect current panel in selector
-        if (els.panel) els.panel.value = getCurrentPanel();
-        // refresh list + editors to panel’s context
-        rebuildItemsList();
-        syncEditorsToItem(null);
-        // update rows/cols/gutter/padding + grid/free toggle
-        syncLayoutForm();
-        if (typeof toggleLayoutGroups === 'function') toggleLayoutGroups();
-    });
-
-    // optional: when active cell changes via mouse, ensure layout controls reflect mode
-    document.addEventListener('pc:activeCellChanged', () => {
-        syncLayoutForm();
-    });
-}
-
-// ---------- public helpers ----------
+// ---------- public helpers / API for other modules ----------
 export function pc_activateEditorTab(which) {
     const btnLayout = document.getElementById('pc-tabbtn-layout');
     const btnObject = document.getElementById('pc-tabbtn-object');
@@ -504,13 +416,14 @@ export function pc_activateEditorTab(which) {
     }
 }
 
-// create item at a grid cell
+// Create item at a grid cell; kind: 'text' | 'svg'
 export function pc_createItemInCell(panelName, kind, cell) {
     const p = panelState(panelName);
+    const t = normalizeKind(kind);
     const id = nid();
     const base = {
         id,
-        name: kind === 'svg' ? 'SVG' : 'Text',
+        name: t === 'svg' ? 'SVG' : 'Text',
         grid: {row: cell.row, col: cell.col, rowSpan: 1, colSpan: 1},
         align: {h: 'center', v: 'middle'},
         transform: {rotate: 0, mirrorX: false, mirrorY: false},
@@ -518,13 +431,13 @@ export function pc_createItemInCell(panelName, kind, cell) {
         visible: true
     };
     const family = els.fontFamilyDDL?.value || els.font?.value || 'Inter';
-    const item = (kind === 'svg')
+    const item = (t === 'svg')
         ? {
             ...base,
             type: 'svg',
             svg: {content: '', scale: 100, preserveAspect: true, w: undefined, h: undefined, invert: false}
         }
-        : {...base, type: 'text', text: {value: 'enter your text...', font: family, size: 4, line: 1.2}};
+        : {...base, type: 'text', text: {value: 'enter your text', font: family, size: 4, line: 1.2}};
 
     p.items.push(item);
     saveState();
@@ -532,7 +445,7 @@ export function pc_createItemInCell(panelName, kind, cell) {
 }
 
 export function pc_renderAll(svg) {
-    renderAll(svg || getCurrentSvg());
+    renderAll(svg || activeSvg());
 }
 
 export function pc_getStateRef() {
@@ -550,4 +463,183 @@ export function pc_save() {
 export function pc_bindSvg(svg) {
     setCurrentSvg(svg);
     bindSvgDeselect(svg, clearSelection);
+}
+
+export function pc_setItemType(panelName, itemId, type) {
+    const p = panelState(panelName);
+    const it = p.items.find(i => i.id === itemId);
+    if (!it) return;
+    const isSvg = String(type).toLowerCase().includes('svg');
+    if (isSvg && it.type !== 'svg') {
+        it.type = 'svg';
+        delete it.text;
+        it.svg = it.svg || {content: '', scale: 100, preserveAspect: true, w: undefined, h: undefined, invert: false};
+    } else if (!isSvg && it.type !== 'text') {
+        it.type = 'text';
+        delete it.svg;
+        const family = els.fontFamilyDDL?.value || els.font?.value || 'Inter';
+        it.text = it.text || {value: 'enter your text', font: family, size: 4, line: 1.2};
+    }
+    saveState();
+    syncEditorsToItem(it);
+    renderAll(activeSvg());
+}
+
+export function pc_forceType(newType) {
+    switchItemType(newType);
+}
+
+// ---------- palette helpers (drag + click to add) ----------
+function makeDraggable(el, kind) {
+    if (!el) return;
+    el.setAttribute('draggable', 'true');
+    el.setAttribute('data-pc-drag', kind);
+    el.addEventListener('dragstart', (e) => {
+        try {
+            e.dataTransfer.setData('text/plain', kind);
+            e.dataTransfer.effectAllowed = 'copy';
+        } catch {
+        }
+    });
+}
+
+function clickToAdd(el, kind) {
+    if (!el) return;
+    el.setAttribute('data-pc-add', kind);
+    el.addEventListener('click', () => {
+        const ac = ensureActiveCellOrDefault();
+        const id = pc_createItemInCell(ac.panel, kind, {row: ac.row, col: ac.col});
+        renderAll(activeSvg());
+        import('./../panel-content.js').then(m => {
+            if (m.pc_activateEditorTab) m.pc_activateEditorTab('object');
+            if (m.pc_enterEdit) m.pc_enterEdit(ac.panel, id);
+        }).catch(() => {
+        });
+    });
+}
+
+function bindPalette() {
+    makeDraggable(els.presetTitle, 'text');
+    clickToAdd(els.presetTitle, 'text');
+    const svgBtn = document.querySelector('[data-pc-add="svg"]') || document.querySelector('#pc-preset-svg') || document.querySelector('[data-role="pc-add-svg"]');
+    makeDraggable(svgBtn, 'svg');
+    clickToAdd(svgBtn, 'svg');
+}
+
+// ---------- init ----------
+export function initEditing() {
+    // item controls → live commit
+    [
+        els.type, els.name, els.row, els.col, els.rowspan, els.colspan,
+        els.x, els.y, els.w, els.h, els.alignH, els.alignV,
+        els.textarea, els.font, els.fontFamilyDDL, els.fontSize, els.line,
+        els.scale, els.preserve, els.svgW, els.svgH, els.invert,
+        els.rotate, els.mirrorX, els.mirrorY, els.stroke, els.opacity
+    ].forEach(el => el && el.addEventListener('input', commitEditors));
+
+    // Type changes handled explicitly (avoid clobber)
+    els.type?.addEventListener('change', () => {
+        const val = els.type.value === 'svg' ? 'svg' : 'text';
+        switchItemType(val);
+    });
+
+    // layout controls → commitLayout
+    [els.rows, els.cols, els.gutter, els.padding].forEach(el => el && el.addEventListener('input', commitLayout));
+    [els.layoutGrid, els.layoutFree, els.showGuides].forEach(el => el && el.addEventListener('change', () => {
+        if (typeof toggleLayoutGroups === 'function') toggleLayoutGroups();
+        commitLayout();
+    }));
+
+    // explicit layout save (optional)
+    document.getElementById('pc-layout-save')?.addEventListener('click', () => commitLayout());
+
+    // when layout tab becomes visible, resync its fields
+    document.getElementById('pc-tabbtn-layout')?.addEventListener('shown.bs.tab', () => {
+        syncLayoutForm();
+    });
+
+    // panel selector
+    els.panel?.addEventListener('change', () => {
+        setActiveCell(null);
+        setCurrentPanel(els.panel.value);
+        clearSelection();
+        rebuildItemsList();
+        syncEditorsToItem(null);
+        syncLayoutForm();
+        commitLayout();
+    });
+
+    // keyboard: P / C / O modes
+    document.addEventListener('keydown', (e) => {
+        if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable)) return;
+        if (e.key === 'p' || e.key === 'P') setUiMode(UIMODES.PANEL);
+        if (e.key === 'c' || e.key === 'C') setUiMode(UIMODES.CELL);
+        if (e.key === 'o' || e.key === 'O') setUiMode(UIMODES.OBJECT);
+    });
+
+    (function bindDnDSources() {
+        const btnText = document.getElementById('pc-drag-text');
+        const btnSvg = document.getElementById('pc-drag-svg');
+
+        if (btnText && !btnText._pcBound) {
+            btnText._pcBound = true;
+            btnText.setAttribute('draggable', 'true');
+            btnText.addEventListener('dragstart', (e) => {
+                try {
+                    e.dataTransfer.setData('text/plain', 'text');   // critical: non-empty data
+                    e.dataTransfer.effectAllowed = 'copy';
+                } catch {
+                }
+                // fallback hint
+                if (typeof window !== 'undefined') window._lastDragKind = 'text';
+            }, {capture: true});
+        }
+
+        if (btnSvg && !btnSvg._pcBound) {
+            btnSvg._pcBound = true;
+            btnSvg.setAttribute('draggable', 'true');
+            btnSvg.addEventListener('dragstart', (e) => {
+                try {
+                    e.dataTransfer.setData('text/plain', 'svg');    // critical: makes drop handler resolve to 'svg'
+                    e.dataTransfer.effectAllowed = 'copy';
+                } catch {
+                }
+                // fallback hint
+                if (typeof window !== 'undefined') window._lastDragKind = 'svg';
+            }, {capture: true});
+        }
+    })();
+
+    // confirm / cancel
+    els.confirm?.addEventListener('click', onConfirm);
+    els.cancel?.addEventListener('click', onCancel);
+
+    // showGuides instant repaint
+    els.showGuides?.addEventListener('change', () => {
+        const svg = activeSvg();
+        if (svg) renderAll(svg);
+    });
+
+    // uploads
+    bindSvgUpload();
+
+    // expose to render module via bus
+    bus.setEnterEdit(pc_enterEdit);
+    bus.setCurrentPanelFn(() => nowPanel());
+    bus.setDeleteRequest((panel, id) => deleteItem(panel, id));
+
+    // initial UI
+    toggleLayoutGroups();
+    syncLayoutForm();
+
+    const p = panelState();
+    setSelectedItemId(p.items[0]?.id || null);
+    rebuildItemsList();
+    syncEditorsToItem(activeItem());
+    toggleTypeProps(activeItem()?.type || 'text');
+    setEditUI(false);
+    setUiMode(UIMODES.CELL);
+
+    // palette
+    bindPalette();
 }
