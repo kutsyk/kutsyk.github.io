@@ -408,6 +408,48 @@ function attachDrops(svg) {
     });
 }
 
+function _pointInSvg(svg, clientX, clientY) {
+    const pt = svg.createSVGPoint(); pt.x = clientX; pt.y = clientY;
+    const vp = svg.querySelector('.svg-pan-zoom_viewport') || svg;
+    const m = vp.getScreenCTM(); return m ? pt.matrixTransform(m.inverse()) : { x:0, y:0 };
+}
+function _isInsideAnyPanel(svg, x, y) {
+    const names = ['Bottom','Lid','Front','Back','Left','Right'];
+    for (const n of names) {
+        const host = svg.querySelector(`g[id$="${n}"], path[id$="${n}"], [id$="${n}"]`);
+        if (!host) continue;
+        let b; try { b = host.getBBox(); } catch { continue; }
+        if (x >= b.x && x <= b.x + b.width && y >= b.y && y <= b.y + b.height) return true;
+    }
+    return false;
+}
+function bindBackgroundDeselect(svg) {
+    if (svg._pcBgDeselectBound) return; svg._pcBgDeselectBound = true;
+
+    svg.addEventListener('mousedown', (e) => {
+        // ignore clicks on overlay UI/hit rects or any interactive child
+        if (e.target && (e.target.getAttribute('data-pc-ui') === '1')) return;
+
+        const p = _pointInSvg(svg, e.clientX, e.clientY);
+        if (_isInsideAnyPanel(svg, p.x, p.y)) return;
+
+        setActiveCell(null);
+        setSelectedItemId(null);
+        document.dispatchEvent(new CustomEvent('pc:activeCellChanged', { detail: { panel: null, row: null, col: null } }));
+        pc_renderAll(svg);
+        pi_onGeometryChanged(svg);
+    }, true);
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') return;
+        setActiveCell(null);
+        setSelectedItemId(null);
+        document.dispatchEvent(new CustomEvent('pc:activeCellChanged', { detail: { panel: null, row: null, col: null } }));
+        const curSvg = document.querySelector('#out svg') || svg;
+        if (curSvg) { pc_renderAll(curSvg); pi_onGeometryChanged(curSvg); }
+    }, { once: false });
+}
+
 // ---------- public ----------
 export function pi_onGeometryChanged(svg) {
     if (!svg) return;
@@ -425,6 +467,7 @@ export function pi_onGeometryChanged(svg) {
     }
 
     attachDrops(svg);
+    bindBackgroundDeselect(svg);
 }
 
 export function pi_refreshAllOverlays(svg) {
