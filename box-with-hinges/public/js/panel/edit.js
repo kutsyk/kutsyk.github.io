@@ -1,6 +1,7 @@
 // public/js/edit.js
 // Editor logic: layout + item editing, selection, uploads, bindings.
 // Adds: explicit layout sync, mode-aware behaviors, and tab activation helpers.
+// Also wires drag sources for dropping into cells
 
 import {els, toggleLayoutGroups, toggleTypeProps} from './dom.js';
 import {
@@ -17,6 +18,27 @@ import {renderAll} from './render.js';
 import {bindSvgDeselect} from './utils.js';
 import {bus} from './signal-bus.js';
 import {pi_onGeometryChanged} from './../panel-interaction.js';
+
+// ----- drag sources (palette) -----
+function makeDraggable(el, type) {
+    if (!el) return;
+    el.setAttribute('draggable', 'true');
+    el.addEventListener('dragstart', (e) => {
+        try {
+            e.dataTransfer.setData('text/plain', type); // read by panel-interaction
+            e.dataTransfer.effectAllowed = 'copy';
+        } catch {
+        }
+    });
+}
+
+function bindDragSources() {
+    // Generic: any element declaring data-pc-drag="text" | "svg"
+    document.querySelectorAll('[data-pc-drag="text"]').forEach(el => makeDraggable(el, 'text'));
+    document.querySelectorAll('[data-pc-drag="svg"]').forEach(el => makeDraggable(el, 'svg'));
+    // Fallbacks for existing preset controls
+    makeDraggable(els.presetTitle, 'text');
+}
 
 // ---------- selection ----------
 function clearSelection() {
@@ -430,7 +452,7 @@ export function initEditing() {
     toggleTypeProps(activeItem()?.type || 'text');
     setEditUI(false);
     setUiMode(UIMODES.CELL);
-
+    bindDragSources();
     // keep Layout form in sync when panel is changed via mouse in preview / tree
     document.addEventListener('pc:panelChanged', () => {
         // reflect current panel in selector
@@ -502,7 +524,7 @@ export function pc_createItemInCell(panelName, kind, cell) {
             type: 'svg',
             svg: {content: '', scale: 100, preserveAspect: true, w: undefined, h: undefined, invert: false}
         }
-        : {...base, type: 'text', text: {value: '', font: family, size: 4, line: 1.2}};
+        : {...base, type: 'text', text: {value: 'enter your text...', font: family, size: 4, line: 1.2}};
 
     p.items.push(item);
     saveState();
