@@ -2,7 +2,7 @@
 // Editor logic: layout + item editing, selection, uploads, bindings.
 // Adds: explicit layout sync, mode-aware behaviors, and tab activation helpers.
 
-import { els, toggleLayoutGroups, toggleTypeProps } from './dom.js';
+import {els, toggleLayoutGroups, toggleTypeProps} from './dom.js';
 import {
     getStateRef, panelState, saveState,
     getCurrentPanel, setCurrentPanel,
@@ -12,11 +12,11 @@ import {
     getCurrentSvg, setCurrentSvg, setActiveCell,
     setUiMode, getUiMode, UIMODES
 } from './state.js';
-import { nid } from './utils.js';
-import { renderAll } from './render.js';
-import { bindSvgDeselect } from './utils.js';
-import { bus } from './signal-bus.js';
-import { pi_onGeometryChanged } from './../panel-interaction.js';
+import {nid} from './utils.js';
+import {renderAll} from './render.js';
+import {bindSvgDeselect} from './utils.js';
+import {bus} from './signal-bus.js';
+import {pi_onGeometryChanged} from './../panel-interaction.js';
 
 // ---------- selection ----------
 function clearSelection() {
@@ -30,15 +30,18 @@ function clearSelection() {
         renderAll(getCurrentSvg());
     }
 }
-export function pc_clearSelection() { clearSelection(); }
+
+export function pc_clearSelection() {
+    clearSelection();
+}
 
 // ---------- layout: commit + form sync ----------
 function commitLayout() {
     const p = panelState();
-    p.layout.mode    = els.layoutGrid?.checked ? 'grid' : 'free';
-    p.layout.rows    = Math.max(1, Number(els.rows?.value || 1));
-    p.layout.cols    = Math.max(1, Number(els.cols?.value || 1));
-    p.layout.gutter  = Math.max(0, Number(els.gutter?.value || 0));
+    p.layout.mode = els.layoutGrid?.checked ? 'grid' : 'free';
+    p.layout.rows = Math.max(1, Number(els.rows?.value || 1));
+    p.layout.cols = Math.max(1, Number(els.cols?.value || 1));
+    p.layout.gutter = Math.max(0, Number(els.gutter?.value || 0));
     p.layout.padding = Math.max(0, Number(els.padding?.value || 0));
     saveState();
 
@@ -48,6 +51,7 @@ function commitLayout() {
         pi_onGeometryChanged(svg);
     }
 }
+
 function syncLayoutForm() {
     const cur = getCurrentPanel?.() || 'Front';
     const p = panelState(cur);
@@ -59,9 +63,9 @@ function syncLayoutForm() {
     if (els.layoutFree) els.layoutFree.checked = (mode === 'free');
     if (typeof toggleLayoutGroups === 'function') toggleLayoutGroups();
 
-    if (els.rows)    els.rows.value    = Number(p.layout?.rows ?? 2);
-    if (els.cols)    els.cols.value    = Number(p.layout?.cols ?? 2);
-    if (els.gutter)  els.gutter.value  = Number(p.layout?.gutter ?? 2);
+    if (els.rows) els.rows.value = Number(p.layout?.rows ?? 2);
+    if (els.cols) els.cols.value = Number(p.layout?.cols ?? 2);
+    if (els.gutter) els.gutter.value = Number(p.layout?.gutter ?? 2);
     if (els.padding) els.padding.value = Number(p.layout?.padding ?? 4);
 }
 
@@ -80,19 +84,32 @@ function rebuildItemsList() {
         eye.type = 'button';
         eye.className = 'btn btn-sm btn-outline-secondary btn-icon';
         eye.innerHTML = it.visible === false ? '<i class="bi bi-eye-slash"></i>' : '<i class="bi bi-eye"></i>';
-        eye.onclick = () => { it.visible = it.visible === false ? true : false; saveState(); rebuildItemsList(); renderAll(getCurrentSvg()); };
+        eye.onclick = () => {
+            it.visible = it.visible === false ? true : false;
+            saveState();
+            rebuildItemsList();
+            renderAll(getCurrentSvg());
+        };
 
         const name = document.createElement('button');
         name.type = 'button';
         name.className = 'btn btn-sm btn-link text-start name';
         name.textContent = it.name || (it.type === 'text' ? 'Text' : 'SVG');
-        name.onclick = () => { setSelectedItemId(it.id); syncEditorsToItem(it); highlightSelection(); renderAll(getCurrentSvg()); };
+        name.onclick = () => {
+            setSelectedItemId(it.id);
+            syncEditorsToItem(it);
+            highlightSelection();
+            renderAll(getCurrentSvg());
+        };
 
         const edit = document.createElement('button');
         edit.type = 'button';
         edit.className = 'btn btn-sm btn-outline-primary btn-icon';
         edit.innerHTML = '<i class="bi bi-pencil-square"></i>';
-        edit.onclick = () => pc_enterEdit(getCurrentPanel(), it.id);
+        edit.onclick = () => {
+            pc_activateEditorTab('object');   // ensure Object tab is active
+            pc_enterEdit(getCurrentPanel(), it.id);
+        }
 
         const del = document.createElement('button');
         del.type = 'button';
@@ -105,6 +122,7 @@ function rebuildItemsList() {
     });
     highlightSelection();
 }
+
 function highlightSelection() {
     const id = getSelectedItemId();
     els.items?.querySelectorAll('.pc-item-row').forEach(r => {
@@ -117,20 +135,24 @@ function activeItem() {
     const p = panelState();
     return p.items.find(x => x.id === getSelectedItemId()) || null;
 }
+
 export function syncEditorsToItem(item) {
     if (!item) return;
 
     els.type.value = item.type || 'text';
     els.name.value = item.name || '';
 
-    const g = item.grid || { row:1, col:1, rowSpan:1, colSpan:1 };
-    els.row.value     = g.row ?? 1;
-    els.col.value     = g.col ?? 1;
+    const g = item.grid || {row: 1, col: 1, rowSpan: 1, colSpan: 1};
+    els.row.value = g.row ?? 1;
+    els.col.value = g.col ?? 1;
     els.rowspan.value = g.rowSpan ?? 1;
     els.colspan.value = g.colSpan ?? 1;
 
     const b = item.box || {};
-    els.x.value = b.x ?? 0; els.y.value = b.y ?? 0; els.w.value = b.w ?? 20; els.h.value = b.h ?? 20;
+    els.x.value = b.x ?? 0;
+    els.y.value = b.y ?? 0;
+    els.w.value = b.w ?? 20;
+    els.h.value = b.h ?? 20;
 
     els.alignH.value = item.align?.h || 'center';
     els.alignV.value = item.align?.v || 'middle';
@@ -140,13 +162,13 @@ export function syncEditorsToItem(item) {
     if (els.font) els.font.value = fam;
     if (els.textarea) {
         els.textarea.placeholder = 'enter your text';
-        els.textarea.maxLength   = 1000;
-        els.textarea.value       = (item.text?.value || '').slice(0, 1000);
+        els.textarea.maxLength = 1000;
+        els.textarea.value = (item.text?.value ?? '').slice(0, 1000);
     }
     els.fontSize.value = item.text?.size ?? 4;
-    els.line.value     = item.text?.line ?? 1.2;
+    els.line.value = item.text?.line ?? 1.2;
 
-    els.scale.value      = item.svg?.scale ?? 100;
+    els.scale.value = item.svg?.scale ?? 100;
     els.preserve.checked = !!item.svg?.preserveAspect;
     if (els.svgW) els.svgW.value = item.svg?.w ?? '';
     if (els.svgH) els.svgH.value = item.svg?.h ?? '';
@@ -174,9 +196,11 @@ function setEditUI(enabled) {
     ].filter(Boolean);
     controls.forEach(c => c.disabled = !enabled);
     if (els.confirm) els.confirm.disabled = !enabled;
-    if (els.cancel)  els.cancel.disabled  = !enabled;
+    if (els.cancel) els.cancel.disabled = !enabled;
 }
+
 export function pc_enterEdit(panelName, itemId) {
+    pc_activateEditorTab('object');
     setCurrentPanel(panelName || getCurrentPanel());
     setSelectedItemId(itemId);
     const p = panelState(getCurrentPanel());
@@ -189,14 +213,19 @@ export function pc_enterEdit(panelName, itemId) {
     syncEditorsToItem(it);
     highlightSelection();
     renderAll(getCurrentSvg());
-    setTimeout(() => { els.textarea?.focus(); els.textarea?.select(); }, 0);
+    setTimeout(() => {
+        els.textarea?.focus();
+        els.textarea?.select();
+    }, 0);
 }
+
 function onConfirm() {
     if (!getEditItemId()) return;
     saveState();
     setUiMode(UIMODES.CELL);
     clearSelection();
 }
+
 function onCancel() {
     if (!getEditItemId() || !getEditOriginal()) return;
     const p = panelState(getCurrentPanel());
@@ -210,8 +239,6 @@ function onCancel() {
 
 // ---------- live commit (layout always, then item if any) ----------
 function commitEditors() {
-    commitLayout();
-
     const p = panelState();
     const it = p.items.find(i => i.id === (getEditItemId() || getSelectedItemId()));
     if (!it) return;
@@ -219,7 +246,9 @@ function commitEditors() {
     it.type = els.type.value;
     it.name = els.name.value || it.name;
 
-    if (it.type === 'svg') { delete it.text; }
+    if (it.type === 'svg') {
+        delete it.text;
+    }
 
     if ((p.layout.mode || 'grid') === 'grid') {
         it.grid = it.grid || {};
@@ -235,15 +264,15 @@ function commitEditors() {
         it.box.h = Number(els.h.value);
     }
 
-    it.align = { h: els.alignH.value, v: els.alignV.value };
+    it.align = {h: els.alignH.value, v: els.alignV.value};
 
     if (it.type === 'text') {
         it.text = it.text || {};
         const chosenFamily = els.fontFamilyDDL?.value || els.font?.value || it.text.font || 'Inter';
         it.text.value = (els.textarea?.value || '').slice(0, 1000);
-        it.text.font  = chosenFamily;
-        it.text.size  = Number(els.fontSize.value);
-        it.text.line  = Number(els.line.value);
+        it.text.font = chosenFamily;
+        it.text.size = Number(els.fontSize.value);
+        it.text.line = Number(els.line.value);
     } else {
         it.svg = it.svg || {};
         it.svg.scale = Number(els.scale.value);
@@ -273,10 +302,13 @@ function sanitizeSvg(src) {
     temp.innerHTML = src;
     temp.querySelectorAll('script').forEach(n => n.remove());
     temp.querySelectorAll('*').forEach(n => {
-        [...n.attributes].forEach(a => { if (/^on/i.test(a.name)) n.removeAttribute(a.name); });
+        [...n.attributes].forEach(a => {
+            if (/^on/i.test(a.name)) n.removeAttribute(a.name);
+        });
     });
     return temp.innerHTML;
 }
+
 function bindSvgUpload() {
     els.svgSrc?.addEventListener('change', async (e) => {
         const input = e.currentTarget;
@@ -290,7 +322,7 @@ function bindSvgUpload() {
             if (!it) return;
             if (it.type !== 'svg') {
                 it.type = 'svg';
-                it.svg = it.svg || { scale:100, preserveAspect:true, invert:false };
+                it.svg = it.svg || {scale: 100, preserveAspect: true, invert: false};
                 delete it.text;
                 els.type && (els.type.value = 'svg');
                 toggleTypeProps('svg');
@@ -312,7 +344,10 @@ export function deleteItem(panelName, itemId) {
     const p = panelState(panelName);
     p.items = p.items.filter(i => i.id !== itemId);
     if (getSelectedItemId() === itemId) setSelectedItemId(null);
-    if (getEditItemId() === itemId) { setEditItemId(null); setEditOriginal(null); }
+    if (getEditItemId() === itemId) {
+        setEditItemId(null);
+        setEditOriginal(null);
+    }
     saveState();
     rebuildItemsList();
     renderAll(getCurrentSvg());
@@ -328,7 +363,10 @@ export function initEditing() {
         els.scale, els.preserve, els.svgW, els.svgH, els.invert,
         els.rotate, els.mirrorX, els.mirrorY, els.stroke, els.opacity
     ].forEach(el => el && el.addEventListener('input', commitEditors));
-    els.type?.addEventListener('change', () => { toggleTypeProps(els.type.value); commitEditors(); });
+    els.type?.addEventListener('change', () => {
+        toggleTypeProps(els.type.value);
+        commitEditors();
+    });
 
     // layout controls → commitLayout
     [els.rows, els.cols, els.gutter, els.padding].forEach(el => el && el.addEventListener('input', commitLayout));
@@ -341,7 +379,9 @@ export function initEditing() {
     document.getElementById('pc-layout-save')?.addEventListener('click', () => commitLayout());
 
     // when layout tab becomes visible, resync its fields
-    document.getElementById('pc-tabbtn-layout')?.addEventListener('shown.bs.tab', () => { syncLayoutForm(); });
+    document.getElementById('pc-tabbtn-layout')?.addEventListener('shown.bs.tab', () => {
+        syncLayoutForm();
+    });
 
     // panel selector
     els.panel?.addEventListener('change', () => {
@@ -367,7 +407,10 @@ export function initEditing() {
     els.cancel?.addEventListener('click', onCancel);
 
     // showGuides instant repaint
-    els.showGuides?.addEventListener('change', () => { const svg = getCurrentSvg(); if (svg) renderAll(svg); });
+    els.showGuides?.addEventListener('change', () => {
+        const svg = getCurrentSvg();
+        if (svg) renderAll(svg);
+    });
 
     bindSvgUpload();
 
@@ -387,6 +430,23 @@ export function initEditing() {
     toggleTypeProps(activeItem()?.type || 'text');
     setEditUI(false);
     setUiMode(UIMODES.CELL);
+
+    // keep Layout form in sync when panel is changed via mouse in preview / tree
+    document.addEventListener('pc:panelChanged', () => {
+        // reflect current panel in selector
+        if (els.panel) els.panel.value = getCurrentPanel();
+        // refresh list + editors to panel’s context
+        rebuildItemsList();
+        syncEditorsToItem(null);
+        // update rows/cols/gutter/padding + grid/free toggle
+        syncLayoutForm();
+        if (typeof toggleLayoutGroups === 'function') toggleLayoutGroups();
+    });
+
+    // optional: when active cell changes via mouse, ensure layout controls reflect mode
+    document.addEventListener('pc:activeCellChanged', () => {
+        syncLayoutForm();
+    });
 }
 
 // ---------- public helpers ----------
@@ -399,12 +459,17 @@ export function pc_activateEditorTab(which) {
 
     const activate = (btnOn, paneOn, btnOff, paneOff) => {
         if (useBS && window.bootstrap.Tab) {
-            try { new window.bootstrap.Tab(btnOn).show(); } catch {}
+            try {
+                new window.bootstrap.Tab(btnOn).show();
+            } catch {
+            }
         } else {
-            btnOn.classList.add('active');  paneOn.classList.add('show','active');
-            btnOff.classList.remove('active'); paneOff.classList.remove('show','active');
+            btnOn.classList.add('active');
+            paneOn.classList.add('show', 'active');
+            btnOff.classList.remove('active');
+            paneOff.classList.remove('show', 'active');
         }
-        document.getElementById('pc-sec-editor')?.scrollIntoView({ block:'nearest' });
+        document.getElementById('pc-sec-editor')?.scrollIntoView({block: 'nearest'});
     };
 
     if (which === 'layout') {
@@ -424,24 +489,43 @@ export function pc_createItemInCell(panelName, kind, cell) {
     const base = {
         id,
         name: kind === 'svg' ? 'SVG' : 'Text',
-        grid: { row: cell.row, col: cell.col, rowSpan: 1, colSpan: 1 },
-        align: { h: 'center', v: 'middle' },
-        transform: { rotate: 0, mirrorX: false, mirrorY: false },
-        style: { strokeW: 0.35, opacity: 100 },
+        grid: {row: cell.row, col: cell.col, rowSpan: 1, colSpan: 1},
+        align: {h: 'center', v: 'middle'},
+        transform: {rotate: 0, mirrorX: false, mirrorY: false},
+        style: {strokeW: 0.35, opacity: 100},
         visible: true
     };
     const family = els.fontFamilyDDL?.value || els.font?.value || 'Inter';
     const item = (kind === 'svg')
-        ? { ...base, type: 'svg', svg: { content: '', scale: 100, preserveAspect: true, w: undefined, h: undefined, invert: false } }
-        : { ...base, type: 'text', text: { value: '', font: family, size: 4, line: 1.2 } };
+        ? {
+            ...base,
+            type: 'svg',
+            svg: {content: '', scale: 100, preserveAspect: true, w: undefined, h: undefined, invert: false}
+        }
+        : {...base, type: 'text', text: {value: '', font: family, size: 4, line: 1.2}};
 
     p.items.push(item);
     saveState();
     return id;
 }
 
-export function pc_renderAll(svg) { renderAll(svg || getCurrentSvg()); }
-export function pc_getStateRef() { return getStateRef(); }
-export function pc_deleteItem(panelName, itemId) { deleteItem(panelName, itemId); }
-export function pc_save() { saveState(); }
-export function pc_bindSvg(svg) { setCurrentSvg(svg); bindSvgDeselect(svg, clearSelection); }
+export function pc_renderAll(svg) {
+    renderAll(svg || getCurrentSvg());
+}
+
+export function pc_getStateRef() {
+    return getStateRef();
+}
+
+export function pc_deleteItem(panelName, itemId) {
+    deleteItem(panelName, itemId);
+}
+
+export function pc_save() {
+    saveState();
+}
+
+export function pc_bindSvg(svg) {
+    setCurrentSvg(svg);
+    bindSvgDeselect(svg, clearSelection);
+}

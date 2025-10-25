@@ -8,9 +8,9 @@ import {
     pc_save,
     pc_activateEditorTab
 } from './panel-content.js';
-import { setActiveCell, getActiveCell, setCurrentPanel } from './panel/state.js';
-import { PANELS } from './panel/constants.js';
-import { pc_getPanelState } from './panel-state-bridge.js';
+import {setActiveCell, getActiveCell, setCurrentPanel} from './panel/state.js';
+import {PANELS} from './panel/constants.js';
+import {pc_getPanelState} from './panel-state-bridge.js';
 
 const mount = document.getElementById('pc-tree');
 if (!mount) throw new Error('#pc-tree not found');
@@ -31,6 +31,7 @@ function el(tag, attrs = {}, ...children) {
     for (const c of children) n.append(c && typeof c === 'object' ? c : document.createTextNode(String(c)));
     return n;
 }
+
 const I = {
     caretR: 'bi bi-caret-right-fill',
     caretD: 'bi bi-caret-down-fill',
@@ -38,10 +39,11 @@ const I = {
     text: 'bi bi-type',
     panel: 'bi bi-layout-wtf'
 };
-function makeBranch(summaryNode, bodyUl, open=false) {
+
+function makeBranch(summaryNode, bodyUl, open = false) {
     const li = el('li');
-    const toggle = el('i', { class: `toggle ${open ? I.caretD : I.caretR}` });
-    const wrap = el('span', { class: 'label d-inline-flex align-items-center w-100' });
+    const toggle = el('i', {class: `toggle ${open ? I.caretD : I.caretR}`});
+    const wrap = el('span', {class: 'label d-inline-flex align-items-center w-100'});
     wrap.appendChild(toggle);
     wrap.appendChild(summaryNode);
     li.appendChild(wrap);
@@ -57,6 +59,7 @@ function makeBranch(summaryNode, bodyUl, open=false) {
     }
     return li;
 }
+
 function trimPreview(s, n) {
     const t = (s || '').replace(/\s+/g, ' ').trim();
     return t.length > n ? t.slice(0, n - 1) + '…' : t;
@@ -65,14 +68,14 @@ function trimPreview(s, n) {
 // ---------- render ----------
 function render() {
     mount.innerHTML = '';
-    const tree = el('div', { class:'tree' });
+    const tree = el('div', {class: 'tree'});
     mount.appendChild(tree);
 
     const rootUL = el('ul');
     tree.appendChild(rootUL);
 
     const body = el('ul');
-    const header = el('span', { class:'fw-semibold' }, 'Panel Content');
+    const header = el('span', {class: 'fw-semibold'}, 'Panel Content');
     const rootLI = makeBranch(header, body, true);
     rootUL.appendChild(rootLI);
 
@@ -86,22 +89,28 @@ function render() {
             ? `${p.layout.rows}×${p.layout.cols} · gutter ${p.layout.gutter} · pad ${p.layout.padding}`
             : 'freeform';
 
-        const sum = el('div', { class:'d-flex align-items-center justify-content-between w-100' },
+        const sum = el('div', {class: 'd-flex align-items-center justify-content-between w-100'},
             el('span', {},
-                el('i', { class: I.panel }),
-                el('span', { class:'ms-1 fw-semibold' }, panelName),
-                el('span', { class:'badge text-bg-info ms-2' }, String(total)),
-                el('span', { class:'meta ms-2' }, meta)
+                el('i', {class: I.panel}),
+                el('span', {class: 'ms-1 fw-semibold'}, panelName),
+                el('span', {class: 'badge text-bg-info ms-2'}, String(total)),
+                el('span', {class: 'meta ms-2'}, meta)
             ),
-            el('span', { class:'actions' },
+            el('span', {class: 'actions'},
                 el('button', {
-                    class:'btn-action', title:'Panel layout',
-                    onclick: () => { setCurrentPanel(panelName); pc_activateEditorTab('layout'); }
-                }, el('i', { class:'bi bi-columns' })),
+                    class: 'btn-action', title: 'Panel layout',
+                    onclick: () => {
+                        setCurrentPanel(panelName);
+                        pc_activateEditorTab('layout');
+                    }
+                }, el('i', {class: 'bi bi-columns'})),
                 el('button', {
-                    class:'btn-action', title:'Object edit',
-                    onclick: () => { setCurrentPanel(panelName); pc_activateEditorTab('object'); }
-                }, el('i', { class:'bi bi-pencil-square' }))
+                    class: 'btn-action', title: 'Object edit',
+                    onclick: () => {
+                        setCurrentPanel(panelName);
+                        pc_activateEditorTab('object');
+                    }
+                }, el('i', {class: 'bi bi-pencil-square'}))
             )
         );
 
@@ -113,7 +122,7 @@ function render() {
 
     if (ac) {
         const badge = mount.querySelector(`[data-pc-cell-badge="${ac.panel}-${ac.row}-${ac.col}"]`);
-        if (badge) badge.scrollIntoView({ block:'nearest' });
+        if (badge) badge.scrollIntoView({block: 'nearest'});
     }
 }
 
@@ -139,11 +148,11 @@ function buildGridPanel(panelName, p, ac) {
 
             const cellHdr = el('div', {});
             const badge = el('span', {
-                class:`badge rounded-pill ${isActive ? 'text-bg-primary active-cell' : 'text-bg-secondary'} badge-cell`,
-                dataset: { pcCellBadge: `${panelName}-${r}-${c}` }
+                class: `badge rounded-pill ${isActive ? 'text-bg-primary active-cell' : 'text-bg-secondary'} badge-cell`,
+                dataset: {pcCellBadge: `${panelName}-${r}-${c}`}
             }, `r${r}c${c}`);
-            const title = el('span', { class:'text-secondary small me-2' }, 'cell');
-            const cnt   = el('span', { class:'badge text-bg-light' }, String(count));
+            const title = el('span', {class: 'text-secondary small me-2'}, 'cell');
+            const cnt = el('span', {class: 'badge text-bg-light'}, String(count));
             cellHdr.append(badge, title, cnt);
 
             const cellUL = el('ul');
@@ -153,11 +162,11 @@ function buildGridPanel(panelName, p, ac) {
             cellHdr.addEventListener('click', (e) => {
                 e.preventDefault();
                 setCurrentPanel(panelName);
-                setActiveCell({ panel: panelName, row: r, col: c });
+                setActiveCell({panel: panelName, row: r, col: c});
             });
 
             if (!itemsInCell.length) {
-                cellUL.appendChild(el('li', { class:'meta' }, '— empty —'));
+                cellUL.appendChild(el('li', {class: 'meta'}, '— empty —'));
             } else {
                 itemsInCell.forEach((it, idx) => cellUL.appendChild(itemRow(panelName, it, idx)));
             }
@@ -170,7 +179,7 @@ function buildFreePanel(panelName, p) {
     const rootUL = el('ul');
     const items = p.items || [];
     if (!items.length) {
-        rootUL.appendChild(el('li', { class: 'meta' }, '— empty —'));
+        rootUL.appendChild(el('li', {class: 'meta'}, '— empty —'));
     } else {
         items.forEach((it, idx) => rootUL.appendChild(itemRow(panelName, it, idx)));
     }
@@ -178,27 +187,44 @@ function buildFreePanel(panelName, p) {
 }
 
 function itemRow(panelName, it, idx) {
-    const icon = el('i', { class: it.type === 'svg' ? I.svg : I.text });
-    const displayName = it?.name?.trim() || (it.type === 'svg' ? `SVG #${idx+1}` : `Text #${idx+1}`);
+    const icon = el('i', {class: it.type === 'svg' ? I.svg : I.text});
+    const displayName = it?.name?.trim() || (it.type === 'svg' ? `SVG #${idx + 1}` : `Text #${idx + 1}`);
     const meta = it.type === 'text' ? trimPreview(it.text?.value || '', 40) : (it.name || '').toString();
 
     const li = el('li');
-    const label = el('span', { class: 'd-inline-flex align-items-center w-100' });
-    const left = el('span', { class:'d-inline-flex align-items-center flex-grow-1 text-truncate' },
+    const label = el('span', {class: 'd-inline-flex align-items-center w-100'});
+    const left = el('span', {class: 'd-inline-flex align-items-center flex-grow-1 text-truncate'},
         icon,
-        el('span', { class:'ms-1 text-truncate' }, displayName),
-        el('span', { class:'meta ms-2 text-truncate' }, meta)
+        el('span', {class: 'ms-1 text-truncate'}, displayName),
+        el('span', {class: 'meta ms-2 text-truncate'}, meta)
     );
-    const actions = el('span', { class:'actions' },
-        el('button', { class:'btn-action', title:'Edit', onclick: () => pc_enterEdit(panelName, it.id) }, el('i', { class:'bi bi-pencil' })),
+    const actions = el('span', {class: 'actions'},
         el('button', {
-            class:'btn-action', title:'Rename',
+            class: 'btn btn-sm btn-outline-primary ms-2',
+            onclick: async () => {
+                pc_enterEdit(panelName, it.id);
+                const mod = await import('./panel/edit.js');
+                if (typeof mod.edit_openTab === 'function') mod.edit_openTab('object');
+                if (typeof mod.edit_focusPrimary === 'function') mod.edit_focusPrimary(); // optional focus
+            }
+        }, el('i', { class:'bi bi-pencil' })),
+        el('button', {
+            class: 'btn-action', title: 'Rename',
             onclick: () => {
                 const nn = prompt('Rename item', displayName);
-                if (nn && nn.trim()) { it.name = nn.trim(); pc_save(); render(); }
+                if (nn && nn.trim()) {
+                    it.name = nn.trim();
+                    pc_save();
+                    render();
+                }
             }
-        }, el('i', { class:'bi bi-input-cursor-text' })),
-        el('button', { class:'btn-action text-danger', title:'Delete', onclick: () => { pc_deleteItem(panelName, it.id); render(); } }, el('i', { class:'bi bi-trash' }))
+        }, el('i', {class: 'bi bi-input-cursor-text'})),
+        el('button', {
+            class: 'btn-action text-danger', title: 'Delete', onclick: () => {
+                pc_deleteItem(panelName, it.id);
+                render();
+            }
+        }, el('i', {class: 'bi bi-trash'}))
     );
 
     label.append(left, actions);

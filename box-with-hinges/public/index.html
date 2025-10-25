@@ -167,19 +167,20 @@
                                                     <div class="col-3"><label class="form-label mb-1">Padding</label><input id="pc-padding" type="number" step="0.5" min="0" class="form-control form-control-sm" value="4"></div>
                                                 </div>
 
-                                                <div id="pc-free-controls" class="row g-1 mb-2 d-none">
-                                                    <div class="col-3"><label class="form-label mb-1">X</label><input id="pc-x" type="number" step="0.5" class="form-control form-control-sm" value="0"></div>
-                                                    <div class="col-3"><label class="form-label mb-1">Y</label><input id="pc-y" type="number" step="0.5" class="form-control form-control-sm" value="0"></div>
-                                                    <div class="col-3"><label class="form-label mb-1">W</label><input id="pc-w" type="number" step="0.5" class="form-control form-control-sm" value="20"></div>
-                                                    <div class="col-3"><label class="form-label mb-1">H</label><input id="pc-h" type="number" step="0.5" class="form-control form-control-sm" value="20"></div>
-                                                </div>
-
                                                 <!-- Placement (Grid) -->
                                                 <div id="pc-place-grid" class="row g-1 mb-2">
                                                     <div class="col-3"><label class="form-label mb-1">Row</label><input id="pc-row" type="number" min="1" class="form-control form-control-sm" value="1"></div>
                                                     <div class="col-3"><label class="form-label mb-1">Col</label><input id="pc-col" type="number" min="1" class="form-control form-control-sm" value="1"></div>
                                                     <div class="col-3"><label class="form-label mb-1">RowSpan</label><input id="pc-rowspan" type="number" min="1" class="form-control form-control-sm" value="1"></div>
                                                     <div class="col-3"><label class="form-label mb-1">ColSpan</label><input id="pc-colspan" type="number" min="1" class="form-control form-control-sm" value="1"></div>
+                                                </div>
+
+                                                <!-- Free controls (hidden unless free mode) -->
+                                                <div id="pc-free-controls" class="row g-1 mb-2 d-none">
+                                                    <div class="col-3"><label class="form-label mb-1">X</label><input id="pc-x" type="number" step="0.5" class="form-control form-control-sm" value="0"></div>
+                                                    <div class="col-3"><label class="form-label mb-1">Y</label><input id="pc-y" type="number" step="0.5" class="form-control form-control-sm" value="0"></div>
+                                                    <div class="col-3"><label class="form-label mb-1">W</label><input id="pc-w" type="number" step="0.5" class="form-control form-control-sm" value="20"></div>
+                                                    <div class="col-3"><label class="form-label mb-1">H</label><input id="pc-h" type="number" step="0.5" class="form-control form-control-sm" value="20"></div>
                                                 </div>
 
                                                 <div class="d-flex gap-2 mt-2">
@@ -364,11 +365,12 @@
 <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.2.0/dist/svg.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.2/dist/svg-pan-zoom.min.js"></script>
 
-<!-- App modules -->
+<!-- App modules (order matters: main bootstraps; interaction overlays listen) -->
 <script type="module" src="/js/geometry.js"></script>
 <script type="module" src="/js/main.js"></script>
 <script type="module" src="/js/panel-tree.js"></script>
 <script type="module" src="/js/panel-content.js"></script>
+<script type="module" src="/js/panel/edit.js"></script>
 
 <script>
     // sidebar toggle + remember state

@@ -1,8 +1,8 @@
 // js/panel-interaction.js
 // Overlays: panel frame, global layout grid lines, active-cell highlight, cell hit-rects,
-// drag-and-drop targets. Works across ALL panels detected in the live SVG.
+// drag-and-drop targets. Renders on ALL detected panels.
 
-import { getCurrentPanel, setCurrentPanel, getActiveCell, setActiveCell } from './panel/state.js';
+import { getCurrentPanel, setCurrentPanel, getActiveCell, setActiveCell, setSelectedItemId } from './panel/state.js';
 import { pc_getPanelState, pc_addItemAtGridCell, pc_renderAll } from './panel-state-bridge.js';
 
 const NS = 'http://www.w3.org/2000/svg';
@@ -43,7 +43,7 @@ function hexToRgba(hex, a) {
     return `rgba(${r},${g},${b},${a})`;
 }
 
-// DOM-driven panel enumeration (don’t depend on PANELS import/order)
+// detect panels from the live SVG (don’t rely on PANELS import)
 function listFoundPanels(svg) {
     const CANDIDATES = ['Bottom','Lid','Front','Back','Left','Right'];
     const out = [];
@@ -169,6 +169,7 @@ function renderPanelOverlay(svg, name, host, showGrid) {
         for (let c = 1; c <= grid.cols; c++) {
             const rect = cellRect(grid, r, c);
 
+            // active highlight
             if (ac && ac.panel === name && ac.row === r && ac.col === c) {
                 const hi = document.createElementNS(NS, 'rect');
                 hi.setAttribute('x', rect.x);
@@ -188,6 +189,7 @@ function renderPanelOverlay(svg, name, host, showGrid) {
                 ov.appendChild(notch);
             }
 
+            // hit area
             const hit = document.createElementNS(NS, 'rect');
             hit.setAttribute('x', rect.x);
             hit.setAttribute('y', rect.y);
@@ -199,19 +201,26 @@ function renderPanelOverlay(svg, name, host, showGrid) {
             hit.setAttribute(UI_ATTR, '1');
             hit.setAttribute('pointer-events', 'all');
 
-            hit.addEventListener('mouseenter', () => hit.setAttribute('stroke', hexToRgba(color, .5)));
-            hit.addEventListener('mouseleave', () => hit.setAttribute('stroke', 'transparent'));
+            // IMPORTANT: refresh overlays immediately on selection
             hit.addEventListener('click', (e) => {
                 e.preventDefault();
                 setCurrentPanel(name);
                 setActiveCell({ panel: name, row: r, col: c });
+                // refresh overlays + keep content intact
+                pi_onGeometryChanged(svg);
             });
+
             hit.addEventListener('dblclick', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 setCurrentPanel(name);
                 setActiveCell({ panel: name, row: r, col: c });
+                // refresh overlays immediately
+                pi_onGeometryChanged(svg);
             });
+
+            hit.addEventListener('mouseenter', () => hit.setAttribute('stroke', hexToRgba(color, .5)));
+            hit.addEventListener('mouseleave', () => hit.setAttribute('stroke', 'transparent'));
 
             ov.appendChild(hit);
         }
@@ -257,15 +266,24 @@ function attachDrops(svg) {
                     }
                 }
             }
-            pc_addItemAtGridCell(name, type, hit);
+
+            // create item at cell
+            const newId = pc_addItemAtGridCell(name, type, hit);
+
+            // set focus + refresh content + overlays
             setCurrentPanel(name);
             setActiveCell({ panel: name, row: hit.row, col: hit.col });
-            pc_renderAll(svg);
+            if (newId) setSelectedItemId(newId);
 
-            const mod = await import('./panel-content.js');
-            const paneState = pc_getPanelState(name);
-            const newId = paneState.items.length ? paneState.items[paneState.items.length - 1].id : null;
-            if (newId && typeof mod.pc_enterEdit === 'function') mod.pc_enterEdit(name, newId);
+            pc_renderAll(svg);
+            pi_onGeometryChanged(svg);
+
+            // enter edit immediately so user sees form with placeholder
+            try {
+                const mod = await import('./panel-content.js');
+                if (newId && typeof mod.pc_activateEditorTab === 'function') mod.pc_activateEditorTab('object');
+                if (newId && typeof mod.pc_enterEdit === 'function') mod.pc_enterEdit(name, newId);
+            } catch {}
         });
     });
 }
@@ -280,13 +298,12 @@ export function pi_onGeometryChanged(svg) {
 
     const showGrid = getShowGridFlag();
 
-    // enumerate actual panels present in the live SVG and render overlays for each
+    // enumerate actual panels present in the live SVG
     const panels = listFoundPanels(svg);
     for (const { name, host } of panels) {
         renderPanelOverlay(svg, name, host, showGrid);
     }
 
-    // enable DnD per actual host
     attachDrops(svg);
 }
 
