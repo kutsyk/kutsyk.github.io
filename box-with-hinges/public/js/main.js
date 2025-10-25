@@ -1,3 +1,4 @@
+// js/main.js
 import {generateSvg} from './geometry.js';
 import {colorPanels, mountSvg} from './renderer.js';
 import {addLabels} from './labels.js';
@@ -21,7 +22,7 @@ const els = {
     showLabels: $('#showLabels'),
     gridInfo: $('#gridInfo'),
 
-    // NEW: slider + number pairs + badges
+    // slider + number pairs + badges
     widthRange: $('#width'),
     widthNum: $('#widthNum'),
     widthBadge: $('#widthBadge'),
@@ -78,37 +79,27 @@ function syncPair(rangeEl, numEl, onChange) {
 
     // NUMBER -> RANGE (allow empty while typing; clamp only on change/blur)
     numEl.addEventListener('input', () => {
-        // allow empty while the user is typing
         if (numEl.value === '' || numEl.value === '-' || numEl.value === '.' || numEl.value === '-.') {
-            // don't touch the range or trigger generate
             updateBadges();
             return;
         }
         const v = Number(numEl.value);
         if (Number.isFinite(v)) {
-            // mirror to range but DON'T clamp here
             rangeEl.value = String(v);
             updateBadges();
-            // no generate here — wait until change/blur to avoid jumpy preview
         }
     });
 
     const commitNum = () => {
-        // when the user commits (change/blur), clamp to min/max and generate
         const min = Number(numEl.min || 0);
         const max = Number(numEl.max || 1e9);
-
-        // if still empty, fall back to current range value
         let v = numEl.value === '' ? Number(rangeEl.value) : Number(numEl.value);
-
         if (!Number.isFinite(v)) v = Number(rangeEl.value);
         v = clamp(v, min, max);
-
         numEl.value = String(v);
         rangeEl.value = String(v);
-
         updateBadges();
-        onChange && onChange(); // now update the preview
+        onChange && onChange();
     };
 
     numEl.addEventListener('change', commitNum);
@@ -121,6 +112,7 @@ function syncPair(rangeEl, numEl, onChange) {
 // -------- params I/O --------
 function readParams() {
     const data = new FormData(els.form);
+    const showLabelsEl = document.getElementById('showLabels');
     return {
         width: parseFloat(data.get('width')),
         depth: parseFloat(data.get('depth')),
@@ -129,7 +121,7 @@ function readParams() {
         kerf: parseFloat(data.get('kerf')),
         tabWidth: parseFloat(data.get('tabWidth')),
         margin: parseFloat(data.get('margin')),
-        showLabels: !!data.get('showLabels'),
+        showLabels: !!showLabelsEl?.checked,
         addRightHole: !!data.get('addRightHole')
     };
 }
@@ -144,25 +136,43 @@ function loadParams() {
         if (!raw) return;
         const p = JSON.parse(raw);
 
-        // set named fields (the ranges)
         Object.keys(p).forEach(k => {
             if (k === 'showLabels') {
-                els.showLabels.checked = !!p.showLabels;
+                const s = document.getElementById('showLabels');
+                if (s) s.checked = !!p.showLabels;
             } else {
                 const el = els.form.elements.namedItem(k);
                 if (el && 'value' in el) el.value = p[k];
             }
         });
 
-        // mirror ranges into numbers
+        // mirror range/number pairs
         if (els.widthRange && els.widthNum) els.widthNum.value = els.widthRange.value;
         if (els.depthRange && els.depthNum) els.depthNum.value = els.depthRange.value;
         if (els.heightRange && els.heightNum) els.heightNum.value = els.heightRange.value;
         if (els.tabRange && els.tabNum) els.tabNum.value = els.tabRange.value;
-
         updateBadges();
-    } catch {
-    }
+    } catch {}
+}
+
+// redraw bridge (keep this function and call it once after the SVG exists)
+function bindPcRedrawHook() {
+    if (bindPcRedrawHook._bound) return;
+    bindPcRedrawHook._bound = true;
+
+    document.addEventListener('pc:requestRedraw', () => {
+        const svg = document.querySelector('#out svg');
+        if (!svg) return;
+
+        try {
+            // full rebuild; respects #showLabels in readParams()
+            generate();
+        } catch (err) { console.error(err); }
+
+        import('./panel-interaction.js')
+            .then(m => m.pi_onGeometryChanged(svg))
+            .catch(()=>{});
+    });
 }
 
 // -------- preview helpers --------
@@ -198,9 +208,11 @@ async function generate() {
         colorPanels(svg);
         fitToContent(svg, 10);
 
+        // render panel content + overlays
         pc_onGeometryChanged(svg);
         pi_onGeometryChanged(svg);
 
+        // grid + rulers
         gridCtl = initInfiniteGrid(
             svg,
             () => (pz ? pz.getZoom() : 1),
@@ -211,12 +223,11 @@ async function generate() {
         rulers = initRulers(els.out, svg, () => (pz ? pz.getZoom() : 1));
         rulers.update();
 
+        // labels according to checkbox
         if (params.showLabels) addLabels(svg);
 
-        if (pz) {
-            pz.destroy();
-            pz = null;
-        }
+        // pan/zoom
+        if (pz) { pz.destroy(); pz = null; }
         // eslint-disable-next-line no-undef
         pz = svgPanZoom(svg, {
             zoomEnabled: true,
@@ -225,16 +236,14 @@ async function generate() {
             minZoom: 0.1, maxZoom: 20,
             zoomScaleSensitivity: 0.2,
             dblClickZoomEnabled: false,
-            onZoom: () => {
-                updateZoomLabel();
-                rulers && rulers.update();
-            },
-            onPan: () => {
-                rulers && rulers.update();
-            }
+            onZoom: () => { updateZoomLabel(); rulers && rulers.update(); },
+            onPan: () => { rulers && rulers.update(); }
         });
         if (pz.disableDblClickZoom) pz.disableDblClickZoom();
         updateZoomLabel();
+
+        // late-bind redraw bridge (idempotent)
+        bindPcRedrawHook();
 
         els.download.disabled = false;
         setStatus('Done');
@@ -247,6 +256,14 @@ async function generate() {
 // -------- wiring --------
 (function wire() {
     loadParams();
+
+    // ensure redraw hook exists even before first generate (idempotent)
+    bindPcRedrawHook();
+
+    els.showLabels?.addEventListener('change', () => {
+        // trigger full rebuild (labels layer added/removed inside generate())
+        document.dispatchEvent(new Event('pc:requestRedraw'));
+    });
 
     // Pair sliders with number inputs + live preview
     syncPair(els.widthRange, els.widthNum, debouncedGenerate);
@@ -271,26 +288,17 @@ async function generate() {
     els.download.addEventListener('click', async () => {
         const params = readParams();
         const svgText = generateSvg(params);
-        // parse to DOM to allow pre-export filtering
         const wrap = document.createElement('div');
         wrap.innerHTML = svgText;
         const svgNode = wrap.firstElementChild;
 
-        // mount content into this clone as well, then filter
-        // Note: reuse current panel-content state by rendering into a temporary container
-        const tempContainer = document.createElement('div');
-        tempContainer.appendChild(svgNode);
-        pc_onGeometryChanged(svgNode.cloneNode(true)); // ensure layers exist in preview; not needed to mutate temp
-        // Re-render into export node
-        ['Bottom', 'Lid', 'Front', 'Back', 'Left', 'Right'].forEach(name => {
-            // remove any old pcLayer from export node; will be rebuilt by current preview already
-            // If you want exact current overlays, instead copy them from live DOM:
-            const live = document.querySelector(`#contentLayer`)?.closest('svg');
-            if (live) {
+        // copy pc layers from live preview into export clone
+        const live = document.querySelector('#out svg');
+        if (live) {
+            ['Bottom','Lid','Front','Back','Left','Right'].forEach(name => {
                 const srcHost = live.querySelector(`[id$="${name}"]`);
                 const dstHost = svgNode.querySelector(`[id$="${name}"]`);
                 if (srcHost && dstHost) {
-                    // copy/replace pcLayer
                     const srcLayer = srcHost.querySelector(`#pcLayer_${name}`);
                     if (srcLayer) {
                         const old = dstHost.querySelector(`#pcLayer_${name}`);
@@ -298,10 +306,10 @@ async function generate() {
                         dstHost.appendChild(srcLayer.cloneNode(true));
                     }
                 }
-            }
-        });
+            });
+        }
 
-        // filter guides / outline (placeholder)
+        // filter overlays etc.
         pi_beforeDownload(svgNode);
 
         const cleaned = new XMLSerializer().serializeToString(svgNode);
@@ -313,10 +321,8 @@ async function generate() {
         URL.revokeObjectURL(a.href);
     });
 
-
     els.resetBtn?.addEventListener('click', () => {
         els.form.reset();
-        // mirror ranges into numbers
         if (els.widthRange && els.widthNum) els.widthNum.value = els.widthRange.value;
         if (els.depthRange && els.depthNum) els.depthNum.value = els.depthRange.value;
         if (els.heightRange && els.heightNum) els.heightNum.value = els.heightRange.value;
@@ -327,6 +333,8 @@ async function generate() {
         els.out.innerHTML = '<div class="text-secondary">Generate to preview…</div>';
         els.download.disabled = true;
         localStorage.removeItem('pressfit_simple');
+        // regenerate immediately after reset to show default preview
+        generate();
     });
 
     // Zoom controls
@@ -355,13 +363,8 @@ async function generate() {
             zoomEnabled: true, controlIconsEnabled: false, fit: false, center: false,
             minZoom: 0.1, maxZoom: 20, zoomScaleSensitivity: 0.2,
             dblClickZoomEnabled: false,
-            onZoom: () => {
-                updateZoomLabel();
-                rulers && rulers.update();
-            },
-            onPan: () => {
-                rulers && rulers.update();
-            }
+            onZoom: () => { updateZoomLabel(); rulers && rulers.update(); },
+            onPan: () => { rulers && rulers.update(); }
         });
         if (pz.disableDblClickZoom) pz.disableDblClickZoom();
         window.pz = pz;
@@ -371,20 +374,12 @@ async function generate() {
 
     window.addEventListener('keydown', (e) => {
         if (!pz) return;
-        if (e.key === '+') {
-            pz.zoomBy(1.2);
-            updateZoomLabel();
-        }
-        if (e.key === '-') {
-            pz.zoomBy(1 / 1.2);
-            updateZoomLabel();
-        }
-        if (e.key === '0') {
-            pz.zoom(1);
-            updateZoomLabel();
-        }
-        if (e.key.toLowerCase() === 'f') {
-            els.fitBtn?.click();
-        }
+        if (e.key === '+') { pz.zoomBy(1.2); updateZoomLabel(); }
+        if (e.key === '-') { pz.zoomBy(1 / 1.2); updateZoomLabel(); }
+        if (e.key === '0') { pz.zoom(1); updateZoomLabel(); }
+        if (e.key.toLowerCase() === 'f') { els.fitBtn?.click(); }
     });
+
+    // INITIAL PREVIEW ON PAGE LOAD
+    generate();
 })();

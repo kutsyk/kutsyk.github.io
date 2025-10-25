@@ -1,3 +1,7 @@
+// public/js/edit.js
+// Editor logic: layout + item editing, selection, uploads, bindings.
+// Adds: explicit layout sync, mode-aware behaviors, and tab activation helpers.
+
 import { els, toggleLayoutGroups, toggleTypeProps } from './dom.js';
 import {
     getStateRef, panelState, saveState,
@@ -5,14 +9,16 @@ import {
     getSelectedItemId, setSelectedItemId,
     getEditItemId, setEditItemId,
     getEditOriginal, setEditOriginal,
-    getCurrentSvg, setCurrentSvg, setActiveCell
+    getCurrentSvg, setCurrentSvg, setActiveCell,
+    setUiMode, getUiMode, UIMODES
 } from './state.js';
 import { nid } from './utils.js';
 import { renderAll } from './render.js';
 import { bindSvgDeselect } from './utils.js';
 import { bus } from './signal-bus.js';
+import { pi_onGeometryChanged } from './../panel-interaction.js';
 
-// Selection
+// ---------- selection ----------
 function clearSelection() {
     const hadAny = !!(getSelectedItemId() || getEditItemId());
     setSelectedItemId(null);
@@ -26,7 +32,40 @@ function clearSelection() {
 }
 export function pc_clearSelection() { clearSelection(); }
 
-// List (legacy)
+// ---------- layout: commit + form sync ----------
+function commitLayout() {
+    const p = panelState();
+    p.layout.mode    = els.layoutGrid?.checked ? 'grid' : 'free';
+    p.layout.rows    = Math.max(1, Number(els.rows?.value || 1));
+    p.layout.cols    = Math.max(1, Number(els.cols?.value || 1));
+    p.layout.gutter  = Math.max(0, Number(els.gutter?.value || 0));
+    p.layout.padding = Math.max(0, Number(els.padding?.value || 0));
+    saveState();
+
+    const svg = getCurrentSvg();
+    if (svg) {
+        renderAll(svg);
+        pi_onGeometryChanged(svg);
+    }
+}
+function syncLayoutForm() {
+    const cur = getCurrentPanel?.() || 'Front';
+    const p = panelState(cur);
+
+    if (els.panel) els.panel.value = cur;
+
+    const mode = (p.layout?.mode || 'grid');
+    if (els.layoutGrid) els.layoutGrid.checked = (mode === 'grid');
+    if (els.layoutFree) els.layoutFree.checked = (mode === 'free');
+    if (typeof toggleLayoutGroups === 'function') toggleLayoutGroups();
+
+    if (els.rows)    els.rows.value    = Number(p.layout?.rows ?? 2);
+    if (els.cols)    els.cols.value    = Number(p.layout?.cols ?? 2);
+    if (els.gutter)  els.gutter.value  = Number(p.layout?.gutter ?? 2);
+    if (els.padding) els.padding.value = Number(p.layout?.padding ?? 4);
+}
+
+// ---------- legacy list (optional UI) ----------
 function rebuildItemsList() {
     const list = els.items;
     if (!list) return;
@@ -43,10 +82,6 @@ function rebuildItemsList() {
         eye.innerHTML = it.visible === false ? '<i class="bi bi-eye-slash"></i>' : '<i class="bi bi-eye"></i>';
         eye.onclick = () => { it.visible = it.visible === false ? true : false; saveState(); rebuildItemsList(); renderAll(getCurrentSvg()); };
 
-        const handle = document.createElement('span');
-        handle.className = 'handle';
-        handle.innerHTML = '<i class="bi bi-grip-vertical"></i>';
-
         const name = document.createElement('button');
         name.type = 'button';
         name.className = 'btn btn-sm btn-link text-start name';
@@ -59,24 +94,13 @@ function rebuildItemsList() {
         edit.innerHTML = '<i class="bi bi-pencil-square"></i>';
         edit.onclick = () => pc_enterEdit(getCurrentPanel(), it.id);
 
-        const dup = document.createElement('button');
-        dup.type = 'button';
-        dup.className = 'btn btn-sm btn-outline-secondary btn-icon';
-        dup.innerHTML = '<i class="bi bi-files"></i>';
-        dup.onclick = () => {
-            const copy = JSON.parse(JSON.stringify(it));
-            copy.id = nid();
-            p.items.push(copy);
-            saveState(); rebuildItemsList(); renderAll(getCurrentSvg());
-        };
-
         const del = document.createElement('button');
         del.type = 'button';
         del.className = 'btn btn-sm btn-outline-danger btn-icon';
         del.innerHTML = '<i class="bi bi-trash"></i>';
         del.onclick = () => deleteItem(getCurrentPanel(), it.id);
 
-        row.append(eye, handle, name, edit, dup, del);
+        row.append(eye, name, edit, del);
         list.appendChild(row);
     });
     highlightSelection();
@@ -88,7 +112,7 @@ function highlightSelection() {
     });
 }
 
-// Editor sync
+// ---------- editor sync ----------
 function activeItem() {
     const p = panelState();
     return p.items.find(x => x.id === getSelectedItemId()) || null;
@@ -116,13 +140,13 @@ export function syncEditorsToItem(item) {
     if (els.font) els.font.value = fam;
     if (els.textarea) {
         els.textarea.placeholder = 'enter your text';
-        els.textarea.maxLength = 1000;
-        els.textarea.value = (item.text?.value || '').slice(0, 1000);
+        els.textarea.maxLength   = 1000;
+        els.textarea.value       = (item.text?.value || '').slice(0, 1000);
     }
     els.fontSize.value = item.text?.size ?? 4;
     els.line.value     = item.text?.line ?? 1.2;
 
-    els.scale.value    = item.svg?.scale ?? 100;
+    els.scale.value      = item.svg?.scale ?? 100;
     els.preserve.checked = !!item.svg?.preserveAspect;
     if (els.svgW) els.svgW.value = item.svg?.w ?? '';
     if (els.svgH) els.svgH.value = item.svg?.h ?? '';
@@ -137,7 +161,7 @@ export function syncEditorsToItem(item) {
     toggleTypeProps(item?.type || 'text');
 }
 
-// Edit workflow
+// ---------- edit workflow ----------
 function setEditUI(enabled) {
     const controls = [
         els.type, els.name,
@@ -158,6 +182,7 @@ export function pc_enterEdit(panelName, itemId) {
     const p = panelState(getCurrentPanel());
     const it = p.items.find(i => i.id === itemId);
     if (!it) return;
+    setUiMode(UIMODES.OBJECT); // lock into object mode while editing
     setEditItemId(itemId);
     setEditOriginal(JSON.parse(JSON.stringify(it)));
     setEditUI(true);
@@ -169,6 +194,7 @@ export function pc_enterEdit(panelName, itemId) {
 function onConfirm() {
     if (!getEditItemId()) return;
     saveState();
+    setUiMode(UIMODES.CELL);
     clearSelection();
 }
 function onCancel() {
@@ -177,14 +203,17 @@ function onCancel() {
     const idx = p.items.findIndex(i => i.id === getEditItemId());
     if (idx >= 0) p.items[idx] = getEditOriginal();
     saveState();
+    setUiMode(UIMODES.CELL);
     clearSelection();
     if (idx >= 0) syncEditorsToItem(p.items[idx]);
 }
 
-// Live commit
+// ---------- live commit (layout always, then item if any) ----------
 function commitEditors() {
+    commitLayout();
+
     const p = panelState();
-    let it = p.items.find(i => i.id === (getEditItemId() || getSelectedItemId()));
+    const it = p.items.find(i => i.id === (getEditItemId() || getSelectedItemId()));
     if (!it) return;
 
     it.type = els.type.value;
@@ -192,13 +221,7 @@ function commitEditors() {
 
     if (it.type === 'svg') { delete it.text; }
 
-    p.layout.mode = els.layoutGrid?.checked ? 'grid' : 'free';
-    p.layout.rows = Number(els.rows.value);
-    p.layout.cols = Number(els.cols.value);
-    p.layout.gutter = Number(els.gutter.value);
-    p.layout.padding = Number(els.padding.value);
-
-    if (p.layout.mode === 'grid') {
+    if ((p.layout.mode || 'grid') === 'grid') {
         it.grid = it.grid || {};
         it.grid.row = Number(els.row.value);
         it.grid.col = Number(els.col.value);
@@ -224,7 +247,7 @@ function commitEditors() {
     } else {
         it.svg = it.svg || {};
         it.svg.scale = Number(els.scale.value);
-        it.svg.preserveAspect = !!els.preserve.checked;
+        it.svg.preserveAspect = !!(els.preserve && els.preserve.checked);
         it.svg.w = els.svgW && els.svgW.value !== '' ? Number(els.svgW.value) : undefined;
         it.svg.h = els.svgH && els.svgH.value !== '' ? Number(els.svgH.value) : undefined;
         it.svg.invert = !!els.invert?.checked;
@@ -244,7 +267,7 @@ function commitEditors() {
     if (!getEditItemId()) saveState();
 }
 
-// File import
+// ---------- uploads ----------
 function sanitizeSvg(src) {
     const temp = document.createElement('div');
     temp.innerHTML = src;
@@ -263,7 +286,7 @@ function bindSvgUpload() {
             const txt = await f.text();
             const p = panelState();
             const id = (getEditItemId() || getSelectedItemId());
-            let it = p.items.find(i => i.id === id);
+            const it = p.items.find(i => i.id === id);
             if (!it) return;
             if (it.type !== 'svg') {
                 it.type = 'svg';
@@ -284,7 +307,7 @@ function bindSvgUpload() {
     });
 }
 
-// Deletion
+// ---------- deletion ----------
 export function deleteItem(panelName, itemId) {
     const p = panelState(panelName);
     p.items = p.items.filter(i => i.id !== itemId);
@@ -295,64 +318,55 @@ export function deleteItem(panelName, itemId) {
     renderAll(getCurrentSvg());
 }
 
-// Init + bindings
+// ---------- init ----------
 export function initEditing() {
-    // listeners
+    // item controls → commitEditors
     [
         els.type, els.name, els.row, els.col, els.rowspan, els.colspan,
         els.x, els.y, els.w, els.h, els.alignH, els.alignV,
         els.textarea, els.font, els.fontFamilyDDL, els.fontSize, els.line,
         els.scale, els.preserve, els.svgW, els.svgH, els.invert,
-        els.rotate, els.mirrorX, els.mirrorY, els.stroke, els.opacity,
-        els.rows, els.cols, els.gutter, els.padding, els.layoutGrid, els.layoutFree
+        els.rotate, els.mirrorX, els.mirrorY, els.stroke, els.opacity
     ].forEach(el => el && el.addEventListener('input', commitEditors));
-
     els.type?.addEventListener('change', () => { toggleTypeProps(els.type.value); commitEditors(); });
 
+    // layout controls → commitLayout
+    [els.rows, els.cols, els.gutter, els.padding].forEach(el => el && el.addEventListener('input', commitLayout));
+    [els.layoutGrid, els.layoutFree, els.showGuides].forEach(el => el && el.addEventListener('change', () => {
+        if (typeof toggleLayoutGroups === 'function') toggleLayoutGroups();
+        commitLayout();
+    }));
+
+    // explicit save button for layout (optional explicit commit)
+    document.getElementById('pc-layout-save')?.addEventListener('click', () => commitLayout());
+
+    // when layout tab becomes visible, resync its fields
+    document.getElementById('pc-tabbtn-layout')?.addEventListener('shown.bs.tab', () => { syncLayoutForm(); });
+
+    // panel selector
     els.panel?.addEventListener('change', () => {
         setActiveCell(null);
         setCurrentPanel(els.panel.value);
         clearSelection();
         rebuildItemsList();
         syncEditorsToItem(null);
-        if (getCurrentSvg()) renderAll(getCurrentSvg());
+        syncLayoutForm();
+        commitLayout();
     });
 
-    [els.layoutGrid, els.layoutFree].forEach(el => el && el.addEventListener('change', () => { toggleLayoutGroups(); commitEditors(); }));
-
-    els.presetCards?.addEventListener('click', () => {
-        const p = panelState();
-        p.layout = { mode:'grid', rows:2, cols:2, gutter:2, padding:4 };
-        saveState();
-        els.rows.value = 2; els.cols.value = 2; els.gutter.value = 2; els.padding.value = 4;
-        renderAll(getCurrentSvg());
-    });
-    els.presetTitle?.addEventListener('click', () => {
-        const p = panelState();
-        p.layout = { mode:'grid', rows:3, cols:1, gutter:2, padding:6 };
-        saveState();
-        els.rows.value = 3; els.cols.value = 1; els.gutter.value = 2; els.padding.value = 6;
-        renderAll(getCurrentSvg());
-    });
-    els.presetCenter?.addEventListener('click', () => {
-        const p = panelState();
-        p.layout = { mode:'grid', rows:1, cols:1, gutter:0, padding:10 };
-        saveState();
-        els.rows.value = 1; els.cols.value = 1; els.gutter.value = 0; els.padding.value = 10;
-        renderAll(getCurrentSvg());
-    });
-
+    // keyboard: P / C / O modes
     document.addEventListener('keydown', (e) => {
-        if (!(e.key === 'Delete' || e.key === 'Backspace')) return;
-        const ae = document.activeElement;
-        const typing = ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.isContentEditable);
-        if (typing) return;
-        const id = getEditItemId() || getSelectedItemId();
-        if (!id) return;
-        e.preventDefault();
-        deleteItem(getCurrentPanel(), id);
+        if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable)) return;
+        if (e.key === 'p' || e.key === 'P') setUiMode(UIMODES.PANEL);
+        if (e.key === 'c' || e.key === 'C') setUiMode(UIMODES.CELL);
+        if (e.key === 'o' || e.key === 'O') setUiMode(UIMODES.OBJECT);
     });
 
+    // confirm / cancel
+    els.confirm?.addEventListener('click', onConfirm);
+    els.cancel?.addEventListener('click', onCancel);
+
+    // showGuides instant repaint
     els.showGuides?.addEventListener('change', () => { const svg = getCurrentSvg(); if (svg) renderAll(svg); });
 
     bindSvgUpload();
@@ -364,30 +378,24 @@ export function initEditing() {
 
     // initial UI
     toggleLayoutGroups();
-    const p = panelState();
-    if (els.rows)    els.rows.value = p.layout.rows;
-    if (els.cols)    els.cols.value = p.layout.cols;
-    if (els.gutter)  els.gutter.value = p.layout.gutter;
-    if (els.padding) els.padding.value = p.layout.padding;
+    syncLayoutForm();
 
+    const p = panelState();
     setSelectedItemId(p.items[0]?.id || null);
     rebuildItemsList();
     syncEditorsToItem(activeItem());
     toggleTypeProps(activeItem()?.type || 'text');
     setEditUI(false);
+    setUiMode(UIMODES.CELL);
 }
 
-// export function pc_getPanelState(panelName) {
-//     return panelState(panelName);
-// }
-
+// ---------- public helpers ----------
 export function pc_activateEditorTab(which) {
     const btnLayout = document.getElementById('pc-tabbtn-layout');
     const btnObject = document.getElementById('pc-tabbtn-object');
     const paneLayout = document.getElementById('pc-tab-layout');
     const paneObject = document.getElementById('pc-tab-object');
-
-    const useBS = !!window.bootstrap; // if Bootstrap JS is present
+    const useBS = !!window.bootstrap;
 
     const activate = (btnOn, paneOn, btnOff, paneOff) => {
         if (useBS && window.bootstrap.Tab) {
@@ -396,12 +404,17 @@ export function pc_activateEditorTab(which) {
             btnOn.classList.add('active');  paneOn.classList.add('show','active');
             btnOff.classList.remove('active'); paneOff.classList.remove('show','active');
         }
-        // optional: scroll editor into view
         document.getElementById('pc-sec-editor')?.scrollIntoView({ block:'nearest' });
     };
 
-    if (which === 'layout') activate(btnLayout, paneLayout, btnObject, paneObject);
-    else activate(btnObject, paneObject, btnLayout, paneLayout);
+    if (which === 'layout') {
+        setUiMode(UIMODES.PANEL);
+        syncLayoutForm();
+        activate(btnLayout, paneLayout, btnObject, paneObject);
+    } else {
+        setUiMode(UIMODES.OBJECT);
+        activate(btnObject, paneObject, btnLayout, paneLayout);
+    }
 }
 
 // create item at a grid cell
@@ -423,7 +436,7 @@ export function pc_createItemInCell(panelName, kind, cell) {
         : { ...base, type: 'text', text: { value: '', font: family, size: 4, line: 1.2 } };
 
     p.items.push(item);
-    saveState(); // optional; remove if you don’t want auto-persist here
+    saveState();
     return id;
 }
 
@@ -431,7 +444,4 @@ export function pc_renderAll(svg) { renderAll(svg || getCurrentSvg()); }
 export function pc_getStateRef() { return getStateRef(); }
 export function pc_deleteItem(panelName, itemId) { deleteItem(panelName, itemId); }
 export function pc_save() { saveState(); }
-export function pc_bindSvg(svg) {
-    setCurrentSvg(svg);
-    bindSvgDeselect(svg, clearSelection);
-}
+export function pc_bindSvg(svg) { setCurrentSvg(svg); bindSvgDeselect(svg, clearSelection); }

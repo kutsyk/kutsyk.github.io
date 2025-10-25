@@ -93,10 +93,6 @@
                                         <input name="margin" type="number" step="1" min="0" value="12" class="form-control form-control-sm">
                                     </div>
                                 </div>
-                                <div class="form-check form-switch mb-2">
-                                    <input class="form-check-input" type="checkbox" id="showLabels" name="showLabels" checked>
-                                    <label class="form-check-label" for="showLabels">Show labels</label>
-                                </div>
                                 <div class="form-check form-switch mt-2">
                                     <input class="form-check-input" type="checkbox" id="addRightHole" name="addRightHole" checked>
                                     <label class="form-check-label" for="addRightHole">
@@ -157,11 +153,6 @@
                                                     </select>
                                                 </div>
 
-                                                <div class="form-check form-switch mb-2">
-                                                    <input class="form-check-input" type="checkbox" id="pc-show-guides" checked>
-                                                    <label class="form-check-label" for="pc-show-guides">Show layout grid</label>
-                                                </div>
-
                                                 <div class="btn-group btn-group-sm mb-2" role="group" aria-label="layout">
                                                     <input type="radio" class="btn-check" name="pc-layout" id="pc-layout-grid" autocomplete="off" checked>
                                                     <label class="btn btn-outline-secondary" for="pc-layout-grid">Grid</label>
@@ -189,6 +180,10 @@
                                                     <div class="col-3"><label class="form-label mb-1">Col</label><input id="pc-col" type="number" min="1" class="form-control form-control-sm" value="1"></div>
                                                     <div class="col-3"><label class="form-label mb-1">RowSpan</label><input id="pc-rowspan" type="number" min="1" class="form-control form-control-sm" value="1"></div>
                                                     <div class="col-3"><label class="form-label mb-1">ColSpan</label><input id="pc-colspan" type="number" min="1" class="form-control form-control-sm" value="1"></div>
+                                                </div>
+
+                                                <div class="d-flex gap-2 mt-2">
+                                                    <button id="pc-layout-save" class="btn btn-sm btn-success">Save layout</button>
                                                 </div>
                                             </div>
 
@@ -323,6 +318,7 @@
             </div>
 
             <div class="card-body p-2 position-relative">
+
                 <div class="d-flex align-items-center gap-2 mb-2">
                     <div class="btn-group btn-group-sm" role="group" aria-label="Zoom">
                         <button id="zoomOut" type="button" class="btn btn-outline-secondary">−</button>
@@ -330,6 +326,17 @@
                         <button id="zoomIn" type="button" class="btn btn-outline-secondary">+</button>
                         <button id="fitBtn" type="button" class="btn btn-outline-secondary">Fit</button>
                     </div>
+
+                    <div class="form-check form-switch ms-2">
+                        <input class="form-check-input" type="checkbox" id="pc-show-guides-global" checked>
+                        <label class="form-check-label" for="pc-show-guides-global">Show layout grid</label>
+                    </div>
+
+                    <div class="form-check form-switch ms-2">
+                        <input class="form-check-input" type="checkbox" id="showLabels" checked>
+                        <label class="form-check-label" for="showLabels">Show labels</label>
+                    </div>
+
                     <span id="gridInfo" class="badge text-bg-secondary ms-2">grid: —</span>
                 </div>
 
