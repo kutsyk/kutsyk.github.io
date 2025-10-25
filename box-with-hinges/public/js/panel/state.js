@@ -1,6 +1,8 @@
 // public/js/state.js
 // Central state: panels, selection, active cell, UI mode, SVG ref, events.
 
+import {pc_getStateRef, pc_save} from "./edit.js";
+
 const STORAGE_KEY = 'pc_state_v1';
 
 export const PANELS = ['Bottom', 'Lid', 'Front', 'Back', 'Left', 'Right'];
@@ -80,4 +82,44 @@ export function setUiMode(mode) {
     if (!mode || mode === _uiMode) return;
     _uiMode = mode;
     document.dispatchEvent(new CustomEvent('pc:modeChanged', { detail: mode }));
+}
+export function pc_getLayout(name) {
+    const S = pc_getStateRef();
+    const P = S.panels[name] || (S.panels[name] = { layout:{mode:'grid',rows:2,cols:2,gutter:2,padding:4}, items:[] });
+    const L = P.layout;
+    if (!Array.isArray(L.rowPercents) || L.rowPercents.length !== L.rows) {
+        L.rowPercents = Array.from({length:L.rows}, ()=> 100 / L.rows);
+    }
+    if (!Array.isArray(L.colPercents) || L.colPercents.length !== L.cols) {
+        L.colPercents = Array.from({length:L.cols}, ()=> 100 / L.cols);
+    }
+    return L;
+}
+export function pc_setRowPercents(name, arr) {
+    const L = pc_getLayout(name);
+    const n = L.rows;
+    const v = (arr||[]).slice(0, n).map(Number);
+    while (v.length < n) v.push(0);
+    const sum = v.reduce((a,b)=>a+(isFinite(b)?b:0),0) || 100;
+    const norm = v.map(x => Math.max(0, (isFinite(x)?x:0) * 100 / sum));
+    L.rowPercents = norm;
+    pc_save();
+    return norm;
+}
+export function pc_setColPercents(name, arr) {
+    const L = pc_getLayout(name);
+    const n = L.cols;
+    const v = (arr||[]).slice(0, n).map(Number);
+    while (v.length < n) v.push(0);
+    const sum = v.reduce((a,b)=>a+(isFinite(b)?b:0),0) || 100;
+    const norm = v.map(x => Math.max(0, (isFinite(x)?x:0) * 100 / sum));
+    L.colPercents = norm;
+    pc_save();
+    return norm;
+}
+export function pc_rebalancePercents(name) {
+    const L = pc_getLayout(name);
+    L.rowPercents = Array.from({length:L.rows}, ()=> 100 / L.rows);
+    L.colPercents = Array.from({length:L.cols}, ()=> 100 / L.cols);
+    pc_save();
 }

@@ -3,6 +3,7 @@
 
 import { pc_onGeometryChanged as _renderAll, pc_getStateRef, pc_save as _save } from './panel-content.js';
 import { pc_createItemInCell, pc_setItemType as _setItemType } from './panel/edit.js';
+import {pc_getLayout} from "./panel/state.js";
 
 export function pc_getPanelState(name) {
     const S = pc_getStateRef();
@@ -78,4 +79,55 @@ export function pc_applyCellBoxTweaks(panelName, item, box) {
         item.align = { h: cfg.ah || item.align?.h || 'center', v: cfg.av || item.align?.v || 'middle' };
     }
     return { x, y, w, h };
+}
+
+function _normalize(arr, n) {
+    const v = (arr||[]).slice(0, n).map(Number).map(x => (Number.isFinite(x) && x >= 0) ? x : 0);
+    while (v.length < n) v.push(0);
+    const sum = v.reduce((a,b)=>a+b,0);
+    if (sum <= 0) return Array.from({length:n}, () => 100/n);
+    return v.map(x => x * 100 / sum);
+}
+function _resizeKeepRatios(oldArr, newN) {
+    const n0 = oldArr.length;
+    if (newN === n0) return _normalize(oldArr, newN);
+    // downsample/upsample with proportional mapping
+    const prefix = [0]; for (let i=0;i<n0;i++) prefix[i+1] = prefix[i] + oldArr[i];
+    const total = prefix[n0] || 1;
+    const target = [];
+    for (let k=0;k<newN;k++){
+        const a = total * (k / newN);
+        const b = total * ((k+1) / newN);
+        // integrate old bins over [a,b]
+        let acc = 0;
+        for (let i=0;i<n0;i++){
+            const s = prefix[i], e = prefix[i+1];
+            const left = Math.max(a, s), right = Math.min(b, e);
+            if (right > left) acc += (right - left);
+        }
+        target.push(acc);
+    }
+    return _normalize(target, newN);
+}
+export function pc_setRowPercents(name, arr) {
+    const L = pc_getLayout(name);
+    L.rowPercents = _normalize(arr, L.rows);
+    pc_save(); return L.rowPercents;
+}
+export function pc_setColPercents(name, arr) {
+    const L = pc_getLayout(name);
+    L.colPercents = _normalize(arr, L.cols);
+    pc_save(); return L.colPercents;
+}
+export function pc_resizeRowCount(name, newRows) {
+    const L = pc_getLayout(name);
+    const n = Math.max(1, Number(newRows) || 1);
+    L.rowPercents = _resizeKeepRatios(L.rowPercents || [100], n);
+    L.rows = n; pc_save(); return L.rowPercents;
+}
+export function pc_resizeColCount(name, newCols) {
+    const L = pc_getLayout(name);
+    const n = Math.max(1, Number(newCols) || 1);
+    L.colPercents = _resizeKeepRatios(L.colPercents || [100], n);
+    L.cols = n; pc_save(); return L.colPercents;
 }

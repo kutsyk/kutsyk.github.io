@@ -10,13 +10,13 @@ import {
     getEditItemId, setEditItemId,
     getEditOriginal, setEditOriginal,
     getCurrentSvg, setCurrentSvg, setActiveCell, getActiveCell,
-    setUiMode, UIMODES
+    setUiMode, UIMODES, pc_getLayout, pc_setRowPercents, pc_rebalancePercents, pc_setColPercents
 } from './state.js';
 import {nid, bindSvgDeselect} from './utils.js';
 import {renderAll} from './render.js';
 import {bus} from './signal-bus.js';
 import {pi_onGeometryChanged} from './../panel-interaction.js';
-import {pc_getCellConfig, pc_setCellConfig} from "../panel-state-bridge.js";
+import {pc_getCellConfig, pc_resizeColCount, pc_resizeRowCount, pc_setCellConfig} from "../panel-state-bridge.js";
 
 // ---------- small utils ----------
 const nowPanel = () => getCurrentPanel() || 'Front';
@@ -696,6 +696,107 @@ export function bindCellConfigModal() {
     _syncCellConfigButton();
 }
 
+function _syncSizeButtons() {
+    const L = pc_getLayout(getCurrentPanel());
+    const btnR = document.getElementById('pc-edit-row-sizes');
+    const btnC = document.getElementById('pc-edit-col-sizes');
+    if (btnR) btnR.disabled = !(L.rows > 1);
+    if (btnC) btnC.disabled = !(L.cols > 1);
+    _renderSizeChips(L);
+}
+
+// attach to your rows/cols number inputs in initEditing()
+(function bindRowColManual(){
+    const rI = document.getElementById('pc-rows');
+    const cI = document.getElementById('pc-cols');
+    if (rI && !rI._pcBound) {
+        rI._pcBound = true;
+        rI.addEventListener('change', () => { pc_resizeRowCount(getCurrentPanel(), Number(rI.value||1)); _syncSizeButtons(); _repaint(); });
+    }
+    if (cI && !cI._pcBound) {
+        cI._pcBound = true;
+        cI.addEventListener('change', () => { pc_resizeColCount(getCurrentPanel(), Number(cI.value||1)); _syncSizeButtons(); _repaint(); });
+    }
+})();
+
+function _renderSizeChips(L) {
+    const rc = document.getElementById('pc-row-chips');
+    const cc = document.getElementById('pc-col-chips');
+    if (rc) {
+        rc.innerHTML = '';
+        (L.rowPercents || []).forEach(p => {
+            const s = document.createElement('span'); s.className='chip'; s.textContent = `${Math.round(p*10)/10}%`;
+            rc.appendChild(s);
+        });
+    }
+    if (cc) {
+        cc.innerHTML = '';
+        (L.colPercents || []).forEach(p => {
+            const s = document.createElement('span'); s.className='chip'; s.textContent = `${Math.round(p*10)/10}%`;
+            cc.appendChild(s);
+        });
+    }
+}
+
+let _lastOpener = null;
+(function wireRowSizesModal(){
+    const openBtn = document.getElementById('pc-edit-row-sizes');
+    const modalEl = document.getElementById('pcRowSizesModal');
+    if (!openBtn || !modalEl) return;
+
+    openBtn.addEventListener('click', () => { _lastOpener = openBtn; /* fill inputs here as you already do */ });
+
+    const saveBtn  = document.getElementById('pcm-rows-save');
+    const clearBtn = document.getElementById('pcm-rows-balance'); // if you close on balance, wire similarly
+
+    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+
+    const safeHide = () => {
+        // 1) blur focused element inside modal
+        const af = document.activeElement;
+        if (af && modalEl.contains(af)) af.blur();
+
+        // 2) hide via API (this toggles aria-hidden safely)
+        modal.hide();
+
+        // 3) restore focus to opener (prevent scroll)
+        if (_lastOpener && document.contains(_lastOpener)) {
+            _lastOpener.focus({ preventScroll: true });
+        }
+    };
+
+    saveBtn?.addEventListener('click', (e) => {
+        // your existing save logic here (commit percents, repaint)...
+        // then close safely:
+        safeHide();
+    });
+})();
+
+(function wireColSizesModal(){
+    const openBtn = document.getElementById('pc-edit-col-sizes');
+    const modalEl = document.getElementById('pcColSizesModal');
+    if (!openBtn || !modalEl) return;
+
+    openBtn.addEventListener('click', () => { _lastOpener = openBtn; /* fill inputs here as you already do */ });
+
+    const saveBtn  = document.getElementById('pcm-cols-save');
+    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+
+    const safeHide = () => {
+        const af = document.activeElement;
+        if (af && modalEl.contains(af)) af.blur();
+        modal.hide();
+        if (_lastOpener && document.contains(_lastOpener)) {
+            _lastOpener.focus({ preventScroll: true });
+        }
+    };
+
+    saveBtn?.addEventListener('click', () => {
+        // commit percents + repaint...
+        safeHide();
+    });
+})();
+
 // ---------- init ----------
 export function initEditing() {
     // item controls → live commit
@@ -752,7 +853,7 @@ export function initEditing() {
     document.addEventListener('pc:activeCellChanged', syncCellFormFromActive);
 // also run once at init
     syncCellFormFromActive();
-
+    bindSizeModals();
     // panel selector
     els.panel?.addEventListener('change', () => {
         setActiveCell(null);
@@ -763,6 +864,12 @@ export function initEditing() {
         syncLayoutForm();
         commitLayout();
     });
+
+    document.addEventListener('pc:panelChanged', _syncSizeButtons);
+    document.addEventListener('pc:activeCellChanged', _syncSizeButtons);
+// call once after init:
+    _syncSizeButtons();
+
 
     // keyboard: P / C / O modes
     document.addEventListener('keydown', (e) => {
@@ -848,4 +955,130 @@ export function initEditing() {
 
     // palette
     bindPalette();
+}
+
+function _repaint() {
+    const svg = getCurrentSvg();
+    if (svg) { renderAll(svg); pi_onGeometryChanged(svg); }
+}
+
+function _mkNumberInput(v, idx) {
+    const div = document.createElement('div');
+    div.className = 'mb-1';
+    const input = document.createElement('input');
+    input.type = 'number'; input.step = '0.1'; input.min = '0'; input.className = 'form-control form-control-sm';
+    input.value = String(Math.round(v * 10) / 10);
+    input.dataset.index = String(idx);
+    div.appendChild(input);
+    return { div, input };
+}
+
+function _sumTo(el, bodySel) {
+    const total = [...document.querySelectorAll(`${bodySel} input`)]
+        .map(i=>Number(i.value)||0).reduce((a,b)=>a+b,0);
+    el.textContent = `sum: ${Math.round(total*10)/10}%`;
+}
+
+function repaint() {
+    const svg = getCurrentSvg(); if (svg) { renderAll(svg); pi_onGeometryChanged(svg); }
+}
+
+export function bindSizeModals() {
+    // ROWS
+    const openRowsBody = document.getElementById('pcm-rows-body');
+    const rowsSum = document.getElementById('pcm-rows-sum');
+
+    document.getElementById('pcm-rows-balance')?.addEventListener('click', () => {
+        const L = pc_getLayout(getCurrentPanel());
+        openRowsBody.innerHTML = '';
+        const eq = Array.from({length:L.rows}, ()=> 100/L.rows);
+        eq.forEach((p,i) => {
+            const {div,input} = _mkNumberInput(p, i);
+            input.addEventListener('input', ()=> _sumTo(rowsSum, '#pcm-rows-body'));
+            openRowsBody.appendChild(div);
+        });
+        _sumTo(rowsSum, '#pcm-rows-body');
+    });
+
+    document.getElementById('pcm-cols-balance')?.addEventListener('click', () => {
+        const L = pc_getLayout(getCurrentPanel());
+        openColsBody.innerHTML = '';
+        const eq = Array.from({length:L.cols}, ()=> 100/L.cols);
+        eq.forEach((p,i) => {
+            const {div,input} = _mkNumberInput(p, i);
+            input.addEventListener('input', ()=> _sumTo(colsSum, '#pcm-cols-body'));
+            openColsBody.appendChild(div);
+        });
+        _sumTo(colsSum, '#pcm-cols-body');
+    });
+
+    document.getElementById('pc-edit-row-sizes')?.addEventListener('click', () => {
+        const L = pc_getLayout(getCurrentPanel());
+        const body = document.getElementById('pcm-rows-body');
+        const sum = document.getElementById('pcm-rows-sum');
+        body.innerHTML = '';
+        L.rowPercents.forEach((p,i) => {
+            const inp = document.createElement('input');
+            inp.type = 'number'; inp.step = '0.1'; inp.min = '0'; inp.className = 'form-control form-control-sm mb-1';
+            inp.value = String(Math.round(p*10)/10);
+            body.appendChild(inp);
+            inp.addEventListener('input', () => {
+                const total = [...body.querySelectorAll('input')].reduce((a,b)=>a+(Number(b.value)||0),0);
+                sum.textContent = `sum: ${Math.round(total*10)/10}%`;
+            });
+        });
+        const total = L.rowPercents.reduce((a,b)=>a+b,0);
+        sum.textContent = `sum: ${Math.round(total*10)/10}%`;
+    });
+
+// save rows
+    document.getElementById('pcm-rows-save')?.addEventListener('click', () => {
+        const body = document.getElementById('pcm-rows-body');
+        const vals = [...body.querySelectorAll('input')].map(i => Number(i.value) || 0);
+        pc_setRowPercents(getCurrentPanel(), vals);
+        repaint();
+    });
+
+// open cols modal → build inputs
+    document.getElementById('pc-edit-col-sizes')?.addEventListener('click', () => {
+        const L = pc_getLayout(getCurrentPanel());
+        const body = document.getElementById('pcm-cols-body');
+        const sum = document.getElementById('pcm-cols-sum');
+        body.innerHTML = '';
+        L.colPercents.forEach((p,i) => {
+            const inp = document.createElement('input');
+            inp.type = 'number'; inp.step = '0.1'; inp.min = '0'; inp.className = 'form-control form-control-sm mb-1';
+            inp.value = String(Math.round(p*10)/10);
+            body.appendChild(inp);
+            inp.addEventListener('input', () => {
+                const total = [...body.querySelectorAll('input')].reduce((a,b)=>a+(Number(b.value)||0),0);
+                sum.textContent = `sum: ${Math.round(total*10)/10}%`;
+            });
+        });
+        const total = L.colPercents.reduce((a,b)=>a+b,0);
+        sum.textContent = `sum: ${Math.round(total*10)/10}%`;
+    });
+
+    document.getElementById('pcm-cols-save')?.addEventListener('click', () => {
+        const body = document.getElementById('pcm-cols-body');
+        const vals = [...body.querySelectorAll('input')].map(i => Number(i.value) || 0);
+        pc_setColPercents(getCurrentPanel(), vals);
+        repaint();
+    });
+
+    document.getElementById('pc-rows')?.addEventListener('change', (e) => {
+        pc_resizeRowCount(getCurrentPanel(), Number(e.currentTarget.value || 1));
+        repaint();
+    });
+    document.getElementById('pc-cols')?.addEventListener('change', (e) => {
+        pc_resizeColCount(getCurrentPanel(), Number(e.currentTarget.value || 1));
+        repaint();
+    });
+
+    // when rows/cols count changes → rebalance arrays
+    const rowsI = document.getElementById('pc-rows');
+    const colsI = document.getElementById('pc-cols');
+    const _rebalance = () => { pc_rebalancePercents(getCurrentPanel()); _repaint(); };
+    rowsI?.addEventListener('change', _rebalance);
+    colsI?.addEventListener('change', _rebalance);
 }
