@@ -241,6 +241,9 @@ function renderPanelOverlay(svg, name, host, showGrid) {
                 e.preventDefault();
                 setCurrentPanel(name);
                 setActiveCell({panel: name, row: r, col: c});
+                document.dispatchEvent(new CustomEvent('pc:panelChanged', { detail: { panel: name } }));
+                document.dispatchEvent(new CustomEvent('pc:activeCellChanged', { detail: { panel: name, row: r, col: c } }));
+
                 // refresh overlays + keep content intact
                 pi_onGeometryChanged(svg);
             });
@@ -250,6 +253,9 @@ function renderPanelOverlay(svg, name, host, showGrid) {
                 e.stopPropagation();
                 setCurrentPanel(name);
                 setActiveCell({panel: name, row: r, col: c});
+                document.dispatchEvent(new CustomEvent('pc:panelChanged', { detail: { panel: name } }));
+                document.dispatchEvent(new CustomEvent('pc:activeCellChanged', { detail: { panel: name, row: r, col: c } }));
+
                 // refresh overlays immediately
                 pi_onGeometryChanged(svg);
             });
@@ -279,7 +285,6 @@ function renderPanelOverlay(svg, name, host, showGrid) {
                 let type = e.dataTransfer?.getData('text/plain');
                 if (!type) type = hasSvgFile ? 'svg' : (_lastDragKind || 'text');
                 type = /svg/i.test(type) ? 'svg' : 'text';
-                console.log(type);
 
                 if (type && /svg/i.test(type)) type = 'svg';
                 else type = hasSvgFile ? 'svg' : 'text';
@@ -310,6 +315,9 @@ function renderPanelOverlay(svg, name, host, showGrid) {
 
                 setCurrentPanel(name);
                 setActiveCell({panel: name, row: rr, col: cc});
+                document.dispatchEvent(new CustomEvent('pc:panelChanged', { detail: { panel: name } }));
+                document.dispatchEvent(new CustomEvent('pc:activeCellChanged', { detail: { panel: name, row: r, col: c } }));
+
                 if (newId) setSelectedItemId(newId);
                 // render content (now includes svg if provided) + overlays
                 pc_renderAll(svg);
@@ -381,6 +389,9 @@ function attachDrops(svg) {
             // set focus + refresh content + overlays
             setCurrentPanel(name);
             setActiveCell({panel: name, row: hit.row, col: hit.col});
+            document.dispatchEvent(new CustomEvent('pc:panelChanged', { detail: { panel: name } }));
+            document.dispatchEvent(new CustomEvent('pc:activeCellChanged', { detail: { panel: name, row: r, col: c } }));
+
             if (newId) setSelectedItemId(newId);
 
             pc_renderAll(svg);

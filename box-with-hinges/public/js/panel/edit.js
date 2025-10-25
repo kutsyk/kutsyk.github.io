@@ -581,6 +581,17 @@ export function initEditing() {
         if (e.key === 'o' || e.key === 'O') setUiMode(UIMODES.OBJECT);
     });
 
+    document.addEventListener('pc:panelChanged', () => {
+        if (els.panel) els.panel.value = getCurrentPanel();
+        rebuildItemsList();
+        syncEditorsToItem(null);
+        syncLayoutForm();
+    });
+
+    document.addEventListener('pc:activeCellChanged', () => {
+        syncLayoutForm();
+    });
+
     (function bindDnDSources() {
         const btnText = document.getElementById('pc-drag-text');
         const btnSvg = document.getElementById('pc-drag-svg');
