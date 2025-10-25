@@ -3,6 +3,8 @@ import {colorPanels, mountSvg} from './renderer.js';
 import {addLabels} from './labels.js';
 import {initInfiniteGrid} from "./grid.js";
 import {initRulers} from "./ruler.js";
+import { pc_onGeometryChanged } from './panel-content.js';
+import { pi_onGeometryChanged, pi_beforeDownload } from './panel-interaction.js';
 
 const $ = (s) => document.querySelector(s);
 
@@ -190,6 +192,9 @@ async function generate() {
         colorPanels(svg);
         fitToContent(svg, 10);
 
+        pc_onGeometryChanged(svg);
+        pi_onGeometryChanged(svg);
+
         gridCtl = initInfiniteGrid(
             svg,
             () => (pz ? pz.getZoom() : 1),
@@ -246,14 +251,49 @@ async function generate() {
     // Download (clean server SVG)
     els.download.addEventListener('click', async () => {
         const params = readParams();
-        const svgText = generateSvg(params); // no network
-        const blob = new Blob([svgText], {type: 'image/svg+xml;charset=utf-8'});
+        const svgText = generateSvg(params);
+        // parse to DOM to allow pre-export filtering
+        const wrap = document.createElement('div');
+        wrap.innerHTML = svgText;
+        const svgNode = wrap.firstElementChild;
+
+        // mount content into this clone as well, then filter
+        // Note: reuse current panel-content state by rendering into a temporary container
+        const tempContainer = document.createElement('div');
+        tempContainer.appendChild(svgNode);
+        pc_onGeometryChanged(svgNode.cloneNode(true)); // ensure layers exist in preview; not needed to mutate temp
+        // Re-render into export node
+        ['Bottom','Lid','Front','Back','Left','Right'].forEach(name => {
+            // remove any old pcLayer from export node; will be rebuilt by current preview already
+            // If you want exact current overlays, instead copy them from live DOM:
+            const live = document.querySelector(`#contentLayer`)?.closest('svg');
+            if (live) {
+                const srcHost = live.querySelector(`[id$="${name}"]`);
+                const dstHost = svgNode.querySelector(`[id$="${name}"]`);
+                if (srcHost && dstHost) {
+                    // copy/replace pcLayer
+                    const srcLayer = srcHost.querySelector(`#pcLayer_${name}`);
+                    if (srcLayer) {
+                        const old = dstHost.querySelector(`#pcLayer_${name}`);
+                        if (old) old.remove();
+                        dstHost.appendChild(srcLayer.cloneNode(true));
+                    }
+                }
+            }
+        });
+
+        // filter guides / outline (placeholder)
+        pi_beforeDownload(svgNode);
+
+        const cleaned = new XMLSerializer().serializeToString(svgNode);
+        const blob = new Blob([cleaned], {type: 'image/svg+xml;charset=utf-8'});
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
         a.download = `box_with_hinges_w${params.width}_h${params.height}_d${params.depth}_k${params.kerf}.svg`;
         a.click();
         URL.revokeObjectURL(a.href);
     });
+
 
     els.resetBtn?.addEventListener('click', () => {
         els.form.reset();
