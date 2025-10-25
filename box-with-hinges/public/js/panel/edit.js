@@ -381,6 +381,29 @@ export function initEditing() {
 //     return panelState(panelName);
 // }
 
+export function pc_activateEditorTab(which) {
+    const btnLayout = document.getElementById('pc-tabbtn-layout');
+    const btnObject = document.getElementById('pc-tabbtn-object');
+    const paneLayout = document.getElementById('pc-tab-layout');
+    const paneObject = document.getElementById('pc-tab-object');
+
+    const useBS = !!window.bootstrap; // if Bootstrap JS is present
+
+    const activate = (btnOn, paneOn, btnOff, paneOff) => {
+        if (useBS && window.bootstrap.Tab) {
+            try { new window.bootstrap.Tab(btnOn).show(); } catch {}
+        } else {
+            btnOn.classList.add('active');  paneOn.classList.add('show','active');
+            btnOff.classList.remove('active'); paneOff.classList.remove('show','active');
+        }
+        // optional: scroll editor into view
+        document.getElementById('pc-sec-editor')?.scrollIntoView({ block:'nearest' });
+    };
+
+    if (which === 'layout') activate(btnLayout, paneLayout, btnObject, paneObject);
+    else activate(btnObject, paneObject, btnLayout, paneLayout);
+}
+
 // create item at a grid cell
 export function pc_createItemInCell(panelName, kind, cell) {
     const p = panelState(panelName);

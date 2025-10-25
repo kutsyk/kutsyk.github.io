@@ -5,7 +5,7 @@ import { renderAll } from './panel/render.js';
 import { pc_beforeDownload } from './panel/export.js';
 import {
     initEditing, pc_enterEdit, pc_getStateRef,
-    pc_deleteItem, pc_save, pc_bindSvg
+    pc_deleteItem, pc_save, pc_bindSvg, pc_activateEditorTab
 } from './panel/edit.js';
 import { setCurrentSvg } from './panel/state.js';
 
@@ -15,7 +15,6 @@ export function pc_onGeometryChanged(svg) {
     pc_bindSvg(svg);
     renderAll(svg);
 }
-export { pc_beforeDownload, pc_enterEdit, pc_getStateRef, pc_deleteItem, pc_save };
-
+export { pc_beforeDownload, pc_enterEdit, pc_getStateRef, pc_deleteItem, pc_save, pc_activateEditorTab };
 // one-time init
 initEditing();
