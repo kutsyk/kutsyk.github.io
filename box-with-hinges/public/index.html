@@ -41,7 +41,8 @@
                     <!-- Tabs in sidebar -->
                     <ul class="nav nav-tabs small px-2 pt-2" id="sidebarTabs" role="tablist">
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="params-tab" data-bs-toggle="tab" data-bs-target="#params"
+                            <button class="nav-link active" id="params-tab" data-bs-toggle="tab"
+                                    data-bs-target="#params"
                                     type="button" role="tab" aria-controls="params" aria-selected="true">
                                 <i class="bi bi-sliders me-1"></i>Parameters
                             </button>
@@ -60,41 +61,53 @@
                             <form id="form" novalidate class="small">
                                 <div class="mb-2">
                                     <label for="width" class="form-label text-secondary mb-1">Width (X)</label>
-                                    <input id="width" name="width" type="range" min="10" max="500" step="1" value="80" class="form-range">
-                                    <input id="widthNum" type="number" min="10" max="500" step="1" value="80" class="form-control form-control-sm">
+                                    <input id="width" name="width" type="range" min="10" max="500" step="1" value="80"
+                                           class="form-range">
+                                    <input id="widthNum" type="number" min="10" max="500" step="1" value="80"
+                                           class="form-control form-control-sm">
                                 </div>
                                 <div class="mb-2">
                                     <label for="depth" class="form-label text-secondary mb-1">Depth (Y)</label>
-                                    <input id="depth" name="depth" type="range" min="10" max="500" step="1" value="50" class="form-range">
-                                    <input id="depthNum" type="number" min="10" max="500" step="1" value="50" class="form-control form-control-sm">
+                                    <input id="depth" name="depth" type="range" min="10" max="500" step="1" value="50"
+                                           class="form-range">
+                                    <input id="depthNum" type="number" min="10" max="500" step="1" value="50"
+                                           class="form-control form-control-sm">
                                 </div>
                                 <div class="mb-2">
                                     <label for="height" class="form-label text-secondary mb-1">Height (Z)</label>
-                                    <input id="height" name="height" type="range" min="10" max="500" step="1" value="40" class="form-range">
-                                    <input id="heightNum" type="number" min="10" max="500" step="1" value="40" class="form-control form-control-sm">
+                                    <input id="height" name="height" type="range" min="10" max="500" step="1" value="40"
+                                           class="form-range">
+                                    <input id="heightNum" type="number" min="10" max="500" step="1" value="40"
+                                           class="form-control form-control-sm">
                                 </div>
                                 <div class="mb-2">
                                     <label for="tabWidth" class="form-label text-secondary mb-1">Tab width</label>
-                                    <input id="tabWidth" name="tabWidth" type="range" min="2" max="120" step="1" value="10" class="form-range">
-                                    <input id="tabWidthNum" type="number" min="2" max="120" step="1" value="10" class="form-control form-control-sm">
+                                    <input id="tabWidth" name="tabWidth" type="range" min="2" max="120" step="1"
+                                           value="10" class="form-range">
+                                    <input id="tabWidthNum" type="number" min="2" max="120" step="1" value="10"
+                                           class="form-control form-control-sm">
                                     <div class="form-text">Evenly distributed along edges.</div>
                                 </div>
                                 <div class="mb-2">
                                     <label class="form-label text-secondary mb-1">Material thickness</label>
-                                    <input name="thickness" type="number" step="0.01" min="0.1" value="3" class="form-control form-control-sm">
+                                    <input name="thickness" type="number" step="0.01" min="0.1" value="3"
+                                           class="form-control form-control-sm">
                                 </div>
                                 <div class="row g-1 mb-2">
                                     <div class="col-6">
                                         <label class="form-label text-secondary mb-1">Kerf (mm)</label>
-                                        <input name="kerf" type="number" step="0.001" min="0" value="0.12" class="form-control form-control-sm">
+                                        <input name="kerf" type="number" step="0.001" min="0" value="0.12"
+                                               class="form-control form-control-sm">
                                     </div>
                                     <div class="col-6">
                                         <label class="form-label text-secondary mb-1">Padding (gap)</label>
-                                        <input name="margin" type="number" step="1" min="0" value="12" class="form-control form-control-sm">
+                                        <input name="margin" type="number" step="1" min="0" value="12"
+                                               class="form-control form-control-sm">
                                     </div>
                                 </div>
                                 <div class="form-check form-switch mt-2">
-                                    <input class="form-check-input" type="checkbox" id="addRightHole" name="addRightHole" checked>
+                                    <input class="form-check-input" type="checkbox" id="addRightHole"
+                                           name="addRightHole" checked>
                                     <label class="form-check-label" for="addRightHole">
                                         Add right-panel hole (Ø8 mm, 15 mm from side, 20 mm from bottom)
                                     </label>
@@ -104,7 +117,8 @@
                                     <button type="submit" class="btn btn-primary btn-sm">
                                         <i class="bi bi-lightning-charge-fill me-1"></i>Generate
                                     </button>
-                                    <button id="download" type="button" class="btn btn-outline-secondary btn-sm" disabled>
+                                    <button id="download" type="button" class="btn btn-outline-secondary btn-sm"
+                                            disabled>
                                         <i class="bi bi-download me-1"></i>Download SVG
                                     </button>
                                 </div>
@@ -118,8 +132,12 @@
                                 <details id="pc-sec-add" open class="mb-2">
                                     <summary class="fw-semibold">Add Elements</summary>
                                     <div class="mt-2 d-flex gap-2">
-                                        <button id="pc-drag-text" class="btn btn-sm btn-outline-primary" draggable="true">Text</button>
-                                        <button id="pc-drag-svg"  class="btn btn-sm btn-outline-secondary" draggable="true">SVG</button>
+                                        <button id="pc-drag-text" class="btn btn-sm btn-outline-primary"
+                                                draggable="true">Text
+                                        </button>
+                                        <button id="pc-drag-svg" class="btn btn-sm btn-outline-secondary"
+                                                draggable="true">SVG
+                                        </button>
                                     </div>
                                 </details>
 
@@ -135,61 +153,111 @@
                                     <div class="mt-2">
                                         <ul class="nav nav-tabs" id="pc-editor-tabs" role="tablist">
                                             <li class="nav-item" role="presentation">
-                                                <button class="nav-link active" id="pc-tabbtn-layout" data-bs-toggle="tab" data-bs-target="#pc-tab-layout" type="button" role="tab">Panel layout</button>
+                                                <button class="nav-link active" id="pc-tabbtn-layout"
+                                                        data-bs-toggle="tab" data-bs-target="#pc-tab-layout"
+                                                        type="button" role="tab">Panel layout
+                                                </button>
                                             </li>
                                             <li class="nav-item" role="presentation">
-                                                <button class="nav-link" id="pc-tabbtn-object" data-bs-toggle="tab" data-bs-target="#pc-tab-object" type="button" role="tab">Object edit</button>
+                                                <button class="nav-link" id="pc-tabbtn-object" data-bs-toggle="tab"
+                                                        data-bs-target="#pc-tab-object" type="button" role="tab">Object
+                                                    edit
+                                                </button>
                                             </li>
                                         </ul>
 
                                         <div class="tab-content border border-top-0 rounded-bottom p-2">
                                             <!-- TAB: Panel layout -->
-                                            <div class="tab-pane fade show active" id="pc-tab-layout" role="tabpanel" aria-labelledby="pc-tabbtn-layout">
+                                            <div class="tab-pane fade show active" id="pc-tab-layout" role="tabpanel"
+                                                 aria-labelledby="pc-tabbtn-layout">
                                                 <div class="mb-2">
                                                     <label class="form-label mb-1">Panel</label>
                                                     <select id="pc-panel" class="form-select form-select-sm">
-                                                        <option>Bottom</option><option>Lid</option><option selected>Front</option>
-                                                        <option>Back</option><option>Left</option><option>Right</option>
+                                                        <option>Bottom</option>
+                                                        <option>Lid</option>
+                                                        <option selected>Front</option>
+                                                        <option>Back</option>
+                                                        <option>Left</option>
+                                                        <option>Right</option>
                                                     </select>
                                                 </div>
 
-                                                <div class="btn-group btn-group-sm mb-2" role="group" aria-label="layout">
-                                                    <input type="radio" class="btn-check" name="pc-layout" id="pc-layout-grid" autocomplete="off" checked>
-                                                    <label class="btn btn-outline-secondary" for="pc-layout-grid">Grid</label>
-                                                    <input type="radio" class="btn-check" name="pc-layout" id="pc-layout-free" autocomplete="off">
+                                                <div class="btn-group btn-group-sm mb-2" role="group"
+                                                     aria-label="layout">
+                                                    <input type="radio" class="btn-check" name="pc-layout"
+                                                           id="pc-layout-grid" autocomplete="off" checked>
+                                                    <label class="btn btn-outline-secondary"
+                                                           for="pc-layout-grid">Grid</label>
+                                                    <input type="radio" class="btn-check" name="pc-layout"
+                                                           id="pc-layout-free" autocomplete="off">
                                                     <label class="btn btn-outline-secondary" for="pc-layout-free">Freeform</label>
                                                 </div>
 
                                                 <div id="pc-grid-controls" class="row g-1 mb-2">
-                                                    <div class="col-3"><label class="form-label mb-1">Rows</label><input id="pc-rows" type="number" min="1" class="form-control form-control-sm" value="2"></div>
-                                                    <div class="col-3"><label class="form-label mb-1">Cols</label><input id="pc-cols" type="number" min="1" class="form-control form-control-sm" value="2"></div>
-                                                    <div class="col-3"><label class="form-label mb-1">Gutter</label><input id="pc-gutter" type="number" step="0.5" min="0" class="form-control form-control-sm" value="2"></div>
-                                                    <div class="col-3"><label class="form-label mb-1">Padding</label><input id="pc-padding" type="number" step="0.5" min="0" class="form-control form-control-sm" value="4"></div>
+                                                    <div class="col-3"><label class="form-label mb-1">Rows</label><input
+                                                            id="pc-rows" type="number" min="1"
+                                                            class="form-control form-control-sm" value="2"></div>
+                                                    <div class="col-3"><label class="form-label mb-1">Cols</label><input
+                                                            id="pc-cols" type="number" min="1"
+                                                            class="form-control form-control-sm" value="2"></div>
+                                                    <div class="col-3"><label
+                                                            class="form-label mb-1">Gutter</label><input id="pc-gutter"
+                                                                                                         type="number"
+                                                                                                         step="0.5"
+                                                                                                         min="0"
+                                                                                                         class="form-control form-control-sm"
+                                                                                                         value="2">
+                                                    </div>
+                                                    <div class="col-3"><label
+                                                            class="form-label mb-1">Padding</label><input
+                                                            id="pc-padding" type="number" step="0.5" min="0"
+                                                            class="form-control form-control-sm" value="4"></div>
                                                 </div>
 
                                                 <!-- Placement (Grid) -->
                                                 <div id="pc-place-grid" class="row g-1 mb-2">
-                                                    <div class="col-3"><label class="form-label mb-1">Row</label><input id="pc-row" type="number" min="1" class="form-control form-control-sm" value="1"></div>
-                                                    <div class="col-3"><label class="form-label mb-1">Col</label><input id="pc-col" type="number" min="1" class="form-control form-control-sm" value="1"></div>
-                                                    <div class="col-3"><label class="form-label mb-1">RowSpan</label><input id="pc-rowspan" type="number" min="1" class="form-control form-control-sm" value="1"></div>
-                                                    <div class="col-3"><label class="form-label mb-1">ColSpan</label><input id="pc-colspan" type="number" min="1" class="form-control form-control-sm" value="1"></div>
+                                                    <div class="col-3"><label class="form-label mb-1">Row</label><input
+                                                            id="pc-row" type="number" min="1"
+                                                            class="form-control form-control-sm" value="1"></div>
+                                                    <div class="col-3"><label class="form-label mb-1">Col</label><input
+                                                            id="pc-col" type="number" min="1"
+                                                            class="form-control form-control-sm" value="1"></div>
+                                                    <div class="col-3"><label
+                                                            class="form-label mb-1">RowSpan</label><input
+                                                            id="pc-rowspan" type="number" min="1"
+                                                            class="form-control form-control-sm" value="1"></div>
+                                                    <div class="col-3"><label
+                                                            class="form-label mb-1">ColSpan</label><input
+                                                            id="pc-colspan" type="number" min="1"
+                                                            class="form-control form-control-sm" value="1"></div>
                                                 </div>
 
                                                 <!-- Free controls (hidden unless free mode) -->
                                                 <div id="pc-free-controls" class="row g-1 mb-2 d-none">
-                                                    <div class="col-3"><label class="form-label mb-1">X</label><input id="pc-x" type="number" step="0.5" class="form-control form-control-sm" value="0"></div>
-                                                    <div class="col-3"><label class="form-label mb-1">Y</label><input id="pc-y" type="number" step="0.5" class="form-control form-control-sm" value="0"></div>
-                                                    <div class="col-3"><label class="form-label mb-1">W</label><input id="pc-w" type="number" step="0.5" class="form-control form-control-sm" value="20"></div>
-                                                    <div class="col-3"><label class="form-label mb-1">H</label><input id="pc-h" type="number" step="0.5" class="form-control form-control-sm" value="20"></div>
+                                                    <div class="col-3"><label class="form-label mb-1">X</label><input
+                                                            id="pc-x" type="number" step="0.5"
+                                                            class="form-control form-control-sm" value="0"></div>
+                                                    <div class="col-3"><label class="form-label mb-1">Y</label><input
+                                                            id="pc-y" type="number" step="0.5"
+                                                            class="form-control form-control-sm" value="0"></div>
+                                                    <div class="col-3"><label class="form-label mb-1">W</label><input
+                                                            id="pc-w" type="number" step="0.5"
+                                                            class="form-control form-control-sm" value="20"></div>
+                                                    <div class="col-3"><label class="form-label mb-1">H</label><input
+                                                            id="pc-h" type="number" step="0.5"
+                                                            class="form-control form-control-sm" value="20"></div>
                                                 </div>
 
                                                 <div class="d-flex gap-2 mt-2">
-                                                    <button id="pc-layout-save" class="btn btn-sm btn-success">Save layout</button>
+                                                    <button id="pc-layout-save" class="btn btn-sm btn-success">Save
+                                                        layout
+                                                    </button>
                                                 </div>
                                             </div>
 
                                             <!-- TAB: Object edit -->
-                                            <div class="tab-pane fade" id="pc-tab-object" role="tabpanel" aria-labelledby="pc-tabbtn-object">
+                                            <div class="tab-pane fade" id="pc-tab-object" role="tabpanel"
+                                                 aria-labelledby="pc-tabbtn-object">
                                                 <div class="row g-1 mb-2">
                                                     <div class="col-6">
                                                         <label class="form-label mb-1">Type</label>
@@ -200,7 +268,9 @@
                                                     </div>
                                                     <div class="col-6">
                                                         <label class="form-label mb-1">Name</label>
-                                                        <input id="pc-name" type="text" class="form-control form-control-sm" placeholder="Item name">
+                                                        <input id="pc-name" type="text"
+                                                               class="form-control form-control-sm"
+                                                               placeholder="Item name">
                                                     </div>
                                                 </div>
 
@@ -208,13 +278,17 @@
                                                     <div class="col-6">
                                                         <label class="form-label mb-1">Align H</label>
                                                         <select id="pc-align-h" class="form-select form-select-sm">
-                                                            <option>left</option><option selected>center</option><option>right</option>
+                                                            <option>left</option>
+                                                            <option selected>center</option>
+                                                            <option>right</option>
                                                         </select>
                                                     </div>
                                                     <div class="col-6">
                                                         <label class="form-label mb-1">Align V</label>
                                                         <select id="pc-align-v" class="form-select form-select-sm">
-                                                            <option>top</option><option selected>middle</option><option>bottom</option>
+                                                            <option>top</option>
+                                                            <option selected>middle</option>
+                                                            <option>bottom</option>
                                                         </select>
                                                     </div>
                                                 </div>
@@ -222,80 +296,122 @@
                                                 <div id="pc-text-props" class="row g-1 mb-2">
                                                     <div class="col-12">
                                                         <label class="form-label mb-1">Text</label>
-                                                        <textarea id="pc-textarea" rows="4" class="form-control form-control-sm" placeholder="enter your text" maxlength="1000"></textarea>
+                                                        <textarea id="pc-textarea" rows="4"
+                                                                  class="form-control form-control-sm"
+                                                                  placeholder="enter your text"
+                                                                  maxlength="1000"></textarea>
                                                     </div>
                                                     <div class="col-6">
                                                         <label class="form-label mb-1">Font</label>
-                                                        <input id="pc-font" type="text" class="form-control form-control-sm" placeholder="Inter">
+                                                        <input id="pc-font" type="text"
+                                                               class="form-control form-control-sm" placeholder="Inter">
                                                     </div>
                                                     <div class="col-6">
                                                         <label class="form-label mb-1">Font Family</label>
                                                         <select id="pc-font-family" class="form-select form-select-sm">
-                                                            <option>Inter</option><option>Arial</option><option>Roboto</option><option>Montserrat</option>
+                                                            <option>Inter</option>
+                                                            <option>Arial</option>
+                                                            <option>Roboto</option>
+                                                            <option>Montserrat</option>
                                                         </select>
                                                     </div>
                                                     <div class="col-6">
                                                         <label class="form-label mb-1">Size (mm)</label>
-                                                        <input id="pc-font-size" type="number" step="0.1" class="form-control form-control-sm" value="4">
+                                                        <input id="pc-font-size" type="number" step="0.1"
+                                                               class="form-control form-control-sm" value="4">
                                                     </div>
                                                     <div class="col-6">
                                                         <label class="form-label mb-1">Line</label>
-                                                        <input id="pc-line" type="number" step="0.1" class="form-control form-control-sm" value="1.2">
+                                                        <input id="pc-line" type="number" step="0.1"
+                                                               class="form-control form-control-sm" value="1.2">
                                                     </div>
                                                 </div>
 
                                                 <div id="pc-svg-props" class="row g-1 mb-2 d-none">
                                                     <div class="col-12">
-                                                        <label class="form-label mb-1">SVG Source</label>
-                                                        <input id="pc-svg-src" type="file" accept=".svg,image/svg+xml" class="form-control form-control-sm">
+                                                        <label class="form-label mb-1">SVG Source:</label>
+                                                        <small id="pc-svg-filename" class="text-muted text-truncate"
+                                                               style="max-width:50%"></small>
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <input id="pc-svg-src" type="file"
+                                                                   accept=".svg,image/svg+xml"
+                                                                   class="form-control form-control-sm">
+                                                        </div>
                                                     </div>
                                                     <div class="col-4">
                                                         <label class="form-label mb-1">Width (mm)</label>
-                                                        <input id="pc-svg-w" type="number" step="0.1" class="form-control form-control-sm" placeholder="auto">
+                                                        <input id="pc-svg-w" type="number" step="0.1"
+                                                               class="form-control form-control-sm" placeholder="auto">
                                                     </div>
                                                     <div class="col-4">
                                                         <label class="form-label mb-1">Height (mm)</label>
-                                                        <input id="pc-svg-h" type="number" step="0.1" class="form-control form-control-sm" placeholder="auto">
+                                                        <input id="pc-svg-h" type="number" step="0.1"
+                                                               class="form-control form-control-sm" placeholder="auto">
                                                     </div>
                                                     <div class="col-4">
                                                         <label class="form-label mb-1">Scale (%)</label>
-                                                        <input id="pc-scale" type="number" step="1" value="100" class="form-control form-control-sm">
+                                                        <input id="pc-scale" type="number" step="1" value="100"
+                                                               class="form-control form-control-sm">
                                                     </div>
                                                     <div class="col-6 d-flex align-items-end">
                                                         <div class="form-check">
-                                                            <input class="form-check-input" type="checkbox" id="pc-preserve" checked>
-                                                            <label class="form-check-label" for="pc-preserve">Preserve aspect</label>
+                                                            <input class="form-check-input" type="checkbox"
+                                                                   id="pc-preserve" checked>
+                                                            <label class="form-check-label" for="pc-preserve">Preserve
+                                                                aspect</label>
                                                         </div>
                                                     </div>
                                                     <div class="col-6 d-flex align-items-end">
                                                         <div class="form-check">
-                                                            <input class="form-check-input" type="checkbox" id="pc-svg-invert">
-                                                            <label class="form-check-label" for="pc-svg-invert">Invert (fill vs stroke)</label>
+                                                            <input class="form-check-input" type="checkbox"
+                                                                   id="pc-svg-invert">
+                                                            <label class="form-check-label" for="pc-svg-invert">Invert
+                                                                (fill vs stroke)</label>
                                                         </div>
                                                     </div>
                                                 </div>
 
                                                 <div class="row g-1 mb-2">
-                                                    <div class="col-4"><label class="form-label mb-1">Rotate</label><input id="pc-rotate" type="number" step="1" class="form-control form-control-sm" value="0"></div>
-                                                    <div class="col-4"><label class="form-label mb-1">Stroke (mm)</label><input id="pc-stroke" type="number" step="0.05" class="form-control form-control-sm" value="0.35"></div>
-                                                    <div class="col-4"><label class="form-label mb-1">Opacity (%)</label><input id="pc-opacity" type="number" step="1" min="0" max="100" class="form-control form-control-sm" value="100"></div>
+                                                    <div class="col-4"><label
+                                                            class="form-label mb-1">Rotate</label><input id="pc-rotate"
+                                                                                                         type="number"
+                                                                                                         step="1"
+                                                                                                         class="form-control form-control-sm"
+                                                                                                         value="0">
+                                                    </div>
+                                                    <div class="col-4"><label class="form-label mb-1">Stroke
+                                                        (mm)</label><input id="pc-stroke" type="number" step="0.05"
+                                                                           class="form-control form-control-sm"
+                                                                           value="0.35"></div>
+                                                    <div class="col-4"><label class="form-label mb-1">Opacity
+                                                        (%)</label><input id="pc-opacity" type="number" step="1" min="0"
+                                                                          max="100" class="form-control form-control-sm"
+                                                                          value="100"></div>
                                                     <div class="col-6 d-flex align-items-end">
                                                         <div class="form-check">
-                                                            <input class="form-check-input" type="checkbox" id="pc-mirror-x">
-                                                            <label class="form-check-label" for="pc-mirror-x">Mirror X</label>
+                                                            <input class="form-check-input" type="checkbox"
+                                                                   id="pc-mirror-x">
+                                                            <label class="form-check-label" for="pc-mirror-x">Mirror
+                                                                X</label>
                                                         </div>
                                                     </div>
                                                     <div class="col-6 d-flex align-items-end">
                                                         <div class="form-check">
-                                                            <input class="form-check-input" type="checkbox" id="pc-mirror-y">
-                                                            <label class="form-check-label" for="pc-mirror-y">Mirror Y</label>
+                                                            <input class="form-check-input" type="checkbox"
+                                                                   id="pc-mirror-y">
+                                                            <label class="form-check-label" for="pc-mirror-y">Mirror
+                                                                Y</label>
                                                         </div>
                                                     </div>
                                                 </div>
 
                                                 <div class="d-flex gap-2">
-                                                    <button id="pc-edit-confirm" class="btn btn-sm btn-primary">Confirm</button>
-                                                    <button id="pc-edit-cancel"  class="btn btn-sm btn-outline-secondary">Cancel</button>
+                                                    <button id="pc-edit-confirm" class="btn btn-sm btn-primary">
+                                                        Confirm
+                                                    </button>
+                                                    <button id="pc-edit-cancel"
+                                                            class="btn btn-sm btn-outline-secondary">Cancel
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
@@ -348,7 +464,8 @@
         </div>
 
         <div class="text-secondary small mt-2">
-            <p class="mb-1"><strong>Box with Hinges Generator</strong> creates laser-cut press-fit boxes with hinge joints.</p>
+            <p class="mb-1"><strong>Box with Hinges Generator</strong> creates laser-cut press-fit boxes with hinge
+                joints.</p>
             <p class="mb-0">All units in <span class="mono">mm</span>.</p>
         </div>
     </main>
@@ -374,10 +491,10 @@
 
 <script>
     // sidebar toggle + remember state
-    (function() {
+    (function () {
         const root = document.getElementById('appLayout');
-        const btn  = document.getElementById('btnToggleSidebar');
-        const key  = 'ui_sidebar_collapsed';
+        const btn = document.getElementById('btnToggleSidebar');
+        const key = 'ui_sidebar_collapsed';
         const collapsed = localStorage.getItem(key) === '1';
         if (collapsed) root.classList.add('collapsed');
         btn.addEventListener('click', () => {

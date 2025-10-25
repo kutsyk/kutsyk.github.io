@@ -52,90 +52,91 @@ export function renderText(layer, box, item) {
 
 // SVG
 export function renderSvg(layer, box, item) {
-    const wrap = document.createElementNS(NS, 'g');
+    const wrap = document.createElementNS(NS, 'g');          // OUTER: align + rotate/mirror
     wrap.classList.add('pc-item');
     wrap.setAttribute('data-item-id', item.id);
-    const inner = document.createElementNS(NS, 'g');
+
+    const inner = document.createElementNS(NS, 'g');         // INNER: viewBox translate + scale
     wrap.appendChild(inner);
     layer.appendChild(wrap);
 
     const invert = item.svg?.invert === true;
-    // paint on wrapper so children inherit after we strip inline paints
     wrap.setAttribute('fill', invert ? 'currentColor' : 'none');
     wrap.setAttribute('stroke', invert ? 'none' : 'currentColor');
     wrap.setAttribute('stroke-width', String(mm(item.style?.strokeW, 0.35)));
     wrap.setAttribute('opacity', String(mm(item.style?.opacity ?? 100, 100) / 100));
 
-    if (!item.svg?.content) return wrap;
+    if (!item.svg?.content) {
+        alignInBox(box, wrap, item.align?.h || 'center', item.align?.v || 'middle');
+        return wrap;
+    }
 
     const temp = document.createElement('div');
     temp.innerHTML = item.svg.content.trim();
     let root = temp.querySelector('svg') || temp.firstElementChild;
-    if (!root) return wrap;
+    if (!root) {
+        alignInBox(box, wrap, item.align?.h || 'center', item.align?.v || 'middle');
+        return wrap;
+    }
 
     let imported;
     if (root.nodeName.toLowerCase() === 'svg') {
-        imported = document.importNode(root, true);
-        if (!imported.getAttribute('viewBox')) {
-            const w = parseFloat(imported.getAttribute('width') || '0');
-            const h = parseFloat(imported.getAttribute('height') || '0');
-            if (w && h) imported.setAttribute('viewBox', `0 0 ${w} ${h}`);
+        const svgEl = document.importNode(root, true);
+        if (!svgEl.getAttribute('viewBox')) {
+            const w = parseFloat(svgEl.getAttribute('width') || '0');
+            const h = parseFloat(svgEl.getAttribute('height') || '0');
+            if (w && h) svgEl.setAttribute('viewBox', `0 0 ${w} ${h}`);
         }
         const g = document.createElementNS(NS, 'g');
-        const vb = imported.viewBox && imported.viewBox.baseVal ? imported.viewBox.baseVal : null;
+        const vb = svgEl.viewBox && svgEl.viewBox.baseVal ? svgEl.viewBox.baseVal : null;
         if (vb) g.setAttribute('transform', `translate(${-vb.x} ${-vb.y})`);
-        [...imported.childNodes].forEach(n => {
-            if (n.nodeType === 1) g.appendChild(document.importNode(n, true));
-        });
+        [...svgEl.childNodes].forEach(n => { if (n.nodeType === 1) g.appendChild(document.importNode(n, true)); });
         imported = g;
     } else {
         imported = document.importNode(root, true);
     }
 
-    wrap.appendChild(imported);
+    imported.querySelectorAll('path,rect,circle,ellipse,polygon,polyline,line,g,use,text').forEach(el => {
+        el.removeAttribute('stroke');
+        el.removeAttribute('fill');
+        el.removeAttribute('stroke-width');
+        const style = el.getAttribute('style') || '';
+        if (style) {
+            const cleaned = style
+                .replace(/(?:^|;)\s*stroke\s*:[^;]*/gi, '')
+                .replace(/(?:^|;)\s*fill\s*:[^;]*/gi, '')
+                .replace(/(?:^|;)\s*stroke-width\s*:[^;]*/gi, '')
+                .replace(/^\s*;|\s*;$/g, '');
+            if (cleaned) el.setAttribute('style', cleaned); else el.removeAttribute('style');
+        }
+    });
+
+    inner.appendChild(imported);
     let b = safeBBox(inner);
-    if (!b || b.width === 0 || b.height === 0) {
-        wrap.querySelectorAll('path,rect,circle,ellipse,polygon,polyline,line').forEach(el => {
-            if (el.getAttribute('stroke') === 'none') el.removeAttribute('stroke');
-            if (invert && el.getAttribute('fill') === 'none') el.removeAttribute('fill');
-        });
-        b = safeBBox(wrap);
-    }
+    if (!b || b.width === 0 || b.height === 0) b = { x:0, y:0, width:1, height:1 };
 
     const wOverride = Number(item.svg?.w) || 0;
     const hOverride = Number(item.svg?.h) || 0;
     let sx, sy;
     if (wOverride > 0 || hOverride > 0) {
-        if (wOverride > 0 && hOverride > 0) {
-            sx = wOverride / Math.max(1e-6, b.width);
-            sy = hOverride / Math.max(1e-6, b.height);
-        } else if (wOverride > 0) {
-            sx = wOverride / Math.max(1e-6, b.width);
-            sy = sx;
-        } else {
-            sy = hOverride / Math.max(1e-6, b.height);
-            sx = sy;
-        }
+        if (wOverride > 0 && hOverride > 0) { sx = wOverride / b.width; sy = hOverride / b.height; }
+        else if (wOverride > 0) { sx = wOverride / b.width; sy = sx; }
+        else { sy = hOverride / b.height; sx = sy; }
     } else {
-        const preserve = !!item.svg?.preserveAspect;
+        const preserve = item.svg?.preserveAspect !== false; // default true
         const scalePct = mm(item.svg?.scale, 100) / 100;
-        sx = (box.w / Math.max(1e-6, b.width)) * scalePct;
-        sy = (box.h / Math.max(1e-6, b.height)) * scalePct;
-        if (preserve) {
-            const s = Math.min(sx, sy);
-            sx = s;
-            sy = s;
-        }
+        sx = (box.w / b.width) * scalePct;
+        sy = (box.h / b.height) * scalePct;
+        if (preserve) { const s = Math.min(sx, sy); sx = s; sy = s; }
     }
 
-    const tf0 = `translate(${-b.x} ${-b.y}) scale(${sx} ${sy})`;
-    inner.setAttribute('transform', tf0);
+    inner.setAttribute('transform', `translate(${-b.x} ${-b.y}) scale(${sx} ${sy})`);
 
-    const cx = box.x + box.w / 2;
-    const cy = box.y + box.h / 2;
+    const cx = box.x + box.w/2;
+    const cy = box.y + box.h/2;
     const mirX = item.transform?.mirrorX ? -1 : 1;
     const mirY = item.transform?.mirrorY ? -1 : 1;
-    const rot = mm(item.transform?.rotate, 0);
+    const rot  = mm(item.transform?.rotate, 0);
     const extra = [];
     if (mirX !== 1 || mirY !== 1) extra.push(`translate(${cx} ${cy}) scale(${mirX} ${mirY}) translate(${-cx} ${-cy})`);
     if (rot) extra.push(`rotate(${rot} ${cx} ${cy})`);
@@ -144,13 +145,7 @@ export function renderSvg(layer, box, item) {
     alignInBox(box, wrap, item.align?.h || 'center', item.align?.v || 'middle');
     return wrap;
 
-    function safeBBox(node) {
-        try {
-            return node.getBBox();
-        } catch {
-            return {x: 0, y: 0, width: 0, height: 0};
-        }
-    }
+    function safeBBox(node) { try { return node.getBBox(); } catch { return { x:0, y:0, width:0, height:0 }; } }
 }
 
 // Delete cross

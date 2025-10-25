@@ -346,8 +346,7 @@ function sanitizeSvg(src) {
 
 function bindSvgUpload() {
     els.svgSrc?.addEventListener('change', async (e) => {
-        const input = e.currentTarget;
-        const f = input.files && input.files[0];
+        const f = e.currentTarget.files?.[0];
         if (!f) return;
         try {
             const txt = await f.text();
@@ -355,18 +354,23 @@ function bindSvgUpload() {
             const id = (getEditItemId() || getSelectedItemId());
             const it = p.items.find(i => i.id === id);
             if (!it) return;
+
             if (it.type !== 'svg') switchItemType('svg');
-            it.svg = it.svg || {scale: 100, preserveAspect: true, invert: false};
-            it.svg.content = sanitizeSvg(txt);
-            it.svg.name = f.name || it.svg.name; // persist filename for display
+            it.svg = it.svg || { scale:100, preserveAspect:true, invert:false };
+            it.svg.content = sanitizeSvg(txt);       // persist SVG
+            it.svg.name = f.name || it.svg.name;     // persist filename (for label)
             it.name = it.name || it.svg.name || 'SVG';
-            renderAll(activeSvg());
+
+            const lbl = document.getElementById('pc-svg-filename');
+            if (lbl) lbl.textContent = it.svg.name || '';
+
+            renderAll(getCurrentSvg());
             if (!getEditItemId()) saveState();
-        } catch (_err) {
         } finally {
-            input.value = '';
+            e.currentTarget.value = '';
         }
     });
+
 }
 
 // ---------- deletion ----------
