@@ -67,6 +67,35 @@ export function renderSvg(layer, box, item) {
     wrap.setAttribute('opacity', String(mm(item.style?.opacity ?? 100, 100) / 100));
 
     if (!item.svg?.content) {
+        const phW = Math.max(6, Math.min(box.w, box.h) * 0.8);
+        const phH = phW;
+
+        const frame = document.createElementNS(NS, 'rect');
+        frame.setAttribute('x', '0');
+        frame.setAttribute('y', '0');
+        frame.setAttribute('width', String(phW));
+        frame.setAttribute('height', String(phH));
+        frame.setAttribute('rx', '2');
+        frame.setAttribute('fill', 'none');
+        frame.setAttribute('stroke-dasharray', '2 1');
+        inner.appendChild(frame);
+
+        // image icon (24x24 -> center @ 50% scale of box)
+        const icon = document.createElementNS(NS, 'path');
+        // simple "image" glyph: mountain + sun
+        icon.setAttribute('d',
+            'M3 5h18v14H3z M6 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4z M4 17l6-6 4 4 3-3 4 5'); // multiple subpaths ok
+        icon.setAttribute('fill', 'none');
+
+        const s = (phW * 0.5) / 24;                 // scale icon to 50% of placeholder
+        const tx = phW * 0.5 - 12 * s;              // center
+        const ty = phH * 0.5 - 12 * s;
+        const gIcon = document.createElementNS(NS, 'g');
+        gIcon.setAttribute('transform', `translate(${tx} ${ty}) scale(${s})`);
+        gIcon.appendChild(icon);
+        inner.appendChild(gIcon);
+
+        // align wrapper inside the cell; no rotation/mirror for empty state
         alignInBox(box, wrap, item.align?.h || 'center', item.align?.v || 'middle');
         return wrap;
     }

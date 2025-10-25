@@ -42,36 +42,40 @@ export function pc_setItemSvg(panelName, itemId, rawContent, name) {
 
 export function pc_setItemType(panelName, itemId, type) { _setItemType(panelName, itemId, type); }
 
-function sanitizeSvg(src) {
-    const temp = document.createElement('div');
-    temp.innerHTML = src || '';
-    temp.querySelectorAll('script').forEach(n => n.remove());
-    temp.querySelectorAll('*').forEach(n => {
-        [...n.attributes].forEach(a => {
-            if (/^on/i.test(a.name)) n.removeAttribute(a.name);
-        });
-    });
-    return temp.innerHTML;
-}
-
-export function pc_setActivePanel(name) {
+export function pc_getCellConfig(panelName, row, col) {
     const S = pc_getStateRef();
-    S._ui = S._ui || {};
-    S._ui.activePanel = name;
+    const P = S.panels[panelName]; if (!P) return null;
+    const M = P.cells || (P.cells = {});
+    return M[`${row},${col}`] || null;
 }
-
-export function pc_getActivePanel() {
+export function pc_setCellConfig(panelName, row, col, cfg) {
     const S = pc_getStateRef();
-    return S._ui?.activePanel || 'Front';
+    const P = S.panels[panelName] || (S.panels[panelName] = { layout:{mode:'grid',rows:2,cols:2,gutter:2,padding:4}, items:[] });
+    const M = P.cells || (P.cells = {});
+    if (!cfg || (cfg.pad==null && !cfg.ah && !cfg.av)) { delete M[`${row},${col}`]; }
+    else {
+        const c = M[`${row},${col}`] || {};
+        if (cfg.pad != null) c.pad = Math.max(0, Number(cfg.pad) || 0);
+        if ('ah' in cfg) c.ah = cfg.ah || undefined;
+        if ('av' in cfg) c.av = cfg.av || undefined;
+        M[`${row},${col}`] = c;
+    }
+    pc_save();
+    return pc_getCellConfig(panelName, row, col);
 }
 
-export function pc_markDirtyTextFont(family) {
-    // Flag to re-render text with new family/metrics; rely on panel-content to read editor values.
-    const svg = document.querySelector('#out svg');
-    if (svg) _renderAll(svg);
-}
-
-function _ensureDefaults(name) {
-    const S = pc_getStateRef();
-    if (!S.panels[name]) S.panels[name] = {layout: {mode: 'grid', rows: 2, cols: 2, gutter: 2, padding: 4}, items: []};
+// box shrinker used by render: apply per-cell padding and optional align overrides
+export function pc_applyCellBoxTweaks(panelName, item, box) {
+    const cfg = pc_getCellConfig(panelName, item.grid?.row, item.grid?.col);
+    if (!cfg) return box;
+    let { x, y, w, h } = box;
+    if (cfg.pad && cfg.pad > 0) {
+        const p = cfg.pad;
+        x += p; y += p; w = Math.max(0, w - 2*p); h = Math.max(0, h - 2*p);
+    }
+    if (cfg.ah || cfg.av) {
+        item = item || {};
+        item.align = { h: cfg.ah || item.align?.h || 'center', v: cfg.av || item.align?.v || 'middle' };
+    }
+    return { x, y, w, h };
 }

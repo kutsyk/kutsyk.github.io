@@ -65,52 +65,64 @@ function trimPreview(s, n) {
     return t.length > n ? t.slice(0, n - 1) + '…' : t;
 }
 
+function setBranchOpen(li, open) {
+    const body = li.querySelector(':scope > ul');
+    const toggle = li.querySelector(':scope > .label .toggle');
+    if (!body || !toggle) return;
+    body.style.display = open ? '' : 'none';
+    toggle.className = `toggle ${open ? 'bi bi-caret-down-fill' : 'bi bi-caret-right-fill'}`;
+}
+function expandAll() {
+    document.querySelectorAll('#pc-tree .tree > ul > li').forEach(li => setBranchOpen(li, true));        // root
+    document.querySelectorAll('#pc-tree .tree li').forEach(li => setBranchOpen(li, true));               // all
+}
+function collapseAll() {
+    document.querySelectorAll('#pc-tree .tree li').forEach(li => setBranchOpen(li, false));
+}
+
 // ---------- render ----------
 function render() {
     mount.innerHTML = '';
-    const tree = el('div', {class: 'tree'});
+    const tree = el('div', { class: 'tree' });
     mount.appendChild(tree);
+
+    // toolbar
+    const bar = el('div', { class: 'tree-toolbar d-flex gap-1 mb-2' },
+        el('button', { class: 'btn btn-sm btn-outline-secondary', onclick: collapseAll }, 'Collapse all'),
+        el('button', { class: 'btn btn-sm btn-outline-secondary', onclick: expandAll }, 'Expand all'),
+    );
+    tree.appendChild(bar);
 
     const rootUL = el('ul');
     tree.appendChild(rootUL);
 
     const body = el('ul');
-    const header = el('span', {class: 'fw-semibold'}, 'Panel Content');
+    const header = el('span', { class: 'fw-semibold' }, 'Panel Content');
     const rootLI = makeBranch(header, body, true);
     rootUL.appendChild(rootLI);
 
     const ac = getActiveCell();
-
     PANELS.forEach((panelName) => {
         const p = pc_getPanelState(panelName);
         const isGrid = (p.layout?.mode || 'grid') === 'grid';
         const total = (p.items || []).length;
-        const meta = isGrid
-            ? `${p.layout.rows}×${p.layout.cols} · gutter ${p.layout.gutter} · pad ${p.layout.padding}`
-            : 'freeform';
 
-        const sum = el('div', {class: 'd-flex align-items-center justify-content-between w-100'},
+        // summary WITHOUT layout/gutter/padding meta
+        const sum = el('div', { class: 'd-flex align-items-center justify-content-between w-100' },
             el('span', {},
-                el('i', {class: I.panel}),
-                el('span', {class: 'ms-1 fw-semibold'}, panelName),
-                el('span', {class: 'badge text-bg-info ms-2'}, String(total)),
-                el('span', {class: 'meta ms-2'}, meta)
+                el('i', { class: I.panel }),
+                el('span', { class: 'ms-1 fw-semibold' }, panelName),
+                el('span', { class: 'badge text-bg-info ms-2' }, String(total))
             ),
-            el('span', {class: 'actions'},
+            el('span', { class: 'actions' },
                 el('button', {
                     class: 'btn-action', title: 'Panel layout',
-                    onclick: () => {
-                        setCurrentPanel(panelName);
-                        pc_activateEditorTab('layout');
-                    }
-                }, el('i', {class: 'bi bi-columns'})),
+                    onclick: () => { setCurrentPanel(panelName); pc_activateEditorTab('layout'); }
+                }, el('i', { class: 'bi bi-columns' })),
                 el('button', {
                     class: 'btn-action', title: 'Object edit',
-                    onclick: () => {
-                        setCurrentPanel(panelName);
-                        pc_activateEditorTab('object');
-                    }
-                }, el('i', {class: 'bi bi-pencil-square'}))
+                    onclick: () => { setCurrentPanel(panelName); pc_activateEditorTab('object'); }
+                }, el('i', { class: 'bi bi-pencil-square' }))
             )
         );
 
@@ -119,12 +131,8 @@ function render() {
         const pli = makeBranch(sum, panelBody, openPanel);
         body.appendChild(pli);
     });
-
-    if (ac) {
-        const badge = mount.querySelector(`[data-pc-cell-badge="${ac.panel}-${ac.row}-${ac.col}"]`);
-        if (badge) badge.scrollIntoView({block: 'nearest'});
-    }
 }
+
 
 function buildGridPanel(panelName, p, ac) {
     const rows = Number(p.layout?.rows || 1);

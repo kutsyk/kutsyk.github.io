@@ -15,6 +15,32 @@ import {
 import { setCurrentSvg } from './panel/state.js';
 import { pi_onGeometryChanged } from './panel-interaction.js';
 
+export function pc_resetAll() {
+    const S = pc_getStateRef();
+
+    // drop all panels → they’ll be re-created with defaults on access
+    S.panels = {};
+
+    // clear UI-related selections if you keep any in state object
+    if (!S._ui) S._ui = {};
+    S._ui.activePanel = 'Front';
+    S._ui.activeCell  = null;
+    S._ui.selectedItemId = null;
+    S._ui.editItemId     = null;
+
+    pc_save();
+
+    // notify UI and repaint
+    document.dispatchEvent(new CustomEvent('pc:panelChanged', { detail: { panel: 'Front' } }));
+    document.dispatchEvent(new CustomEvent('pc:activeCellChanged', { detail: { panel: null, row: null, col: null } }));
+
+    const svg = document.querySelector('#out svg');
+    if (svg) {
+        renderAll(svg);
+        pi_onGeometryChanged(svg);
+    }
+}
+
 // Called by main geometry pipeline after the SVG is (re)built
 export function pc_onGeometryChanged(svg) {
     setCurrentSvg(svg);

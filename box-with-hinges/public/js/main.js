@@ -4,7 +4,7 @@ import {colorPanels, mountSvg} from './renderer.js';
 import {addLabels} from './labels.js';
 import {initInfiniteGrid} from "./grid.js";
 import {initRulers} from "./ruler.js";
-import {pc_onGeometryChanged} from './panel-content.js';
+import {pc_onGeometryChanged, pc_resetAll} from './panel-content.js';
 import {pi_onGeometryChanged, pi_beforeDownload} from './panel-interaction.js';
 
 const $ = (s) => document.querySelector(s);
@@ -322,13 +322,19 @@ async function generate() {
     });
 
     els.resetBtn?.addEventListener('click', () => {
+        const btn = document.getElementById('resetBtn');
+
+        if (!btn || btn._pcBoundReset) return;
+        btn._pcBoundReset = true;
         els.form.reset();
+
         if (els.widthRange && els.widthNum) els.widthNum.value = els.widthRange.value;
         if (els.depthRange && els.depthNum) els.depthNum.value = els.depthRange.value;
         if (els.heightRange && els.heightNum) els.heightNum.value = els.heightRange.value;
         if (els.tabRange && els.tabNum) els.tabNum.value = els.tabRange.value;
         els.showLabels.checked = true;
         updateBadges();
+        pc_resetAll();
         setStatus('Parameters reset');
         els.out.innerHTML = '<div class="text-secondary">Generate to preview…</div>';
         els.download.disabled = true;

@@ -1,0 +1,40 @@
+<main class="content">
+    <div class="card shadow-sm border-0 h-100">
+        <div class="card-header bg-body-tertiary d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">Preview</h6>
+            <div id="status" class="text-secondary small">—</div>
+        </div>
+
+        <div class="card-body p-2 position-relative">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <div class="btn-group btn-group-sm" role="group" aria-label="Zoom">
+                    <button id="zoomOut" type="button" class="btn btn-outline-secondary">−</button>
+                    <button id="zoomReset" type="button" class="btn btn-outline-secondary">100%</button>
+                    <button id="zoomIn" type="button" class="btn btn-outline-secondary">+</button>
+                    <button id="fitBtn" type="button" class="btn btn-outline-secondary">Fit</button>
+                </div>
+
+                <div class="form-check form-switch ms-2">
+                    <input class="form-check-input" type="checkbox" id="pc-show-guides-global" checked>
+                    <label class="form-check-label" for="pc-show-guides-global">Show layout grid</label>
+                </div>
+
+                <div class="form-check form-switch ms-2">
+                    <input class="form-check-input" type="checkbox" id="showLabels" checked>
+                    <label class="form-check-label" for="showLabels">Show labels</label>
+                </div>
+
+                <span id="gridInfo" class="badge text-bg-secondary ms-2">grid: —</span>
+            </div>
+
+            <div id="out" class="svg-wrap position-relative d-flex align-items-center justify-content-center">
+                <div class="text-secondary">Generate to preview…</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-secondary small mt-2">
+        <p class="mb-1"><strong>Box with Hinges Generator</strong> creates laser-cut press-fit boxes with hinge joints.</p>
+        <p class="mb-0">All units in <span class="mono">mm</span>.</p>
+    </div>
+</main>

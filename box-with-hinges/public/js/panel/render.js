@@ -5,6 +5,7 @@
 import { panelState } from './state.js';
 import { renderText, renderSvg } from './renderers.js';
 import { findPanelNode, ensureLayer, clear } from './utils.js';
+import { pc_applyCellBoxTweaks } from './../panel-state-bridge.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 
@@ -25,7 +26,11 @@ export function renderPanel(svg, name) {
         p.items.filter(it => it.visible !== false).forEach(it => {
             const place = it.grid || { row:1, col:1, rowSpan:1, colSpan:1 };
             const cell = buildCellBox(grid, place);
-            const box = { x: cell.x, y: cell.y, w: cell.w, h: cell.h };
+            let box = { x: cell.x, y: cell.y, w: cell.w, h: cell.h };
+
+            // apply per-cell tweaks (inner padding, align overrides)
+            box = pc_applyCellBoxTweaks(name, it, box);
+
             const node = (it.type === 'text')
                 ? renderText(layer, box, it)
                 : (it.type === 'svg')
@@ -36,7 +41,11 @@ export function renderPanel(svg, name) {
         });
     } else {
         p.items.filter(it => it.visible !== false).forEach(it => {
-            const box = it.box || { x: bbox.x, y: bbox.y, w: bbox.width, h: bbox.height };
+            let box = it.box || { x: bbox.x, y: bbox.y, w: bbox.width, h: bbox.height };
+
+            // apply per-cell tweaks (noop for free items unless configured)
+            box = pc_applyCellBoxTweaks(name, it, box);
+
             const node = (it.type === 'text')
                 ? renderText(layer, box, it)
                 : (it.type === 'svg')
@@ -79,18 +88,13 @@ function buildCellBox(grid, place) {
 
 // ---- dblclick hook for items ----
 function decorateItemNodeForEditing(node, panelName, itemId) {
-    // mark for hit-testing elsewhere if needed
     node.classList.add('pc-item');
     node.setAttribute('data-item-id', itemId);
-
-    // make sure the node can actually receive the event
     node.setAttribute('pointer-events', 'all');
 
-    // dblclick → open Object tab and enter edit
     node.addEventListener('dblclick', (e) => {
         e.preventDefault();
-        e.stopPropagation(); // suppress svg-pan-zoom dblclick zoom
-        // lazy import to avoid cyclic deps
+        e.stopPropagation();
         import('../panel-content.js').then(mod => {
             if (mod.pc_activateEditorTab) mod.pc_activateEditorTab('object');
             if (mod.pc_enterEdit) mod.pc_enterEdit(panelName, itemId);

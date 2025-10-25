@@ -16,6 +16,7 @@ import {nid, bindSvgDeselect} from './utils.js';
 import {renderAll} from './render.js';
 import {bus} from './signal-bus.js';
 import {pi_onGeometryChanged} from './../panel-interaction.js';
+import {pc_getCellConfig} from "../panel-state-bridge.js";
 
 // ---------- small utils ----------
 const nowPanel = () => getCurrentPanel() || 'Front';
@@ -23,6 +24,38 @@ const activeSvg = () => getCurrentSvg();
 const mmNum = (v, d = 0) => (Number.isFinite(Number(v)) ? Number(v) : d);
 const normalizeKind = (k) => (String(k || '').toLowerCase().includes('svg') ? 'svg' : 'text');
 const ensureActiveCellOrDefault = () => getActiveCell() || {panel: nowPanel(), row: 1, col: 1};
+
+const PRESETS = {
+    'center-1x1': (p) => ({rows: 1, cols: 1, gutter: 2, padding: Math.max(2, p?.layout?.padding ?? 4)}),
+    'rows-2': (p) => ({rows: 2, cols: 1, gutter: 2, padding: p?.layout?.padding ?? 4}),
+    'cols-2': (p) => ({rows: 1, cols: 2, gutter: 2, padding: p?.layout?.padding ?? 4}),
+    'grid-2x2': (p) => ({rows: 2, cols: 2, gutter: 2, padding: p?.layout?.padding ?? 4}),
+    'grid-3x3': (p) => ({rows: 3, cols: 3, gutter: 2, padding: p?.layout?.padding ?? 4}),
+    'header-1-2': (p) => ({rows: 2, cols: 1, gutter: 2, padding: p?.layout?.padding ?? 4}), // set row heights via free mode if needed later
+    'sidebar-1-2': (p) => ({rows: 1, cols: 2, gutter: 2, padding: p?.layout?.padding ?? 4}),
+};
+
+function applyPreset(key) {
+    const maker = PRESETS[key];
+    if (!maker) return;
+    const p = panelState();
+    const L = maker(p);
+    p.layout.mode = 'grid';
+    p.layout.rows = L.rows;
+    p.layout.cols = L.cols;
+    p.layout.gutter = L.gutter;
+    p.layout.padding = L.padding;
+    saveState();
+    // optional: clear per-cell tweaks when shape changed
+    if (p.cells) p.cells = {};
+    // sync form + repaint
+    syncLayoutForm();
+    const svg = getCurrentSvg();
+    if (svg) {
+        renderAll(svg);
+        pi_onGeometryChanged(svg);
+    }
+}
 
 // ---------- selection ----------
 function setEditUI(enabled) {
@@ -356,7 +389,7 @@ function bindSvgUpload() {
             if (!it) return;
 
             if (it.type !== 'svg') switchItemType('svg');
-            it.svg = it.svg || { scale:100, preserveAspect:true, invert:false };
+            it.svg = it.svg || {scale: 100, preserveAspect: true, invert: false};
             it.svg.content = sanitizeSvg(txt);       // persist SVG
             it.svg.name = f.name || it.svg.name;     // persist filename (for label)
             it.name = it.name || it.svg.name || 'SVG';
@@ -417,6 +450,65 @@ export function pc_activateEditorTab(which) {
     } else {
         setUiMode(UIMODES.OBJECT);
         activate(btnObject, paneObject, btnLayout, paneLayout);
+    }
+}
+
+function syncCellFormFromActive() {
+    const ac = getActiveCell();
+    const fs = document.getElementById('pc-cell-config');
+    const rI = document.getElementById('pc-cell-row');
+    const cI = document.getElementById('pc-cell-col');
+    const pI = document.getElementById('pc-cell-pad');
+    const ah = document.getElementById('pc-cell-align-h');
+    const av = document.getElementById('pc-cell-align-v');
+    if (!fs || !rI || !cI || !pI || !ah || !av) return;
+
+    if (!ac || !ac.panel) {
+        fs.disabled = true;
+        rI.value = '';
+        cI.value = '';
+        pI.value = '';
+        ah.value = '';
+        av.value = '';
+        return;
+    }
+    fs.disabled = false;
+    rI.value = ac.row;
+    cI.value = ac.col;
+    const cfg = pc_getCellConfig(ac.panel, ac.row, ac.col) || {};
+    pI.value = (cfg.pad ?? '');
+    ah.value = cfg.ah || '';
+    av.value = cfg.av || '';
+}
+
+function saveCellForm() {
+    const ac = getActiveCell();
+    if (!ac || !ac.panel) return;
+    const pad = document.getElementById('pc-cell-pad')?.value;
+    const ah = document.getElementById('pc-cell-align-h')?.value || '';
+    const av = document.getElementById('pc-cell-align-v')?.value || '';
+    pc_setCellConfig(ac.panel, ac.row, ac.col, {
+        pad: pad === '' ? undefined : Number(pad),
+        ah: ah || undefined,
+        av: av || undefined
+    });
+    // repaint
+    const svg = getCurrentSvg();
+    if (svg) {
+        renderAll(svg);
+        pi_onGeometryChanged(svg);
+    }
+}
+
+function clearCellForm() {
+    const ac = getActiveCell();
+    if (!ac || !ac.panel) return;
+    pc_setCellConfig(ac.panel, ac.row, ac.col, null);
+    syncCellFormFromActive();
+    const svg = getCurrentSvg();
+    if (svg) {
+        renderAll(svg);
+        pi_onGeometryChanged(svg);
     }
 }
 
@@ -494,6 +586,14 @@ export function pc_forceType(newType) {
 }
 
 // ---------- palette helpers (drag + click to add) ----------
+function setPresetApplyPending(pending) {
+    const btn = document.getElementById('pc-apply-preset');
+    if (!btn) return;
+    btn.disabled = !pending;
+    btn.classList.toggle('btn-warning', pending);
+    btn.classList.toggle('btn-outline-secondary', !pending);
+}
+
 function makeDraggable(el, kind) {
     if (!el) return;
     el.setAttribute('draggable', 'true');
@@ -561,6 +661,31 @@ export function initEditing() {
     document.getElementById('pc-tabbtn-layout')?.addEventListener('shown.bs.tab', () => {
         syncLayoutForm();
     });
+
+    document.getElementById('pc-apply-preset')?.addEventListener('click', () => {
+        const sel = document.getElementById('pc-layout-preset');
+        if (!sel) return;
+        applyPreset(sel.value);
+        setPresetApplyPending(false);
+    });
+
+    const presetSel = document.getElementById('pc-layout-preset');
+    if (presetSel) {
+        presetSel.addEventListener('change', () => {
+            // color the button only if a preset is selected
+            setPresetApplyPending(!!presetSel.value);
+        });
+        // initial state
+        setPresetApplyPending(false);
+    }
+
+    document.getElementById('pc-cell-save')?.addEventListener('click', saveCellForm);
+    document.getElementById('pc-cell-clear')?.addEventListener('click', clearCellForm);
+
+// keep form in sync with clicks/drops on preview
+    document.addEventListener('pc:activeCellChanged', syncCellFormFromActive);
+// also run once at init
+    syncCellFormFromActive();
 
     // panel selector
     els.panel?.addEventListener('change', () => {
