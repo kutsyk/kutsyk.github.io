@@ -6,11 +6,17 @@ import {
     pc_enterEdit,
     pc_deleteItem,
     pc_save,
-    pc_activateEditorTab
+    pc_activateEditorTab,
+    pc_renderAll // NEW: for live SVG repaint after drop
 } from './panel-content.js';
-import {setActiveCell, getActiveCell, setCurrentPanel} from './panel/state.js';
+import {setActiveCell, getActiveCell, setCurrentPanel, setSelectedItemId} from './panel/state.js'; // NEW: setSelectedItemId
 import {PANELS} from './panel/constants.js';
-import {pc_getPanelState} from './panel-state-bridge.js';
+import {
+    pc_getPanelState,
+    pc_addItemAtGridCell,   // NEW: create in cell
+    pc_setItemSvg,         // NEW: attach SVG content if a file was dropped
+    pc_setItemType         // NEW: force item type when needed
+} from './panel-state-bridge.js';
 
 const mount = document.getElementById('pc-tree');
 if (!mount) throw new Error('#pc-tree not found');
@@ -78,6 +84,55 @@ function expandAll() {
 }
 function collapseAll() {
     document.querySelectorAll('#pc-tree .tree li').forEach(li => setBranchOpen(li, false));
+}
+
+// ---------- DnD helpers (NEW) ----------
+function _kindFromDataTransfer(dt, fallback) {
+    let k = dt?.getData?.('text/plain') || '';
+    if (!k && typeof window !== 'undefined') k = window._lastDragKind || '';
+    return /svg/i.test(k) ? 'svg' : 'text';
+}
+function _hasSvgFile(dt) {
+    const files = dt?.files ? [...dt.files] : [];
+    return files.some(f => (f.type && /svg/i.test(f.type)) || /\.svg$/i.test(f.name || ''));
+}
+function _findFirstSvgFile(dt) {
+    const files = dt?.files ? [...dt.files] : [];
+    return files.find(f => (f.type && /svg/i.test(f.type)) || /\.svg$/i.test(f.name || ''));
+}
+async function _handleDropToCell({panelName, row, col, dataTransfer}) {
+    if (!panelName || !row || !col) return;
+
+    const svg = document.querySelector('#out svg');
+    const hasSvg = _hasSvgFile(dataTransfer);
+    let kind = _kindFromDataTransfer(dataTransfer);
+    if (hasSvg) kind = 'svg';
+
+    const newId = pc_addItemAtGridCell(panelName, kind, { row, col });
+    if (kind === 'svg' && newId) pc_setItemType(panelName, newId, 'svg');
+
+    if (hasSvg && newId) {
+        const file = _findFirstSvgFile(dataTransfer);
+        if (file) {
+            try {
+                const txt = await file.text();
+                pc_setItemSvg(panelName, newId, txt, file.name);
+            } catch {}
+        }
+    }
+
+    setCurrentPanel(panelName);
+    setActiveCell({ panel: panelName, row, col });
+    if (newId) setSelectedItemId(newId);
+
+    if (svg) pc_renderAll(svg);
+    pc_save();
+
+    try {
+        const mod = await import('./panel-content.js');
+        if (newId && typeof mod.pc_activateEditorTab === 'function') mod.pc_activateEditorTab('object');
+        if (newId && typeof mod.pc_enterEdit === 'function') mod.pc_enterEdit(panelName, newId);
+    } catch {}
 }
 
 // ---------- render ----------
@@ -172,6 +227,32 @@ function buildGridPanel(panelName, p, ac) {
                 setCurrentPanel(panelName);
                 setActiveCell({panel: panelName, row: r, col: c});
             });
+
+            // ---- DnD onto tree cell header (NEW) ----
+            cellHdr.addEventListener('dragenter', (e) => {
+                e.stopPropagation();
+                badge.classList.add('text-bg-info');
+            });
+            cellHdr.addEventListener('dragleave', (e) => {
+                e.stopPropagation();
+                badge.classList.remove('text-bg-info');
+            });
+            cellHdr.addEventListener('dragover', (e) => {
+                const dt = e.dataTransfer;
+                const k = _kindFromDataTransfer(dt);
+                const hasFiles = !!(dt?.files && dt.files.length);
+                if (k === 'text' || k === 'svg' || hasFiles) {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'copy';
+                }
+            });
+            cellHdr.addEventListener('drop', async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                badge.classList.remove('text-bg-info');
+                await _handleDropToCell({ panelName, row: r, col: c, dataTransfer: e.dataTransfer });
+            });
+            // -----------------------------------------
 
             if (!itemsInCell.length) {
                 cellUL.appendChild(el('li', {class: 'meta'}, '— empty —'));
