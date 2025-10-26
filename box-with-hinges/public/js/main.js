@@ -176,10 +176,56 @@ function bindPcRedrawHook() {
 }
 
 // -------- preview helpers --------
+function getUnionBBox(svg) {
+    // include: base geometry, per-panel layers, labels, axes, any opt-in
+    const sel = [
+        '#contentLayer',
+        '[id^="pcLayer_"]',
+        '#labelsLayer',
+        '#axesLayer',
+        '[data-fit="1"]'
+    ].join(',');
+
+    const nodes = [...svg.querySelectorAll(sel)];
+    let U = null;
+
+    const expand = (b) => {
+        if (!U) { U = { x: b.x, y: b.y, w: b.width, h: b.height }; return; }
+        const x1 = Math.min(U.x, b.x);
+        const y1 = Math.min(U.y, b.y);
+        const x2 = Math.max(U.x + U.w, b.x + b.width);
+        const y2 = Math.max(U.y + U.h, b.y + b.height);
+        U.x = x1; U.y = y1; U.w = Math.max(1, x2 - x1); U.h = Math.max(1, y2 - y1);
+    };
+
+    // accumulate bboxes; ignore zero-size
+    nodes.forEach(n => {
+        try {
+            const b = n.getBBox();
+            if (b && b.width > 0 && b.height > 0) expand(b);
+        } catch {}
+    });
+
+    // fallback to whole svg bbox if nothing matched
+    if (!U) {
+        try {
+            const b = svg.getBBox();
+            U = { x: b.x, y: b.y, w: Math.max(1,b.width), h: Math.max(1,b.height) };
+        } catch {
+            U = { x: 0, y: 0, w: 100, h: 100 };
+        }
+    }
+    return U;
+}
+
 function fitToContent(svg, pad = 10) {
-    const content = svg.querySelector('#contentLayer');
-    const b = content ? content.getBBox() : svg.getBBox();
-    const vb = {x: b.x - pad, y: b.y - pad, w: Math.max(1, b.width + 2 * pad), h: Math.max(1, b.height + 2 * pad)};
+    const b = getUnionBBox(svg);
+    const vb = {
+        x: b.x - pad,
+        y: b.y - pad,
+        w: Math.max(1, b.w + 2 * pad),
+        h: Math.max(1, b.h + 2 * pad)
+    };
     svg.setAttribute('viewBox', `${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
     baseVbWidth = vb.w;
 }
@@ -357,15 +403,20 @@ async function generate() {
         updateZoomLabel();
     });
     els.fitBtn && (els.fitBtn.onclick = () => {
-        const svg = els.out.querySelector('svg');
-        if (!svg) return;
-        pz && pz.destroy();
-        fitToContent(svg, 10);
-        gridCtl = initInfiniteGrid(svg, () => (pz ? pz.getZoom() : 1), () => baseVbWidth || 1);
-        rulers = initRulers(els.out, svg, () => (pz ? pz.getZoom() : 1));
+        const content = els.out.querySelector('#contentLayer');
+        const root = (content && content.ownerSVGElement) || els.out.querySelector('svg');
+        if (!root) return;
+
+        if (pz) { try { pz.destroy(); } catch {} pz = null; }
+
+        fitToContent(root, 10);
+
+        gridCtl = initInfiniteGrid(root, () => (pz ? pz.getZoom() : 1), () => baseVbWidth || 1);
+        rulers = initRulers(els.out, root, () => (pz ? pz.getZoom() : 1));
         rulers.update();
+
         // eslint-disable-next-line no-undef
-        pz = svgPanZoom(svg, {
+        pz = svgPanZoom(root, {
             zoomEnabled: true, controlIconsEnabled: false, fit: false, center: false,
             minZoom: 0.1, maxZoom: 20, zoomScaleSensitivity: 0.2,
             dblClickZoomEnabled: false,
@@ -373,8 +424,6 @@ async function generate() {
             onPan: () => { rulers && rulers.update(); }
         });
         if (pz.disableDblClickZoom) pz.disableDblClickZoom();
-        window.pz = pz;
-        window.addEventListener('resize', () => rulers && rulers.update());
         updateZoomLabel();
     });
 

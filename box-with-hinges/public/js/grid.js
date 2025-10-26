@@ -88,7 +88,14 @@ export function initInfiniteGrid(svg, getZoom, getBaseViewboxWidth) {
 
     // Insert grid *behind* geometry: before #contentLayer so it’s under the parts
     const content = svg.querySelector('#contentLayer');
-    if (content) svg.insertBefore(layer, content); else svg.appendChild(layer);
+    if (content && content.parentNode === svg) {
+        svg.insertBefore(layer, content);
+    } else if (content && content.ownerSVGElement) {
+        const root = content.ownerSVGElement;          // actual <svg> that owns #contentLayer
+        root.insertBefore(layer, root.firstChild);
+    } else {
+        svg.insertBefore(layer, svg.firstChild);
+    }
 
     // --- Updater: set adaptive steps + fixed 100 mm grid ---
     function update() {
