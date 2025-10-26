@@ -1,8 +1,11 @@
-import { generateSvg } from './geometry.js';
+// js/main.js
+import {generateSvg} from './geometry.js';
 import {colorPanels, mountSvg} from './renderer.js';
 import {addLabels} from './labels.js';
 import {initInfiniteGrid} from "./grid.js";
 import {initRulers} from "./ruler.js";
+import {pc_onGeometryChanged, pc_resetAll} from './panel-content.js';
+import {pi_onGeometryChanged, pi_beforeDownload} from './panel-interaction.js';
 
 const $ = (s) => document.querySelector(s);
 
@@ -19,19 +22,19 @@ const els = {
     showLabels: $('#showLabels'),
     gridInfo: $('#gridInfo'),
 
-    // NEW: slider + number pairs + badges
-    widthRange:   $('#width'),
-    widthNum:     $('#widthNum'),
-    widthBadge:   $('#widthBadge'),
-    depthRange:   $('#depth'),
-    depthNum:     $('#depthNum'),
-    depthBadge:   $('#depthBadge'),
-    heightRange:  $('#height'),
-    heightNum:    $('#heightNum'),
-    heightBadge:  $('#heightBadge'),
-    tabRange:     $('#tabWidth'),
-    tabNum:       $('#tabWidthNum'),
-    tabBadge:     $('#tabWidthBadge'),
+    // slider + number pairs + badges
+    widthRange: $('#width'),
+    widthNum: $('#widthNum'),
+    widthBadge: $('#widthBadge'),
+    depthRange: $('#depth'),
+    depthNum: $('#depthNum'),
+    depthBadge: $('#depthBadge'),
+    heightRange: $('#height'),
+    heightNum: $('#heightNum'),
+    heightBadge: $('#heightBadge'),
+    tabRange: $('#tabWidth'),
+    tabNum: $('#tabWidthNum'),
+    tabBadge: $('#tabWidthBadge'),
 };
 
 let pz = null;
@@ -41,20 +44,25 @@ let rulers = null;
 
 // -------- helpers --------
 const fmt = (n) => (Math.round(n * 100) / 100).toString();
-const mm  = (n) => `${Number(n).toFixed(0)} mm`;
+const mm = (n) => `${Number(n).toFixed(0)} mm`;
 
-function setStatus(s) { els.status && (els.status.textContent = s); }
+function setStatus(s) {
+    els.status && (els.status.textContent = s);
+}
 
 function updateBadges() {
-    if (els.widthBadge)  els.widthBadge.textContent  = mm(els.widthRange?.value ?? 0);
-    if (els.depthBadge)  els.depthBadge.textContent  = mm(els.depthRange?.value ?? 0);
+    if (els.widthBadge) els.widthBadge.textContent = mm(els.widthRange?.value ?? 0);
+    if (els.depthBadge) els.depthBadge.textContent = mm(els.depthRange?.value ?? 0);
     if (els.heightBadge) els.heightBadge.textContent = mm(els.heightRange?.value ?? 0);
-    if (els.tabBadge)    els.tabBadge.textContent    = mm(els.tabRange?.value ?? 0);
+    if (els.tabBadge) els.tabBadge.textContent = mm(els.tabRange?.value ?? 0);
 }
 
 function debounce(fn, ms) {
     let t;
-    return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+    return (...args) => {
+        clearTimeout(t);
+        t = setTimeout(() => fn(...args), ms);
+    };
 }
 
 function syncPair(rangeEl, numEl, onChange) {
@@ -71,37 +79,27 @@ function syncPair(rangeEl, numEl, onChange) {
 
     // NUMBER -> RANGE (allow empty while typing; clamp only on change/blur)
     numEl.addEventListener('input', () => {
-        // allow empty while the user is typing
         if (numEl.value === '' || numEl.value === '-' || numEl.value === '.' || numEl.value === '-.') {
-            // don't touch the range or trigger generate
             updateBadges();
             return;
         }
         const v = Number(numEl.value);
         if (Number.isFinite(v)) {
-            // mirror to range but DON'T clamp here
             rangeEl.value = String(v);
             updateBadges();
-            // no generate here — wait until change/blur to avoid jumpy preview
         }
     });
 
     const commitNum = () => {
-        // when the user commits (change/blur), clamp to min/max and generate
         const min = Number(numEl.min || 0);
         const max = Number(numEl.max || 1e9);
-
-        // if still empty, fall back to current range value
         let v = numEl.value === '' ? Number(rangeEl.value) : Number(numEl.value);
-
         if (!Number.isFinite(v)) v = Number(rangeEl.value);
         v = clamp(v, min, max);
-
         numEl.value = String(v);
         rangeEl.value = String(v);
-
         updateBadges();
-        onChange && onChange(); // now update the preview
+        onChange && onChange();
     };
 
     numEl.addEventListener('change', commitNum);
@@ -114,6 +112,7 @@ function syncPair(rangeEl, numEl, onChange) {
 // -------- params I/O --------
 function readParams() {
     const data = new FormData(els.form);
+    const showLabelsEl = document.getElementById('showLabels');
     return {
         width: parseFloat(data.get('width')),
         depth: parseFloat(data.get('depth')),
@@ -122,7 +121,7 @@ function readParams() {
         kerf: parseFloat(data.get('kerf')),
         tabWidth: parseFloat(data.get('tabWidth')),
         margin: parseFloat(data.get('margin')),
-        showLabels: !!data.get('showLabels'),
+        showLabels: !!showLabelsEl?.checked,
         addRightHole: !!data.get('addRightHole')
     };
 }
@@ -137,24 +136,43 @@ function loadParams() {
         if (!raw) return;
         const p = JSON.parse(raw);
 
-        // set named fields (the ranges)
         Object.keys(p).forEach(k => {
             if (k === 'showLabels') {
-                els.showLabels.checked = !!p.showLabels;
+                const s = document.getElementById('showLabels');
+                if (s) s.checked = !!p.showLabels;
             } else {
                 const el = els.form.elements.namedItem(k);
                 if (el && 'value' in el) el.value = p[k];
             }
         });
 
-        // mirror ranges into numbers
-        if (els.widthRange && els.widthNum)   els.widthNum.value  = els.widthRange.value;
-        if (els.depthRange && els.depthNum)   els.depthNum.value  = els.depthRange.value;
+        // mirror range/number pairs
+        if (els.widthRange && els.widthNum) els.widthNum.value = els.widthRange.value;
+        if (els.depthRange && els.depthNum) els.depthNum.value = els.depthRange.value;
         if (els.heightRange && els.heightNum) els.heightNum.value = els.heightRange.value;
-        if (els.tabRange && els.tabNum)       els.tabNum.value    = els.tabRange.value;
-
+        if (els.tabRange && els.tabNum) els.tabNum.value = els.tabRange.value;
         updateBadges();
     } catch {}
+}
+
+// redraw bridge (keep this function and call it once after the SVG exists)
+function bindPcRedrawHook() {
+    if (bindPcRedrawHook._bound) return;
+    bindPcRedrawHook._bound = true;
+
+    document.addEventListener('pc:requestRedraw', () => {
+        const svg = document.querySelector('#out svg');
+        if (!svg) return;
+
+        try {
+            // full rebuild; respects #showLabels in readParams()
+            generate();
+        } catch (err) { console.error(err); }
+
+        import('./panel-interaction.js')
+            .then(m => m.pi_onGeometryChanged(svg))
+            .catch(()=>{});
+    });
 }
 
 // -------- preview helpers --------
@@ -190,6 +208,11 @@ async function generate() {
         colorPanels(svg);
         fitToContent(svg, 10);
 
+        // render panel content + overlays
+        pc_onGeometryChanged(svg);
+        pi_onGeometryChanged(svg);
+
+        // grid + rulers
         gridCtl = initInfiniteGrid(
             svg,
             () => (pz ? pz.getZoom() : 1),
@@ -200,8 +223,10 @@ async function generate() {
         rulers = initRulers(els.out, svg, () => (pz ? pz.getZoom() : 1));
         rulers.update();
 
+        // labels according to checkbox
         if (params.showLabels) addLabels(svg);
 
+        // pan/zoom
         if (pz) { pz.destroy(); pz = null; }
         // eslint-disable-next-line no-undef
         pz = svgPanZoom(svg, {
@@ -210,10 +235,15 @@ async function generate() {
             fit: false, center: false,
             minZoom: 0.1, maxZoom: 20,
             zoomScaleSensitivity: 0.2,
+            dblClickZoomEnabled: false,
             onZoom: () => { updateZoomLabel(); rulers && rulers.update(); },
-            onPan:  () => { rulers && rulers.update(); }
+            onPan: () => { rulers && rulers.update(); }
         });
+        if (pz.disableDblClickZoom) pz.disableDblClickZoom();
         updateZoomLabel();
+
+        // late-bind redraw bridge (idempotent)
+        bindPcRedrawHook();
 
         els.download.disabled = false;
         setStatus('Done');
@@ -227,15 +257,26 @@ async function generate() {
 (function wire() {
     loadParams();
 
+    // ensure redraw hook exists even before first generate (idempotent)
+    bindPcRedrawHook();
+
+    els.showLabels?.addEventListener('change', () => {
+        // trigger full rebuild (labels layer added/removed inside generate())
+        document.dispatchEvent(new Event('pc:requestRedraw'));
+    });
+
     // Pair sliders with number inputs + live preview
-    syncPair(els.widthRange,  els.widthNum,  debouncedGenerate);
-    syncPair(els.depthRange,  els.depthNum,  debouncedGenerate);
+    syncPair(els.widthRange, els.widthNum, debouncedGenerate);
+    syncPair(els.depthRange, els.depthNum, debouncedGenerate);
     syncPair(els.heightRange, els.heightNum, debouncedGenerate);
-    syncPair(els.tabRange,    els.tabNum,    debouncedGenerate);
+    syncPair(els.tabRange, els.tabNum, debouncedGenerate);
     updateBadges();
 
     // Submit still works
-    els.form.addEventListener('submit', (e) => { e.preventDefault(); generate(); });
+    els.form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        generate();
+    });
 
     // Other fields live-update on change
     els.form.thickness.addEventListener('change', debouncedGenerate);
@@ -246,8 +287,33 @@ async function generate() {
     // Download (clean server SVG)
     els.download.addEventListener('click', async () => {
         const params = readParams();
-        const svgText = generateSvg(params); // no network
-        const blob = new Blob([svgText], {type: 'image/svg+xml;charset=utf-8'});
+        const svgText = generateSvg(params);
+        const wrap = document.createElement('div');
+        wrap.innerHTML = svgText;
+        const svgNode = wrap.firstElementChild;
+
+        // copy pc layers from live preview into export clone
+        const live = document.querySelector('#out svg');
+        if (live) {
+            ['Bottom','Lid','Front','Back','Left','Right'].forEach(name => {
+                const srcHost = live.querySelector(`[id$="${name}"]`);
+                const dstHost = svgNode.querySelector(`[id$="${name}"]`);
+                if (srcHost && dstHost) {
+                    const srcLayer = srcHost.querySelector(`#pcLayer_${name}`);
+                    if (srcLayer) {
+                        const old = dstHost.querySelector(`#pcLayer_${name}`);
+                        if (old) old.remove();
+                        dstHost.appendChild(srcLayer.cloneNode(true));
+                    }
+                }
+            });
+        }
+
+        // filter overlays etc.
+        pi_beforeDownload(svgNode);
+
+        const cleaned = new XMLSerializer().serializeToString(svgNode);
+        const blob = new Blob([cleaned], {type: 'image/svg+xml;charset=utf-8'});
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
         a.download = `box_with_hinges_w${params.width}_h${params.height}_d${params.depth}_k${params.kerf}.svg`;
@@ -256,36 +322,57 @@ async function generate() {
     });
 
     els.resetBtn?.addEventListener('click', () => {
+        const btn = document.getElementById('resetBtn');
+
+        if (!btn || btn._pcBoundReset) return;
+        btn._pcBoundReset = true;
         els.form.reset();
-        // mirror ranges into numbers
-        if (els.widthRange && els.widthNum)   els.widthNum.value  = els.widthRange.value;
-        if (els.depthRange && els.depthNum)   els.depthNum.value  = els.depthRange.value;
+
+        if (els.widthRange && els.widthNum) els.widthNum.value = els.widthRange.value;
+        if (els.depthRange && els.depthNum) els.depthNum.value = els.depthRange.value;
         if (els.heightRange && els.heightNum) els.heightNum.value = els.heightRange.value;
-        if (els.tabRange && els.tabNum)       els.tabNum.value    = els.tabRange.value;
+        if (els.tabRange && els.tabNum) els.tabNum.value = els.tabRange.value;
         els.showLabels.checked = true;
         updateBadges();
+        pc_resetAll();
         setStatus('Parameters reset');
         els.out.innerHTML = '<div class="text-secondary">Generate to preview…</div>';
         els.download.disabled = true;
         localStorage.removeItem('pressfit_simple');
+        // regenerate immediately after reset to show default preview
+        generate();
     });
 
     // Zoom controls
-    els.zoomIn && (els.zoomIn.onclick = () => { pz && pz.zoomBy(1.2); updateZoomLabel(); });
-    els.zoomOut && (els.zoomOut.onclick = () => { pz && pz.zoomBy(1/1.2); updateZoomLabel(); });
-    els.zoomReset && (els.zoomReset.onclick = () => { pz && pz.zoom(1); updateZoomLabel(); });
+    els.zoomIn && (els.zoomIn.onclick = () => {
+        pz && pz.zoomBy(1.2);
+        updateZoomLabel();
+    });
+    els.zoomOut && (els.zoomOut.onclick = () => {
+        pz && pz.zoomBy(1 / 1.2);
+        updateZoomLabel();
+    });
+    els.zoomReset && (els.zoomReset.onclick = () => {
+        pz && pz.zoom(1);
+        updateZoomLabel();
+    });
     els.fitBtn && (els.fitBtn.onclick = () => {
-        const svg = els.out.querySelector('svg'); if (!svg) return;
-        pz && pz.destroy(); fitToContent(svg, 10);
+        const svg = els.out.querySelector('svg');
+        if (!svg) return;
+        pz && pz.destroy();
+        fitToContent(svg, 10);
         gridCtl = initInfiniteGrid(svg, () => (pz ? pz.getZoom() : 1), () => baseVbWidth || 1);
-        rulers = initRulers(els.out, svg, () => (pz ? pz.getZoom() : 1)); rulers.update();
+        rulers = initRulers(els.out, svg, () => (pz ? pz.getZoom() : 1));
+        rulers.update();
         // eslint-disable-next-line no-undef
         pz = svgPanZoom(svg, {
-            zoomEnabled:true, controlIconsEnabled:false, fit:false, center:false,
-            minZoom:0.1, maxZoom:20, zoomScaleSensitivity:0.2,
+            zoomEnabled: true, controlIconsEnabled: false, fit: false, center: false,
+            minZoom: 0.1, maxZoom: 20, zoomScaleSensitivity: 0.2,
+            dblClickZoomEnabled: false,
             onZoom: () => { updateZoomLabel(); rulers && rulers.update(); },
-            onPan:  () => { rulers && rulers.update(); }
+            onPan: () => { rulers && rulers.update(); }
         });
+        if (pz.disableDblClickZoom) pz.disableDblClickZoom();
         window.pz = pz;
         window.addEventListener('resize', () => rulers && rulers.update());
         updateZoomLabel();
@@ -294,8 +381,11 @@ async function generate() {
     window.addEventListener('keydown', (e) => {
         if (!pz) return;
         if (e.key === '+') { pz.zoomBy(1.2); updateZoomLabel(); }
-        if (e.key === '-') { pz.zoomBy(1/1.2); updateZoomLabel(); }
+        if (e.key === '-') { pz.zoomBy(1 / 1.2); updateZoomLabel(); }
         if (e.key === '0') { pz.zoom(1); updateZoomLabel(); }
         if (e.key.toLowerCase() === 'f') { els.fitBtn?.click(); }
     });
+
+    // INITIAL PREVIEW ON PAGE LOAD
+    generate();
 })();
