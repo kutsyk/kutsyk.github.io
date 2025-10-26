@@ -17,6 +17,7 @@ import {renderAll} from './render.js';
 import {bus} from './signal-bus.js';
 import {pi_onGeometryChanged} from './../panel-interaction.js';
 import {pc_getCellConfig, pc_resizeColCount, pc_resizeRowCount, pc_setCellConfig} from "../panel-state-bridge.js";
+import {ensureFontLoaded, listFonts} from "./fonts.js";
 
 // ---------- small utils ----------
 const nowPanel = () => getCurrentPanel() || 'Front';
@@ -214,7 +215,17 @@ export function syncEditorsToItem(item) {
     els.alignH.value = item.align?.h || 'center';
     els.alignV.value = item.align?.v || 'middle';
 
-    const fam = item.text?.font || els.fontFamilyDDL?.value || 'Arial, Helvetica, sans-serif';
+    const sel = document.getElementById('pc-font-select');
+    const prev = document.getElementById('pc-font-preview');
+    const fam = item?.text?.fontFamily || 'Inter';
+    if (sel) {
+        // select current, fallback if not present
+        let opt = [...sel.options].find(o => o.value === fam);
+        if (!opt) { const o = document.createElement('option'); o.value=fam; o.textContent=fam; sel.appendChild(o); }
+        sel.value = fam;
+        ensureFontLoaded(fam).then(() => { if (prev) prev.style.fontFamily = `"${fam}", system-ui, -apple-system, Arial, sans-serif`; });
+    }
+
     if (els.fontFamilyDDL) els.fontFamilyDDL.value = fam;
     if (els.font) els.font.value = fam;
     if (els.textarea) {
@@ -337,6 +348,13 @@ function commitEditors() {
     if (currentType === 'text') {
         it.text = it.text || {};
         const chosenFamily = els.fontFamilyDDL?.value || els.font?.value || it.text.font || 'Inter';
+        const sel = document.getElementById('pc-font-select');
+        if (sel) {
+            console.log(sel.value);
+            it.text = it.text || {};
+            it.text.fontFamily = sel.value || 'Inter';
+
+        }
         it.text.value = (els.textarea?.value || '').slice(0, 1000);
         it.text.font = chosenFamily;
         it.text.size = Number(els.fontSize.value);
@@ -932,6 +950,38 @@ export function initEditing() {
         const svg = activeSvg();
         if (svg) renderAll(svg);
     });
+
+    (function initFontDropdown(){
+        const sel = document.getElementById('pc-font-select');
+        if (!sel || sel._pcBound) return;
+        sel._pcBound = true;
+
+        // populate
+        sel.innerHTML = '';
+        listFonts().forEach(f => {
+            const opt = document.createElement('option');
+            opt.value = f; opt.textContent = f;
+            sel.appendChild(opt);
+        });
+
+        // change handler: load font, update preview, commit to item, re-render
+        sel.addEventListener('change', async () => {
+            const fam = sel.value;
+            await ensureFontLoaded(fam);
+            const prev = document.getElementById('pc-font-preview');
+            if (prev) prev.style.fontFamily = `"${fam}", system-ui, -apple-system, Arial, sans-serif`;
+
+            // write to current item if editing text
+            const p = panelState(); // your existing accessor
+            const it = p.items.find(i => i.id === (getEditItemId?.() || getSelectedItemId?.())); // reuse your getters
+            if (it && it.type === 'text') {
+                it.text = it.text || {};
+                it.text.fontFamily = fam;                  // single source of truth
+                saveState?.();                             // reuse your save
+                const svg = getCurrentSvg(); if (svg) { renderAll(svg); pi_onGeometryChanged(svg); }
+            }
+        });
+    })();
 
     // uploads
     bindSvgUpload();

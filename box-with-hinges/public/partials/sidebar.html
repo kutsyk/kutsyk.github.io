@@ -417,36 +417,29 @@
                                                 </div>
                                             </div>
 
+                                            <!-- Text props (replace your old font+family controls) -->
                                             <div id="pc-text-props" class="row g-1 mb-2">
                                                 <div class="col-12">
                                                     <label class="form-label mb-1">Text</label>
-                                                    <textarea id="pc-textarea" rows="4"
-                                                              class="form-control form-control-sm"
-                                                              placeholder="enter your text" maxlength="1000"></textarea>
+                                                    <textarea id="pc-textarea" rows="4" class="form-control form-control-sm" placeholder="enter your text" maxlength="1000"></textarea>
                                                 </div>
-                                                <div class="col-6">
+
+                                                <div class="col-8">
                                                     <label class="form-label mb-1">Font</label>
-                                                    <input id="pc-font" type="text" class="form-control form-control-sm"
-                                                           placeholder="Inter">
+                                                    <select id="pc-font-select" class="form-select form-select-sm"></select>
                                                 </div>
-                                                <div class="col-6">
-                                                    <label class="form-label mb-1">Font Family</label>
-                                                    <select id="pc-font-family" class="form-select form-select-sm">
-                                                        <option>Inter</option>
-                                                        <option>Arial</option>
-                                                        <option>Roboto</option>
-                                                        <option>Montserrat</option>
-                                                    </select>
-                                                </div>
-                                                <div class="col-6">
+                                                <div class="col-4">
                                                     <label class="form-label mb-1">Size (mm)</label>
-                                                    <input id="pc-font-size" type="number" step="0.1"
-                                                           class="form-control form-control-sm" value="4">
+                                                    <input id="pc-font-size" type="number" step="0.1" class="form-control form-control-sm" value="4">
                                                 </div>
+
+                                                <div class="col-12">
+                                                    <div id="pc-font-preview" class="font-preview">The quick brown fox 123</div>
+                                                </div>
+
                                                 <div class="col-6">
                                                     <label class="form-label mb-1">Line</label>
-                                                    <input id="pc-line" type="number" step="0.1"
-                                                           class="form-control form-control-sm" value="1.2">
+                                                    <input id="pc-line" type="number" step="0.1" class="form-control form-control-sm" value="1.2">
                                                 </div>
                                             </div>
 

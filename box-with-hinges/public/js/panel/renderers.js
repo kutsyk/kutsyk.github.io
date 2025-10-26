@@ -18,7 +18,7 @@ export function renderText(layer, box, item) {
     t.setAttribute('stroke-width', String(mm(item.style?.strokeW, 0.35)));
     t.setAttribute('opacity', String(mm(item.style?.opacity ?? 100, 100) / 100));
 
-    const family = item.text?.font || els.fontFamilyDDL?.value || 'Arial, Helvetica, sans-serif';
+    const family = item.text?.fontFamily || 'Inter';
     t.setAttribute('font-family', family);
     t.setAttribute('font-size', String(mm(item.text?.size, 4)));
 
