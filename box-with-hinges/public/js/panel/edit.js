@@ -36,7 +36,7 @@ const PRESETS = {
     'sidebar-1-2': (p) => ({rows: 1, cols: 2, gutter: 2, padding: p?.layout?.padding ?? 4}),
 };
 
-const PC_PALETTE = ['#000000','#ffffff','#e11d48','#f59e0b','#84cc16','#06b6d4','#3b82f6','#6366f1','#8b5cf6','#14b8a6','#ef4444','#f97316'];
+const PC_PALETTE = ['#000000', '#ffffff', '#e11d48', '#f59e0b', '#84cc16', '#06b6d4', '#3b82f6', '#6366f1', '#8b5cf6', '#14b8a6', '#ef4444', '#f97316'];
 
 function applyPreset(key) {
     const maker = PRESETS[key];
@@ -223,9 +223,16 @@ export function syncEditorsToItem(item) {
     if (sel) {
         // select current, fallback if not present
         let opt = [...sel.options].find(o => o.value === fam);
-        if (!opt) { const o = document.createElement('option'); o.value=fam; o.textContent=fam; sel.appendChild(o); }
+        if (!opt) {
+            const o = document.createElement('option');
+            o.value = fam;
+            o.textContent = fam;
+            sel.appendChild(o);
+        }
         sel.value = fam;
-        ensureFontLoaded(fam).then(() => { if (prev) prev.style.fontFamily = `"${fam}", system-ui, -apple-system, Arial, sans-serif`; });
+        ensureFontLoaded(fam).then(() => {
+            if (prev) prev.style.fontFamily = `"${fam}", system-ui, -apple-system, Arial, sans-serif`;
+        });
     }
 
     if (els.fontFamilyDDL) els.fontFamilyDDL.value = fam;
@@ -451,13 +458,51 @@ function _getEditingItem() {
     return id ? state.items.find(i => i.id === id) : null;
 }
 
-function _commitStyle(patch) {
-    const it = _getEditingItem(); if (!it) return;
-    it.style = { ...(it.style||{}), ...patch };
-    pc_save(); _repaint();
+function _commitStyle(stylePatch) {
+    const it = _getEditingItem();
+    if (!it) return;
+    it.style = it.style || {};
+    console.log("Before");
+    console.log(it.style);
+    console.log("stylePatch: ");
+    console.log(stylePatch);
+    it.style = { ...(it.style||{}), ...stylePatch };
+    console.log("upd: ");
+    console.log(it.style);
+    pc_save();
+    const svg = getCurrentSvg();
+    if (svg) {
+        renderAll(svg);
+        pi_onGeometryChanged(svg);
+    }
+    return true;
 }
 
+function _deepMerge(dst, src) {
+    for (const k in src) {
+        const sv = src[k], dv = dst[k];
+        if (sv && typeof sv === 'object' && !Array.isArray(sv)) {
+            dst[k] = _deepMerge(dv && typeof dv === 'object' ? dv : {}, sv);
+        } else {
+            dst[k] = sv;
+        }
+    }
+    return dst;
+}
 
+function patchCurrentItem(patch) {
+    const it = _getEditingItem();
+    if (!it) return false;
+    it.transform = { ...(it.transform||{}), ...(patch.transform||{}) };
+    _deepMerge(it, patch);
+    pc_save();
+    const svg = getCurrentSvg();
+    if (svg) {
+        renderAll(svg);
+        pi_onGeometryChanged(svg);
+    }
+    return true;
+}
 
 export function pc_activateEditorTab(which) {
     const btnLayout = document.getElementById('pc-tabbtn-layout');
@@ -676,6 +721,7 @@ function _syncCellConfigButton() {
     btn.disabled = !enabled;
     btn.title = enabled ? `Edit cell R${ac?.row} C${ac?.col}` : 'Select a cell in the preview';
 }
+
 document.addEventListener('pc:activeCellChanged', _syncCellConfigButton);
 
 // populate modal from current active cell
@@ -698,40 +744,34 @@ function _fillCellModal() {
 
 // save modal → state
 function _saveCellModal() {
-    const ac = getActiveCell(); if (!ac || !ac.panel) return;
+    const ac = getActiveCell();
+    if (!ac || !ac.panel) return;
     const pad = document.getElementById('pcm-cell-pad')?.value;
-    const ah  = document.getElementById('pcm-cell-align-h')?.value || '';
-    const av  = document.getElementById('pcm-cell-align-v')?.value || '';
+    const ah = document.getElementById('pcm-cell-align-h')?.value || '';
+    const av = document.getElementById('pcm-cell-align-v')?.value || '';
     pc_setCellConfig(ac.panel, ac.row, ac.col, {
         pad: pad === '' ? undefined : Number(pad),
         ah: ah || undefined,
         av: av || undefined
     });
-    const svg = getCurrentSvg(); if (svg) { renderAll(svg); pi_onGeometryChanged(svg); }
+    const svg = getCurrentSvg();
+    if (svg) {
+        renderAll(svg);
+        pi_onGeometryChanged(svg);
+    }
 }
 
 // clear modal → state
 function _clearCellModal() {
-    const ac = getActiveCell(); if (!ac || !ac.panel) return;
+    const ac = getActiveCell();
+    if (!ac || !ac.panel) return;
     pc_setCellConfig(ac.panel, ac.row, ac.col, null);
     _fillCellModal();
-    const svg = getCurrentSvg(); if (svg) { renderAll(svg); pi_onGeometryChanged(svg); }
-}
-
-// bind once in initEditing()
-export function bindCellConfigModal() {
-    const btnOpen = document.getElementById('pc-cell-config-open');
-    if (btnOpen && !btnOpen._pcBound) {
-        btnOpen._pcBound = true;
-        btnOpen.addEventListener('click', _fillCellModal);
+    const svg = getCurrentSvg();
+    if (svg) {
+        renderAll(svg);
+        pi_onGeometryChanged(svg);
     }
-    const btnSave = document.getElementById('pcm-cell-save');
-    const btnClear = document.getElementById('pcm-cell-clear');
-    btnSave?.addEventListener('click', _saveCellModal);
-    btnClear?.addEventListener('click', _clearCellModal);
-
-    // initial state
-    _syncCellConfigButton();
 }
 
 function _syncSizeButtons() {
@@ -744,16 +784,24 @@ function _syncSizeButtons() {
 }
 
 // attach to your rows/cols number inputs in initEditing()
-(function bindRowColManual(){
+(function bindRowColManual() {
     const rI = document.getElementById('pc-rows');
     const cI = document.getElementById('pc-cols');
     if (rI && !rI._pcBound) {
         rI._pcBound = true;
-        rI.addEventListener('change', () => { pc_resizeRowCount(getCurrentPanel(), Number(rI.value||1)); _syncSizeButtons(); _repaint(); });
+        rI.addEventListener('change', () => {
+            pc_resizeRowCount(getCurrentPanel(), Number(rI.value || 1));
+            _syncSizeButtons();
+            _repaint();
+        });
     }
     if (cI && !cI._pcBound) {
         cI._pcBound = true;
-        cI.addEventListener('change', () => { pc_resizeColCount(getCurrentPanel(), Number(cI.value||1)); _syncSizeButtons(); _repaint(); });
+        cI.addEventListener('change', () => {
+            pc_resizeColCount(getCurrentPanel(), Number(cI.value || 1));
+            _syncSizeButtons();
+            _repaint();
+        });
     }
 })();
 
@@ -763,28 +811,34 @@ function _renderSizeChips(L) {
     if (rc) {
         rc.innerHTML = '';
         (L.rowPercents || []).forEach(p => {
-            const s = document.createElement('span'); s.className='chip'; s.textContent = `${Math.round(p*10)/10}%`;
+            const s = document.createElement('span');
+            s.className = 'chip';
+            s.textContent = `${Math.round(p * 10) / 10}%`;
             rc.appendChild(s);
         });
     }
     if (cc) {
         cc.innerHTML = '';
         (L.colPercents || []).forEach(p => {
-            const s = document.createElement('span'); s.className='chip'; s.textContent = `${Math.round(p*10)/10}%`;
+            const s = document.createElement('span');
+            s.className = 'chip';
+            s.textContent = `${Math.round(p * 10) / 10}%`;
             cc.appendChild(s);
         });
     }
 }
 
 let _lastOpener = null;
-(function wireRowSizesModal(){
+(function wireRowSizesModal() {
     const openBtn = document.getElementById('pc-edit-row-sizes');
     const modalEl = document.getElementById('pcRowSizesModal');
     if (!openBtn || !modalEl) return;
 
-    openBtn.addEventListener('click', () => { _lastOpener = openBtn; /* fill inputs here as you already do */ });
+    openBtn.addEventListener('click', () => {
+        _lastOpener = openBtn; /* fill inputs here as you already do */
+    });
 
-    const saveBtn  = document.getElementById('pcm-rows-save');
+    const saveBtn = document.getElementById('pcm-rows-save');
     const clearBtn = document.getElementById('pcm-rows-balance'); // if you close on balance, wire similarly
 
     const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
@@ -799,7 +853,7 @@ let _lastOpener = null;
 
         // 3) restore focus to opener (prevent scroll)
         if (_lastOpener && document.contains(_lastOpener)) {
-            _lastOpener.focus({ preventScroll: true });
+            _lastOpener.focus({preventScroll: true});
         }
     };
 
@@ -810,14 +864,16 @@ let _lastOpener = null;
     });
 })();
 
-(function wireColSizesModal(){
+(function wireColSizesModal() {
     const openBtn = document.getElementById('pc-edit-col-sizes');
     const modalEl = document.getElementById('pcColSizesModal');
     if (!openBtn || !modalEl) return;
 
-    openBtn.addEventListener('click', () => { _lastOpener = openBtn; /* fill inputs here as you already do */ });
+    openBtn.addEventListener('click', () => {
+        _lastOpener = openBtn; /* fill inputs here as you already do */
+    });
 
-    const saveBtn  = document.getElementById('pcm-cols-save');
+    const saveBtn = document.getElementById('pcm-cols-save');
     const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
 
     const safeHide = () => {
@@ -825,7 +881,7 @@ let _lastOpener = null;
         if (af && modalEl.contains(af)) af.blur();
         modal.hide();
         if (_lastOpener && document.contains(_lastOpener)) {
-            _lastOpener.focus({ preventScroll: true });
+            _lastOpener.focus({preventScroll: true});
         }
     };
 
@@ -928,13 +984,110 @@ export function initEditing() {
         syncLayoutForm();
     });
 
+    (function pc_bindTransformControls(){
+        const rot    = document.getElementById('pc-rotate');        // range [-180..180]
+        const rotNum = document.getElementById('pc-rotate-num');    // number
+        const rotBtns= document.querySelectorAll('.pc-rot-p');      // preset buttons
+        const mxBtn  = document.getElementById('pc-mirror-x-btn');
+        const myBtn  = document.getElementById('pc-mirror-y-btn');
+        const mxChk  = document.getElementById('pc-mirror-x');      // hidden checkbox
+        const myChk  = document.getElementById('pc-mirror-y');      // hidden checkbox
+
+        if (rot?._pcBound) return; // bind once
+        if (rot) rot._pcBound = true;
+
+        const clampDeg = v => Math.max(-180, Math.min(180, Number(v)||0));
+
+        function item() {
+            const p = panelState(getCurrentPanel());
+            const id = (typeof getEditItemId==='function' && getEditItemId()) ||
+                (typeof getSelectedItemId==='function' && getSelectedItemId());
+            return id ? p.items.find(i => i.id === id) : null;
+        }
+
+        function patchTransform(tpatch){
+            const it = item(); if (!it) return;
+            console.log('patchTransform');
+            console.log(it.transform);
+            it.transform = { ...(it.transform||{}), ...tpatch };
+            pc_save();
+            const svg = getCurrentSvg(); if (svg) { renderAll(svg); pi_onGeometryChanged(svg); }
+        }
+
+        function syncAngleInputs(v){
+            const vv = String(clampDeg(v));
+            if (rot)    { rot.value = vv;    rot.setAttribute('value', vv); }
+            if (rotNum) { rotNum.value = vv; rotNum.setAttribute('value', vv); }
+        }
+
+        function syncFromItem(){
+            const it = item(); const tr = it?.transform || {};
+            const ang = Number.isFinite(tr.rotate) ? tr.rotate : 0;
+            syncAngleInputs(ang);
+            const mx = !!tr.mirrorX, my = !!tr.mirrorY;
+            if (mxChk) mxChk.checked = mx;
+            if (myChk) myChk.checked = my;
+            if (mxBtn) mxBtn.classList.toggle('active', mx);
+            if (myBtn) myBtn.classList.toggle('active', my);
+        }
+
+        // handlers
+        rot?.addEventListener('input', () => {
+            const v = clampDeg(rot.value);
+            console.log('rot?.addEventListener');
+            syncAngleInputs(v);
+            patchTransform({ rotate: v });
+        });
+        rotNum?.addEventListener('change', () => {
+            const v = clampDeg(rotNum.value);
+            console.log('rotNum?.addEventListener');
+            syncAngleInputs(v);
+            patchTransform({ rotate: v });
+        });
+        rotBtns.forEach(b => b.addEventListener('click', () => {
+            const v = clampDeg(b.dataset.val);
+            console.log('rotBtns.forEach');
+            syncAngleInputs(v);
+            patchTransform({ rotate: v });
+        }));
+        mxBtn?.addEventListener('click', () => {
+            const next = !(mxChk?.checked); if (mxChk) mxChk.checked = next;
+            mxBtn.classList.toggle('active', next);
+            patchTransform({ mirrorX: next });
+        });
+        myBtn?.addEventListener('click', () => {
+            const next = !(myChk?.checked); if (myChk) myChk.checked = next;
+            myBtn.classList.toggle('active', next);
+            patchTransform({ mirrorY: next });
+        });
+
+        // resync on relevant app events
+        document.addEventListener('pc:panelChanged',         syncFromItem);
+        document.addEventListener('pc:activeCellChanged',    syncFromItem);
+        document.addEventListener('pc:itemSelectionChanged', syncFromItem);
+        document.addEventListener('pc:enterEditChanged',     syncFromItem);
+        document.addEventListener('pc:stateRestored',        syncFromItem); // fire this after loading saved state
+
+        // resync when the Object tab is shown (Bootstrap tabs)
+        const objTabBtn = document.getElementById('pc-tabbtn-object');
+        if (objTabBtn) {
+            objTabBtn.addEventListener('shown.bs.tab', syncFromItem);
+        }
+
+        // initial sync (defer once to beat HTML default value="0")
+        requestAnimationFrame(syncFromItem);
+    })();
+
     // build swatches once
-    (function pc_buildSwatches(){
+    (function pc_buildSwatches() {
         document.querySelectorAll('.pc-swatches').forEach(box => {
-            if (box._pcBuilt) return; box._pcBuilt = true;
+            if (box._pcBuilt) return;
+            box._pcBuilt = true;
 
             const none = document.createElement('div');
-            none.className = 'sw'; none.dataset.none = '1'; none.title = 'None';
+            none.className = 'sw';
+            none.dataset.none = '1';
+            none.title = 'None';
             none.addEventListener('click', () => {
                 const targetId = box.getAttribute('data-for');
                 if (targetId === 'pc-fill') document.getElementById('pc-fill-none')?.click();
@@ -943,16 +1096,31 @@ export function initEditing() {
             box.appendChild(none);
 
             PC_PALETTE.forEach(hex => {
-                const sw = document.createElement('div'); sw.className='sw'; sw.style.background = hex; sw.title = hex;
+                const sw = document.createElement('div');
+                sw.className = 'sw';
+                sw.style.background = hex;
+                sw.title = hex;
                 sw.addEventListener('click', () => {
                     const targetId = box.getAttribute('data-for');
                     const input = document.getElementById(targetId);
                     if (!input) return;
                     // ensure “none” toggles off
-                    if (targetId === 'pc-fill') { const cb = document.getElementById('pc-fill-none'); if (cb?.checked) { cb.checked = false; cb.dispatchEvent(new Event('change',{bubbles:true})); } }
-                    if (targetId === 'pc-stroke-color') { const cb = document.getElementById('pc-stroke-none'); if (cb?.checked) { cb.checked = false; cb.dispatchEvent(new Event('change',{bubbles:true})); } }
+                    if (targetId === 'pc-fill') {
+                        const cb = document.getElementById('pc-fill-none');
+                        if (cb?.checked) {
+                            cb.checked = false;
+                            cb.dispatchEvent(new Event('change', {bubbles: true}));
+                        }
+                    }
+                    if (targetId === 'pc-stroke-color') {
+                        const cb = document.getElementById('pc-stroke-none');
+                        if (cb?.checked) {
+                            cb.checked = false;
+                            cb.dispatchEvent(new Event('change', {bubbles: true}));
+                        }
+                    }
                     input.value = hex;
-                    input.dispatchEvent(new Event('change', { bubbles:true }));
+                    input.dispatchEvent(new Event('change', {bubbles: true}));
                 });
                 box.appendChild(sw);
             });
@@ -961,54 +1129,66 @@ export function initEditing() {
 
 // bind inputs + “none” toggles
     (function pc_bindAppearance(){
-        const fill      = document.getElementById('pc-fill');
-        const fillNone  = document.getElementById('pc-fill-none');
-        const strokeC   = document.getElementById('pc-stroke-color');
-        const strokeNone= document.getElementById('pc-stroke-none');
-        const strokeW   = document.getElementById('pc-stroke');
-        const opac      = document.getElementById('pc-opacity');
-        const invert    = document.getElementById('pc-invert');
+        const fill       = document.getElementById('pc-fill');
+        const fillNone   = document.getElementById('pc-fill-none');
+        const strokeC    = document.getElementById('pc-stroke-color');
+        const strokeNone = document.getElementById('pc-stroke-none');
+        const strokeW    = document.getElementById('pc-stroke');
+        const opac       = document.getElementById('pc-opacity');
+        const invert     = document.getElementById('pc-invert');
 
-        fill?.addEventListener('change', () => _commitStyle({ fill: fill.value }));
-        strokeC?.addEventListener('change', () => _commitStyle({ stroke: strokeC.value }));
-        strokeW?.addEventListener('change', () => _commitStyle({ strokeW: Number(strokeW.value)||0 }));
+        const DEF_FILL   = '#000000';
+        const DEF_STROKE = '#000000';
+
+        // colors
+        fill?.addEventListener('change', () => _commitStyle({ fill: fill.value || DEF_FILL }));
+        strokeC?.addEventListener('change', () => _commitStyle({ stroke: strokeC.value || DEF_STROKE }));
+        strokeW?.addEventListener('change', () => {
+            console.log(strokeW.value);
+            _commitStyle({ strokeW: Number(strokeW.value)||0 })
+        });
         opac?.addEventListener('change', () => _commitStyle({ opacity: Math.max(0, Math.min(100, Number(opac.value)||0)) }));
 
+        // “none” toggles (no preventDefault; rely on normal change)
         fillNone?.addEventListener('change', () => {
             const on = !!fillNone.checked;
             fill.disabled = on;
-            _commitStyle({ fill: on ? 'none' : (fill.value || '#000000') });
+            _commitStyle({ fill: on ? 'none' : (fill.value || DEF_FILL) });
         });
         strokeNone?.addEventListener('change', () => {
             const on = !!strokeNone.checked;
-            strokeC.disabled = on;
-            strokeW.disabled = on;
-            _commitStyle({ stroke: on ? 'none' : (strokeC.value || '#000000') });
+            strokeC.disabled = on; if (strokeW) strokeW.disabled = on;
+            _commitStyle({ stroke: on ? 'none' : (strokeC.value || DEF_STROKE) });
         });
 
+        // invert
         invert?.addEventListener('change', () => {
-            const it = _getEditingItem(); if (!it) return;
-            if (it.type === 'svg') { it.svg = it.svg || {}; it.svg.invert = !!invert.checked; }
-            else { it.text = it.text || {}; it.text.invert = !!invert.checked; }
-            pc_save(); _repaint();
+            const it=_getEditingItem(); if(!it) return;
+            if (it.type==='svg'){ it.svg=it.svg||{}; it.svg.invert=!!invert.checked; }
+            else { it.text=it.text||{}; it.text.invert=!!invert.checked; }
+            pc_save(); const svg=getCurrentSvg(); if(svg){ renderAll(svg); pi_onGeometryChanged(svg); }
         });
 
-        function syncAppearanceFromItem() {
-            const it = _getEditingItem(); const st = it?.style || {};
-            const f = st.fill ?? '#000000';
-            const s = st.stroke ?? '#000000';
-            if (fill)      { fill.value = /^#/.test(f) ? f : '#000000'; fill.disabled = (f === 'none'); }
-            if (fillNone)  fillNone.checked = (f === 'none');
-            if (strokeC)   { strokeC.value = /^#/.test(s) ? s : '#000000'; strokeC.disabled = (s === 'none'); }
-            if (strokeNone) strokeNone.checked = (s === 'none');
-            if (strokeW)   { strokeW.value = String(st.strokeW ?? 0.35); strokeW.disabled = (s === 'none'); }
+        // sync
+        function sync(){
+            const it=_getEditingItem(); const st=it?.style||{};
+            const f = st.fill ?? DEF_FILL;
+            const s = st.stroke ?? DEF_STROKE;
+
+            if (fill)      { fill.disabled = (f==='none'); if (f!=='none' && /^#/.test(f)) fill.value=f; }
+            if (fillNone)  fillNone.checked = (f==='none');
+
+            if (strokeC)   { strokeC.disabled = (s==='none'); if (s!=='none' && /^#/.test(s)) strokeC.value=s; }
+            if (strokeNone) strokeNone.checked = (s==='none');
+
+            if (strokeW)   { strokeW.disabled = (s==='none'); strokeW.value=String(st.strokeW ?? 0.35); }
             if (opac)      opac.value = String(st.opacity ?? 100);
             if (invert)    invert.checked = !!(it?.svg?.invert || it?.text?.invert);
         }
-        document.addEventListener('pc:activeCellChanged', syncAppearanceFromItem);
-        document.addEventListener('pc:itemSelectionChanged', syncAppearanceFromItem);
-        document.addEventListener('pc:enterEditChanged', syncAppearanceFromItem);
-        syncAppearanceFromItem();
+        document.addEventListener('pc:activeCellChanged',  sync);
+        document.addEventListener('pc:itemSelectionChanged', sync);
+        document.addEventListener('pc:enterEditChanged',    sync);
+        sync();
     })();
 
     (function bindDnDSources() {
@@ -1054,7 +1234,7 @@ export function initEditing() {
         if (svg) renderAll(svg);
     });
 
-    (function initFontDropdown(){
+    (function initFontDropdown() {
         const sel = document.getElementById('pc-font-select');
         if (!sel || sel._pcBound) return;
         sel._pcBound = true;
@@ -1063,7 +1243,8 @@ export function initEditing() {
         sel.innerHTML = '';
         listFonts().forEach(f => {
             const opt = document.createElement('option');
-            opt.value = f; opt.textContent = f;
+            opt.value = f;
+            opt.textContent = f;
             sel.appendChild(opt);
         });
 
@@ -1081,7 +1262,11 @@ export function initEditing() {
                 it.text = it.text || {};
                 it.text.fontFamily = fam;                  // single source of truth
                 saveState?.();                             // reuse your save
-                const svg = getCurrentSvg(); if (svg) { renderAll(svg); pi_onGeometryChanged(svg); }
+                const svg = getCurrentSvg();
+                if (svg) {
+                    renderAll(svg);
+                    pi_onGeometryChanged(svg);
+                }
             }
         });
     })();
@@ -1112,28 +1297,38 @@ export function initEditing() {
 
 function _repaint() {
     const svg = getCurrentSvg();
-    if (svg) { renderAll(svg); pi_onGeometryChanged(svg); }
+    if (svg) {
+        renderAll(svg);
+        pi_onGeometryChanged(svg);
+    }
 }
 
 function _mkNumberInput(v, idx) {
     const div = document.createElement('div');
     div.className = 'mb-1';
     const input = document.createElement('input');
-    input.type = 'number'; input.step = '0.1'; input.min = '0'; input.className = 'form-control form-control-sm';
+    input.type = 'number';
+    input.step = '0.1';
+    input.min = '0';
+    input.className = 'form-control form-control-sm';
     input.value = String(Math.round(v * 10) / 10);
     input.dataset.index = String(idx);
     div.appendChild(input);
-    return { div, input };
+    return {div, input};
 }
 
 function _sumTo(el, bodySel) {
     const total = [...document.querySelectorAll(`${bodySel} input`)]
-        .map(i=>Number(i.value)||0).reduce((a,b)=>a+b,0);
-    el.textContent = `sum: ${Math.round(total*10)/10}%`;
+        .map(i => Number(i.value) || 0).reduce((a, b) => a + b, 0);
+    el.textContent = `sum: ${Math.round(total * 10) / 10}%`;
 }
 
 function repaint() {
-    const svg = getCurrentSvg(); if (svg) { renderAll(svg); pi_onGeometryChanged(svg); }
+    const svg = getCurrentSvg();
+    if (svg) {
+        renderAll(svg);
+        pi_onGeometryChanged(svg);
+    }
 }
 
 export function bindSizeModals() {
@@ -1144,10 +1339,10 @@ export function bindSizeModals() {
     document.getElementById('pcm-rows-balance')?.addEventListener('click', () => {
         const L = pc_getLayout(getCurrentPanel());
         openRowsBody.innerHTML = '';
-        const eq = Array.from({length:L.rows}, ()=> 100/L.rows);
-        eq.forEach((p,i) => {
-            const {div,input} = _mkNumberInput(p, i);
-            input.addEventListener('input', ()=> _sumTo(rowsSum, '#pcm-rows-body'));
+        const eq = Array.from({length: L.rows}, () => 100 / L.rows);
+        eq.forEach((p, i) => {
+            const {div, input} = _mkNumberInput(p, i);
+            input.addEventListener('input', () => _sumTo(rowsSum, '#pcm-rows-body'));
             openRowsBody.appendChild(div);
         });
         _sumTo(rowsSum, '#pcm-rows-body');
@@ -1156,10 +1351,10 @@ export function bindSizeModals() {
     document.getElementById('pcm-cols-balance')?.addEventListener('click', () => {
         const L = pc_getLayout(getCurrentPanel());
         openColsBody.innerHTML = '';
-        const eq = Array.from({length:L.cols}, ()=> 100/L.cols);
-        eq.forEach((p,i) => {
-            const {div,input} = _mkNumberInput(p, i);
-            input.addEventListener('input', ()=> _sumTo(colsSum, '#pcm-cols-body'));
+        const eq = Array.from({length: L.cols}, () => 100 / L.cols);
+        eq.forEach((p, i) => {
+            const {div, input} = _mkNumberInput(p, i);
+            input.addEventListener('input', () => _sumTo(colsSum, '#pcm-cols-body'));
             openColsBody.appendChild(div);
         });
         _sumTo(colsSum, '#pcm-cols-body');
@@ -1170,18 +1365,21 @@ export function bindSizeModals() {
         const body = document.getElementById('pcm-rows-body');
         const sum = document.getElementById('pcm-rows-sum');
         body.innerHTML = '';
-        L.rowPercents.forEach((p,i) => {
+        L.rowPercents.forEach((p, i) => {
             const inp = document.createElement('input');
-            inp.type = 'number'; inp.step = '0.1'; inp.min = '0'; inp.className = 'form-control form-control-sm mb-1';
-            inp.value = String(Math.round(p*10)/10);
+            inp.type = 'number';
+            inp.step = '0.1';
+            inp.min = '0';
+            inp.className = 'form-control form-control-sm mb-1';
+            inp.value = String(Math.round(p * 10) / 10);
             body.appendChild(inp);
             inp.addEventListener('input', () => {
-                const total = [...body.querySelectorAll('input')].reduce((a,b)=>a+(Number(b.value)||0),0);
-                sum.textContent = `sum: ${Math.round(total*10)/10}%`;
+                const total = [...body.querySelectorAll('input')].reduce((a, b) => a + (Number(b.value) || 0), 0);
+                sum.textContent = `sum: ${Math.round(total * 10) / 10}%`;
             });
         });
-        const total = L.rowPercents.reduce((a,b)=>a+b,0);
-        sum.textContent = `sum: ${Math.round(total*10)/10}%`;
+        const total = L.rowPercents.reduce((a, b) => a + b, 0);
+        sum.textContent = `sum: ${Math.round(total * 10) / 10}%`;
     });
 
 // save rows
@@ -1198,18 +1396,21 @@ export function bindSizeModals() {
         const body = document.getElementById('pcm-cols-body');
         const sum = document.getElementById('pcm-cols-sum');
         body.innerHTML = '';
-        L.colPercents.forEach((p,i) => {
+        L.colPercents.forEach((p, i) => {
             const inp = document.createElement('input');
-            inp.type = 'number'; inp.step = '0.1'; inp.min = '0'; inp.className = 'form-control form-control-sm mb-1';
-            inp.value = String(Math.round(p*10)/10);
+            inp.type = 'number';
+            inp.step = '0.1';
+            inp.min = '0';
+            inp.className = 'form-control form-control-sm mb-1';
+            inp.value = String(Math.round(p * 10) / 10);
             body.appendChild(inp);
             inp.addEventListener('input', () => {
-                const total = [...body.querySelectorAll('input')].reduce((a,b)=>a+(Number(b.value)||0),0);
-                sum.textContent = `sum: ${Math.round(total*10)/10}%`;
+                const total = [...body.querySelectorAll('input')].reduce((a, b) => a + (Number(b.value) || 0), 0);
+                sum.textContent = `sum: ${Math.round(total * 10) / 10}%`;
             });
         });
-        const total = L.colPercents.reduce((a,b)=>a+b,0);
-        sum.textContent = `sum: ${Math.round(total*10)/10}%`;
+        const total = L.colPercents.reduce((a, b) => a + b, 0);
+        sum.textContent = `sum: ${Math.round(total * 10) / 10}%`;
     });
 
     document.getElementById('pcm-cols-save')?.addEventListener('click', () => {
@@ -1231,7 +1432,10 @@ export function bindSizeModals() {
     // when rows/cols count changes → rebalance arrays
     const rowsI = document.getElementById('pc-rows');
     const colsI = document.getElementById('pc-cols');
-    const _rebalance = () => { pc_rebalancePercents(getCurrentPanel()); _repaint(); };
+    const _rebalance = () => {
+        pc_rebalancePercents(getCurrentPanel());
+        _repaint();
+    };
     rowsI?.addEventListener('change', _rebalance);
     colsI?.addEventListener('change', _rebalance);
 }

@@ -383,3 +383,11 @@ details[open] > summary {
     background: linear-gradient(135deg, transparent 45%, #e11d48 45%, #e11d48 55%, transparent 55%),
     repeating-linear-gradient(45deg, #f3f4f6, #f3f4f6 6px, #e5e7eb 6px, #e5e7eb 12px);
 }
+
+.form-control-xs{padding:.1rem .25rem; font-size:.75rem; height: calc(1.25rem + 2px);}
+.form-range-sm{height: .5rem;}
+#pc-appearance-wrap summary{cursor:pointer; user-select:none;}
+#pc-appearance-wrap[open] summary::marker{content:"";}
+#pc-appearance-wrap summary::-webkit-details-marker{display:none;}
+#pc-appearance-pill{padding:.05rem .35rem; border:1px solid var(--bs-border-color); border-radius:.5rem;}
+.btn.btn-outline-secondary.active{background:var(--bs-secondary-bg-subtle);}
