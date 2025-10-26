@@ -17,9 +17,7 @@ import {
     pc_setItemType,
     pc_save, pc_getPanelState
 } from './panel-state-bridge.js';
-
-const NS = 'http://www.w3.org/2000/svg';
-const UI_ATTR = 'data-pc-ui';
+import {UI_ATTR, NS} from "./panel/constants.js";
 
 // --- global hint about what the user started dragging (palette) ---
 let _lastDragKind = null; // 'text' | 'svg' | null

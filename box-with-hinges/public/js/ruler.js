@@ -1,7 +1,8 @@
 // public/js/ruler.js
 // Top & left rulers synced with svg-pan-zoom. Values are model-space (mm).
 
-const NS = 'http://www.w3.org/2000/svg';
+import {NS} from "./panel/constants.js";
+
 const BOX = 26;          // ruler thickness in px
 const TARGET_PX = 70;    // desired pixels between minor ticks
 

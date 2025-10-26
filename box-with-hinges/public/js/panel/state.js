@@ -2,10 +2,7 @@
 // Central state: panels, selection, active cell, UI mode, SVG ref, events.
 
 import {pc_getStateRef, pc_save} from "./edit.js";
-
-const STORAGE_KEY = 'pc_state_v1';
-
-export const PANELS = ['Bottom', 'Lid', 'Front', 'Back', 'Left', 'Right'];
+import {PANELS, STORAGE_KEY} from "./constants.js";
 
 // UI modes
 export const UIMODES = Object.freeze({ PANEL: 'panel', CELL: 'cell', OBJECT: 'object' });

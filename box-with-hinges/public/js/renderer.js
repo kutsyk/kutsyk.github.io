@@ -1,4 +1,6 @@
 // public/js/renderer.js
+import {PANELS} from "./panel/constants.js";
+
 export function mountSvg(rawSvgText, outEl) {
     outEl.innerHTML = '';
     const wrap = document.createElement('div');
@@ -36,16 +38,7 @@ export function mountSvg(rawSvgText, outEl) {
 }
 
 export function colorPanels(svg) {
-    // const palette = {
-    //     Bottom: '#ef4444',  // red
-    //     Lid:    '#10b981',  // emerald
-    //     Front:  '#3b82f6',  // blue
-    //     Back:   '#8b5cf6',  // violet
-    //     Left:   '#f59e0b',  // amber
-    //     Right:  '#f43f5e'   // rose
-    // };
-    const panels = ['bottom', 'lid', 'front', 'back', 'left', 'right'];
-    Object.entries(panels).forEach(([id]) => {
+    Object.entries(PANELS).forEach(([id]) => {
         const g = svg.querySelector(`#${CSS.escape(id)}`);
         if (!g) return;
         // color group and all its strokes
