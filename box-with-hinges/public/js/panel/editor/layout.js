@@ -269,6 +269,17 @@ function dispatchPanelChanged(name) {
     document.dispatchEvent(new CustomEvent('pc:panelChanged', { detail: { name } }));
 }
 
+function mkNumberInput(v, idx){
+    const div = document.createElement('div'); div.className='mb-1';
+    const input=document.createElement('input'); input.type='number'; input.step='0.1'; input.min='0'; input.className='form-control form-control-sm'; input.value=String(Math.round(v*10)/10); input.dataset.index=String(idx);
+    div.appendChild(input); return {div,input};
+}
+
+function sumTo(el, bodySel){
+    const total = [...document.querySelectorAll(`${bodySel} input`)].map(i=>Number(i.value)||0).reduce((a,b)=>a+b,0);
+    el.textContent = `sum: ${Math.round(total*10)/10}%`;
+}
+
 export function bindSizeModals(){
     const rowsBody = document.getElementById('pcm-rows-body');
     const colsBody = document.getElementById('pcm-cols-body');
