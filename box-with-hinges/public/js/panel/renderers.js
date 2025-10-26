@@ -2,6 +2,22 @@ import {NS, UI_ATTR} from './constants.js';
 import {mm, alignInBox} from './utils.js';
 import {els} from './dom.js';
 
+function _styleVals(item) {
+    const st = item.style || {};
+    const f = normalizePaint(st.fill ?? '#000000');
+    const s = normalizePaint(st.stroke ?? '#000000');
+    const sw = Number(st.strokeW ?? 0.35) || 0.35;
+    const op = Math.max(0, Math.min(100, Number(st.opacity ?? 100))) / 100;
+    return { fill: f.color, fillOp: f.chanOpacity, stroke: s.color, strokeOp: s.chanOpacity, sw, op };
+}
+
+function normalizePaint(v) {
+    if (v === 'none') return { color: 'none', chanOpacity: null };
+    if (v === 'transparent') return { color: '#000000', chanOpacity: 0 }; // “transparent” → 0 channel opacity
+    if (typeof v === 'string' && /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(v)) return { color: v, chanOpacity: null };
+    return { color: '#000000', chanOpacity: null };
+}
+
 // TEXT
 export function renderText(layer, box, item) {
     const t = document.createElementNS(NS, 'text');
@@ -13,10 +29,30 @@ export function renderText(layer, box, item) {
     t.setAttribute('text-anchor', 'start');
     t.setAttribute('dominant-baseline', 'alphabetic');
 
-    t.setAttribute('fill', 'none');
-    t.setAttribute('stroke', 'currentColor');
-    t.setAttribute('stroke-width', String(mm(item.style?.strokeW, 0.35)));
-    t.setAttribute('opacity', String(mm(item.style?.opacity ?? 100, 100) / 100));
+    const { fill, fillOp, stroke, strokeOp, sw, op } = _styleVals(item);
+    const invert = item.text?.invert === true;
+
+    const wrap = document.createElementNS(NS, 'g');
+    wrap.classList.add('pc-item');
+    wrap.setAttribute('data-item-id', item.id);
+    wrap.setAttribute('opacity', String(op));
+
+// drive the actual <text> element paints
+    t.setAttribute('fill', invert ? stroke : fill);
+    if (fill === 'none') t.setAttribute('fill', 'none');
+    if (fillOp !== null) t.setAttribute('fill-opacity', String(fillOp));
+
+    t.setAttribute('stroke', invert ? 'none' : stroke);
+    if (stroke === 'none' || invert) t.setAttribute('stroke', 'none');
+    else t.setAttribute('stroke-width', String(sw));
+
+// make strokes render *around* glyphs, not over-fill → looks less “bloated”
+    t.setAttribute('paint-order', 'stroke fill');
+    t.setAttribute('stroke-linejoin', 'round');
+    t.setAttribute('stroke-linecap', 'round');
+
+// optional: keep stroke width visual constant under zoom transforms
+    t.setAttribute('vector-effect', 'non-scaling-stroke');
 
     const family = item.text?.fontFamily || 'Inter';
     t.setAttribute('font-family', family);
@@ -60,11 +96,15 @@ export function renderSvg(layer, box, item) {
     wrap.appendChild(inner);
     layer.appendChild(wrap);
 
+    const { fill, fillOp, stroke, strokeOp, sw, op } = _styleVals(item);
     const invert = item.svg?.invert === true;
-    wrap.setAttribute('fill', invert ? 'currentColor' : 'none');
-    wrap.setAttribute('stroke', invert ? 'none' : 'currentColor');
-    wrap.setAttribute('stroke-width', String(mm(item.style?.strokeW, 0.35)));
-    wrap.setAttribute('opacity', String(mm(item.style?.opacity ?? 100, 100) / 100));
+
+    wrap.setAttribute('opacity', String(op));
+    wrap.setAttribute('fill', invert ? (stroke === 'none' ? 'none' : stroke) : fill);
+    wrap.setAttribute('stroke', invert ? 'none' : stroke);
+    wrap.setAttribute('stroke-width', String(sw));
+    if (fillOp !== null)   wrap.setAttribute('fill-opacity',   String(fillOp));
+    if (strokeOp !== null) wrap.setAttribute('stroke-opacity', String(strokeOp));
 
     if (!item.svg?.content) {
         const phW = Math.max(6, Math.min(box.w, box.h) * 0.8);

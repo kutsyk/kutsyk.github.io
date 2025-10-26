@@ -335,8 +335,8 @@ details[open] > summary {
 #pc-add-list .add-item-btn{
     display:grid; grid-template-columns: 40px 1fr; grid-template-rows: auto auto;
     align-items:center; gap:.125rem .75rem;
-    padding:.5rem .75rem; border:1px solid var(--bs-border-color);
-    border-radius:.5rem; background:transparent; text-align:left;
+    padding:.2rem .5rem; border:1px solid var(--bs-border-color);
+    border-radius:.25rem; background:transparent; text-align:left;
     transition:background .15s,border-color .15s,transform .03s;
 }
 #pc-add-list .add-item-btn:active{ transform:translateY(1px); }
@@ -372,4 +372,14 @@ details[open] > summary {
 .font-preview {
     padding:.35rem .5rem; border:1px dashed var(--bs-border-color);
     border-radius:.35rem; font-size:1rem; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+
+.pc-swatches { display:flex; gap:4px; flex-wrap:wrap; }
+.pc-swatches .sw {
+    width:18px; height:18px; border-radius:4px; border:1px solid var(--bs-border-color);
+    cursor:pointer;
+}
+.pc-swatches .sw[data-none="1"] {
+    background: linear-gradient(135deg, transparent 45%, #e11d48 45%, #e11d48 55%, transparent 55%),
+    repeating-linear-gradient(45deg, #f3f4f6, #f3f4f6 6px, #e5e7eb 6px, #e5e7eb 12px);
 }

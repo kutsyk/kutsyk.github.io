@@ -36,6 +36,8 @@ const PRESETS = {
     'sidebar-1-2': (p) => ({rows: 1, cols: 2, gutter: 2, padding: p?.layout?.padding ?? 4}),
 };
 
+const PC_PALETTE = ['#000000','#ffffff','#e11d48','#f59e0b','#84cc16','#06b6d4','#3b82f6','#6366f1','#8b5cf6','#14b8a6','#ef4444','#f97316'];
+
 function applyPreset(key) {
     const maker = PRESETS[key];
     if (!maker) return;
@@ -350,7 +352,6 @@ function commitEditors() {
         const chosenFamily = els.fontFamilyDDL?.value || els.font?.value || it.text.font || 'Inter';
         const sel = document.getElementById('pc-font-select');
         if (sel) {
-            console.log(sel.value);
             it.text = it.text || {};
             it.text.fontFamily = sel.value || 'Inter';
 
@@ -439,6 +440,25 @@ export function deleteItem(panelName, itemId) {
 }
 
 // ---------- public helpers / API for other modules ----------
+
+// helpers
+function _getEditingItem() {
+    // adapt to your getters; prefer currently edited, else selected
+    const mod = window; // or import your state helpers if available
+    const state = panelState(getCurrentPanel());
+    const id = (typeof getEditItemId === 'function' && getEditItemId()) ||
+        (typeof getSelectedItemId === 'function' && getSelectedItemId());
+    return id ? state.items.find(i => i.id === id) : null;
+}
+
+function _commitStyle(patch) {
+    const it = _getEditingItem(); if (!it) return;
+    it.style = { ...(it.style||{}), ...patch };
+    pc_save(); _repaint();
+}
+
+
+
 export function pc_activateEditorTab(which) {
     const btnLayout = document.getElementById('pc-tabbtn-layout');
     const btnObject = document.getElementById('pc-tabbtn-object');
@@ -907,6 +927,89 @@ export function initEditing() {
     document.addEventListener('pc:activeCellChanged', () => {
         syncLayoutForm();
     });
+
+    // build swatches once
+    (function pc_buildSwatches(){
+        document.querySelectorAll('.pc-swatches').forEach(box => {
+            if (box._pcBuilt) return; box._pcBuilt = true;
+
+            const none = document.createElement('div');
+            none.className = 'sw'; none.dataset.none = '1'; none.title = 'None';
+            none.addEventListener('click', () => {
+                const targetId = box.getAttribute('data-for');
+                if (targetId === 'pc-fill') document.getElementById('pc-fill-none')?.click();
+                if (targetId === 'pc-stroke-color') document.getElementById('pc-stroke-none')?.click();
+            });
+            box.appendChild(none);
+
+            PC_PALETTE.forEach(hex => {
+                const sw = document.createElement('div'); sw.className='sw'; sw.style.background = hex; sw.title = hex;
+                sw.addEventListener('click', () => {
+                    const targetId = box.getAttribute('data-for');
+                    const input = document.getElementById(targetId);
+                    if (!input) return;
+                    // ensure “none” toggles off
+                    if (targetId === 'pc-fill') { const cb = document.getElementById('pc-fill-none'); if (cb?.checked) { cb.checked = false; cb.dispatchEvent(new Event('change',{bubbles:true})); } }
+                    if (targetId === 'pc-stroke-color') { const cb = document.getElementById('pc-stroke-none'); if (cb?.checked) { cb.checked = false; cb.dispatchEvent(new Event('change',{bubbles:true})); } }
+                    input.value = hex;
+                    input.dispatchEvent(new Event('change', { bubbles:true }));
+                });
+                box.appendChild(sw);
+            });
+        });
+    })();
+
+// bind inputs + “none” toggles
+    (function pc_bindAppearance(){
+        const fill      = document.getElementById('pc-fill');
+        const fillNone  = document.getElementById('pc-fill-none');
+        const strokeC   = document.getElementById('pc-stroke-color');
+        const strokeNone= document.getElementById('pc-stroke-none');
+        const strokeW   = document.getElementById('pc-stroke');
+        const opac      = document.getElementById('pc-opacity');
+        const invert    = document.getElementById('pc-invert');
+
+        fill?.addEventListener('change', () => _commitStyle({ fill: fill.value }));
+        strokeC?.addEventListener('change', () => _commitStyle({ stroke: strokeC.value }));
+        strokeW?.addEventListener('change', () => _commitStyle({ strokeW: Number(strokeW.value)||0 }));
+        opac?.addEventListener('change', () => _commitStyle({ opacity: Math.max(0, Math.min(100, Number(opac.value)||0)) }));
+
+        fillNone?.addEventListener('change', () => {
+            const on = !!fillNone.checked;
+            fill.disabled = on;
+            _commitStyle({ fill: on ? 'none' : (fill.value || '#000000') });
+        });
+        strokeNone?.addEventListener('change', () => {
+            const on = !!strokeNone.checked;
+            strokeC.disabled = on;
+            strokeW.disabled = on;
+            _commitStyle({ stroke: on ? 'none' : (strokeC.value || '#000000') });
+        });
+
+        invert?.addEventListener('change', () => {
+            const it = _getEditingItem(); if (!it) return;
+            if (it.type === 'svg') { it.svg = it.svg || {}; it.svg.invert = !!invert.checked; }
+            else { it.text = it.text || {}; it.text.invert = !!invert.checked; }
+            pc_save(); _repaint();
+        });
+
+        function syncAppearanceFromItem() {
+            const it = _getEditingItem(); const st = it?.style || {};
+            const f = st.fill ?? '#000000';
+            const s = st.stroke ?? '#000000';
+            if (fill)      { fill.value = /^#/.test(f) ? f : '#000000'; fill.disabled = (f === 'none'); }
+            if (fillNone)  fillNone.checked = (f === 'none');
+            if (strokeC)   { strokeC.value = /^#/.test(s) ? s : '#000000'; strokeC.disabled = (s === 'none'); }
+            if (strokeNone) strokeNone.checked = (s === 'none');
+            if (strokeW)   { strokeW.value = String(st.strokeW ?? 0.35); strokeW.disabled = (s === 'none'); }
+            if (opac)      opac.value = String(st.opacity ?? 100);
+            if (invert)    invert.checked = !!(it?.svg?.invert || it?.text?.invert);
+        }
+        document.addEventListener('pc:activeCellChanged', syncAppearanceFromItem);
+        document.addEventListener('pc:itemSelectionChanged', syncAppearanceFromItem);
+        document.addEventListener('pc:enterEditChanged', syncAppearanceFromItem);
+        syncAppearanceFromItem();
+    })();
 
     (function bindDnDSources() {
         const btnText = document.getElementById('pc-drag-text');
