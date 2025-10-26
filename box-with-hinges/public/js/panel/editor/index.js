@@ -18,6 +18,7 @@ import {
 } from './helpers.js';
 
 import { nid, bindSvgDeselect } from '../utils.js';
+import {bindAlignControls} from "./align.js";
 
 // ---------- Inline GLUE: Object type UI toggle (Text vs SVG) ----------
 function bindObjectTypeUI(){
@@ -81,6 +82,7 @@ export function initEditing(){
     bindSvgSizeControls();   // inline glue
     bindCellConfig();
     bindPalette();
+    bindAlignControls();
     bindObjectTypeUI();      // inline glue
     emitPanelChangedIfNeeded();
 }
