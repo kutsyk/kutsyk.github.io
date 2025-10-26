@@ -3,12 +3,11 @@
 
 import { pc_onGeometryChanged as _renderAll, pc_getStateRef, pc_save as _save } from './panel-content.js';
 import { pc_createItemInCell, pc_setItemType as _setItemType } from './panel/edit.js';
-import {pc_getLayout} from "./panel/state.js";
+import {panelState, pc_getLayout} from "./panel/state.js";
 
-export function pc_getPanelState(name) {
-    const S = pc_getStateRef();
-    if (!S.panels[name]) S.panels[name] = { layout: { mode:'grid', rows:2, cols:2, gutter:2, padding:4 }, items: [] };
-    return S.panels[name];
+
+export function pc_getPanelState(name){
+    return panelState(name);
 }
 
 export function pc_addItemAtGridCell(panelName, kind, cell) {
