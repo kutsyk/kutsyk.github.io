@@ -12,6 +12,15 @@ function initMaker() {
     }
 }
 
+function mergeModels(target, name, model) {
+    if (!target.models) target.models = {};
+    target.models[name] = model;
+}
+
+function cloneModel(m) {
+    return JSON.parse(JSON.stringify(m));
+}
+
 /** Params: { width, depth, height, thickness, kerf, tabWidth, margin, addRightHole } */
 export function generateSvg(p) {
     initMaker();
@@ -141,10 +150,28 @@ function panelWithEdges(w, h, edges, tabWidth, thickness, kerf) {
         allM.push(...males);
         allF.push(...females);
     });
+    const maleOverlay = {models: {}};
+    allM.forEach((m, i) => {
+        maleOverlay.models['m' + i] = m;
+    });
+    const femaleOverlay = {models: {}};
+    allF.forEach((f, i) => {
+        femaleOverlay.models['f' + i] = f;
+    });
+
+    if (panel.models) {
+        panel.models.__maleTabs__ = maleOverlay;
+        panel.models.__femaleTabs__ = femaleOverlay;
+    } else {
+        panel.models = {};
+    }
+
+// boolean ops still apply to panel itself:
     const uM = unionAll(allM);
     if (uM) panel = MakerJs.model.combineUnion(panel, uM);
     panel = subtractAll(panel, allF);
     return panel;
+
 }
 
 function addLidHinges(lid, W, D, T) {
@@ -170,11 +197,51 @@ function addHingeEarWithHoleOnSide(panel, panelW, panelH, T, side, clearance = 1
     return withEar;
 }
 
+// three-sided tab: open on one edge, selectable rounded corners
+function threeSidedTab(tw, th, r, open, round) {
+    const m = { paths: {} };
+    const P = { tl:[0,th], tr:[tw,th], bl:[0,0], br:[tw,0] };
+    const T = {
+        tlx:[r, th], tly:[0, th - r],
+        trx:[tw - r, th], try:[tw, th - r],
+        blx:[r, 0], bly:[0, r],
+        brx:[tw - r, 0], bry:[tw, r]
+    };
+    const need = { top:open!=='top', right:open!=='right', bottom:open!=='bottom', left:open!=='left' };
+    const add = (k,a,b)=> m.paths[k]=new MakerJs.paths.Line(a,b);
+
+    if (need.top)    add('top',    round.tl?T.tlx:P.tl, round.tr?T.trx:P.tr);
+    if (need.right)  add('right',  round.tr?T.try:P.tr, round.br?T.bry:P.br);
+    if (need.bottom) add('bottom', round.bl?T.blx:P.bl, round.br?T.brx:P.br);
+    if (need.left)   add('left',   round.tl?T.tly:P.tl, round.bl?T.bly:P.bl);
+
+    if (round.tl) m.paths.tl = new MakerJs.paths.Arc([r, th - r], r, 180, 90);
+    if (round.tr) m.paths.tr = new MakerJs.paths.Arc([tw - r, th - r], r, 90, 0);
+    if (round.br) m.paths.br = new MakerJs.paths.Arc([tw - r, r], r, 360, 270);
+    if (round.bl) m.paths.bl = new MakerJs.paths.Arc([r, r], r, 270, 180);
+
+    return m;
+}
+
 function addLidBottomTab(lid, W, D, T, tabWidth) {
-    const tabW = 2 * tabWidth, tabH = 1.5 * T;
-    const tab = new MakerJs.models.Rectangle(tabW, tabH);
+    const tabW = 2 * tabWidth;
+    const tabH = 1.5 * T;
+    const r = Math.min(0.35 * tabH, 0.4 * tabW); // clamp radius
+
+    // closed solid; Maker.js RoundRectangle spans [0..w]×[0..h]
+    const tab = new MakerJs.models.RoundRectangle(tabW, tabH, r);
+
+    // align top edge of tab at y=0 (lid’s bottom edge), centered horizontally
     tab.origin = [W / 2 - tabW / 2, -tabH];
-    return MakerJs.model.combineUnion(lid, tab);
+
+    // boolean first → returns new model
+    const lidOut = MakerJs.model.combineUnion(lid, tab);
+
+    // overlay clone for coloring
+    const tabOverlay = { models: { t: cloneModel(tab) } };
+    mergeModels(lidOut, '__lidBottomTab__', tabOverlay);
+
+    return lidOut;
 }
 
 function addFrontPanelSlot(front, W, H, T, tabWidth, kerf) {

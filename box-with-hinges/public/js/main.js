@@ -1,6 +1,6 @@
 // js/main.js
 import {generateSvg} from './geometry.js';
-import {colorPanels, mountSvg} from './renderer.js';
+import {colorPanels, colorTabs, mountSvg} from './renderer.js';
 import {addLabels} from './labels.js';
 import {initInfiniteGrid} from "./grid.js";
 import {initRulers} from "./ruler.js";
@@ -252,6 +252,7 @@ async function generate() {
         const svgText = generateSvg(params);
         const svg = mountSvg(svgText, els.out);
         colorPanels(svg);
+        colorTabs(svg);
         fitToContent(svg, 10);
 
         // render panel content + overlays
