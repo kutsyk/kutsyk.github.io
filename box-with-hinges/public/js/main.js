@@ -14,7 +14,7 @@ const els = {
     out: $('#out'),
     status: $('#status'),
     download: $('#download'),
-    resetBtn: $('#resetBtn'),
+    resetBtn: $('#confirmResetYes'),
     zoomIn: $('#zoomIn'),
     zoomOut: $('#zoomOut'),
     zoomReset: $('#zoomReset'),
@@ -369,11 +369,8 @@ async function generate() {
     });
 
     els.resetBtn?.addEventListener('click', () => {
-        const btn = document.getElementById('resetBtn');
-
-        if (!btn || btn._pcBoundReset) return;
-        btn._pcBoundReset = true;
-        els.form.reset();
+        const m = bootstrap?.Modal?.getInstance(document.getElementById('confirmResetModal'));
+        if (m) m.hide();
 
         if (els.widthRange && els.widthNum) els.widthNum.value = els.widthRange.value;
         if (els.depthRange && els.depthNum) els.depthNum.value = els.depthRange.value;

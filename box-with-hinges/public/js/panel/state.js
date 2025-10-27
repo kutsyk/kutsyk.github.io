@@ -16,11 +16,8 @@ const PANEL_COLORS = {
     Lid:    '#ec4899', // pink
     Bottom: '#22c55e'  // green
 };
-export function panelColor(name) { return PANEL_COLORS[name] || '#60a5fa'; }
 
-function defaultPanelState() {
-    return { layout: { mode: 'grid', rows: 2, cols: 2, gutter: 2, padding: 4 }, items: [] };
-}
+export function panelColor(name) { return PANEL_COLORS[name] || '#60a5fa'; }
 
 let _state = loadState();
 let _currentPanel = 'Front';
@@ -31,15 +28,6 @@ let _activeCell = null;               // {panel,row,col} or null
 let _currentSvg = null;               // bound preview <svg>
 let _uiMode = UIMODES.CELL;           // default mode
 
-function loadState() {
-    try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) return JSON.parse(raw);
-    } catch {}
-    const panels = {};
-    PANELS.forEach(p => panels[p] = defaultPanelState());
-    return { panels };
-}
 export function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(_state)); }
 export function getStateRef() { return _state; }
 
@@ -120,3 +108,31 @@ export function pc_rebalancePercents(name) {
     L.colPercents = Array.from({length:L.cols}, ()=> 100 / L.cols);
     pc_save();
 }
+
+export function defaultPanelState() {
+    return { layout: { mode: 'grid', rows: 2, cols: 1, gutter: 2, padding: 4 }, items: [] };
+}
+
+
+// change loadState to accept a fresh flag
+function loadState(fresh = false) {
+    if (!fresh) {
+        try { const raw = localStorage.getItem(STORAGE_KEY); if (raw) return JSON.parse(raw); } catch {}
+    }
+    const panels = {};
+    PANELS.forEach(p => panels[p] = defaultPanelState());
+    return { panels };
+}
+
+// NEW: fully reset this module’s internal state
+export function resetAllPanelsInModule() {
+    _state = loadState(true);
+    _currentPanel = 'Front';
+    _selectedItemId = null;
+    _editItemId = null;
+    _editOriginal = null;
+    _activeCell = null;
+    saveState();
+}
+
+
