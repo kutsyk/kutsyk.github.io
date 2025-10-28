@@ -133,13 +133,13 @@ export function renderAll(svg) {
             hideActiveOutline(g);
         });
         if (id) {
-            const sel = svg.querySelector(`g.pc-item[data-pc-item-id="${id}"]`);
+            const sel = svg.querySelector(`g.pc-item[data-item-id="${id}"]`);
             if (sel) showActiveOutline(sel);
         }
     });
     const selId = pc_getStateRef()?._ui?.selectedItemId || null;
     if (selId) {
-        const g = svg.querySelector(`g.pc-item[data-pc-item-id="${selId}"]`);
+        const g = svg.querySelector(`g.pc-item[data-item-id="${selId}"]`);
         if (g) { hideHoverOutline(g); showActiveOutline(g); }
     }
 }

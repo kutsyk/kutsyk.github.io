@@ -369,10 +369,10 @@ function renderPanelOverlay(svg, name, host, showGrid) {
                 inner.style.cursor = g ? 'pointer' : 'default';
                 // optional: outline while hovering (no selection)
                 const hoverIdPrev = svg.getAttribute('data-pc-hover-id') || '';
-                const hoverIdNext = g ? (g.getAttribute('data-pc-item-id') || '') : '';
+                const hoverIdNext = g ? (g.getAttribute('data-item-id') || '') : '';
                 if (hoverIdPrev !== hoverIdNext) {
                     if (hoverIdPrev) {
-                        const prev = svg.querySelector(`g.pc-item[data-pc-item-id="${hoverIdPrev}"]`);
+                        const prev = svg.querySelector(`g.pc-item[data-item-id="${hoverIdPrev}"]`);
                         if (prev) hideHoverOutline(prev);
                     }
                     if (hoverIdNext) {
@@ -406,7 +406,7 @@ function renderPanelOverlay(svg, name, host, showGrid) {
                 inner.style.cursor = 'default';
                 const prevId = svg.getAttribute('data-pc-hover-id') || '';
                 if (prevId) {
-                    const prev = svg.querySelector(`g.pc-item[data-pc-item-id="${prevId}"]`);
+                    const prev = svg.querySelector(`g.pc-item[data-item-id="${prevId}"]`);
                     if (prev) hideHoverOutline(prev);
                     svg.removeAttribute('data-pc-hover-id');
                 }
