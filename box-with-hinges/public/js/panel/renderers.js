@@ -1,6 +1,5 @@
 import {NS, UI_ATTR} from './constants.js';
 import {mm, alignInBox} from './utils.js';
-import {els} from './dom.js';
 
 function _styleVals(item) {
     const st = item.style || {};
@@ -20,24 +19,24 @@ function normalizePaint(v) {
 
 // TEXT
 export function renderText(layer, box, item) {
+    // wrapper group = hit/outline target
+    const wrap = document.createElementNS(NS, 'g');
+    wrap.classList.add('pc-item');
+    wrap.setAttribute('data-item-id', item.id);
+    wrap.style.pointerEvents = 'bounding-box';
+
     const t = document.createElementNS(NS, 'text');
-    t.classList.add('pc-item');
-    t.setAttribute('data-item-id', item.id);
+
+    // style + paints
+    const { fill, fillOp, stroke, strokeOp, sw, op } = _styleVals(item);
+    const invert = item.text?.invert === true;
+    wrap.setAttribute('opacity', String(op));
 
     t.setAttribute('x', String(box.x));
     t.setAttribute('y', String(box.y));
     t.setAttribute('text-anchor', 'start');
     t.setAttribute('dominant-baseline', 'alphabetic');
 
-    const { fill, fillOp, stroke, strokeOp, sw, op } = _styleVals(item);
-    const invert = item.text?.invert === true;
-
-    const wrap = document.createElementNS(NS, 'g');
-    wrap.classList.add('pc-item');
-    wrap.setAttribute('data-item-id', item.id);
-    wrap.setAttribute('opacity', String(op));
-
-// drive the actual <text> element paints
     t.setAttribute('fill', invert ? stroke : fill);
     if (fill === 'none') t.setAttribute('fill', 'none');
     if (fillOp !== null) t.setAttribute('fill-opacity', String(fillOp));
@@ -46,12 +45,9 @@ export function renderText(layer, box, item) {
     if (stroke === 'none' || invert) t.setAttribute('stroke', 'none');
     else t.setAttribute('stroke-width', String(sw));
 
-// make strokes render *around* glyphs, not over-fill → looks less “bloated”
     t.setAttribute('paint-order', 'stroke fill');
     t.setAttribute('stroke-linejoin', 'round');
     t.setAttribute('stroke-linecap', 'round');
-
-// optional: keep stroke width visual constant under zoom transforms
     t.setAttribute('vector-effect', 'non-scaling-stroke');
 
     const family = item.text?.fontFamily || 'Inter';
@@ -71,20 +67,27 @@ export function renderText(layer, box, item) {
         t.textContent = textVal;
     }
 
+    // transforms on the TEXT (group stays as outline target)
     const cx = box.x + box.w / 2;
     const cy = box.y + box.h / 2;
     const mirX = item.transform?.mirrorX ? -1 : 1;
     const mirY = item.transform?.mirrorY ? -1 : 1;
-    const rot = mm(item.transform?.rotate, 0);
+    const rot  = mm(item.transform?.rotate, 0);
     const transforms = [];
     if (mirX !== 1 || mirY !== 1) transforms.push(`translate(${cx} ${cy}) scale(${mirX} ${mirY}) translate(${-cx} ${-cy})`);
     if (rot) transforms.push(`rotate(${rot} ${cx} ${cy})`);
     if (transforms.length) t.setAttribute('transform', transforms.join(' '));
 
-    layer.appendChild(t);
+    // mount
+    wrap.appendChild(t);
+    layer.appendChild(wrap);
+
+    // align content inside the box (act on TEXT)
     alignInBox(box, t, item.align?.h || 'center', item.align?.v || 'middle');
-    return t;
+
+    return wrap; // return group, consistent with SVG items
 }
+
 
 // SVG
 export function renderSvg(layer, box, item) {

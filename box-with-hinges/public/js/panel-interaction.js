@@ -271,6 +271,25 @@ function hitTestItemsInPanel(svgEl, panelName, svgX, svgY) {
     return null;
 }
 
+function hitTestItemAtClient(svgEl, panelName, clientX, clientY) {
+    const layer = svgEl.querySelector(`#pcLayer_${panelName}`);
+    if (!layer) return null;
+
+    const stack = document.elementsFromPoint(clientX, clientY);
+    for (const el of stack) {
+        // skip UI overlays / hits layers
+        if (el.getAttribute && el.getAttribute(UI_ATTR) === '1') continue;
+
+        const container = el.closest?.(`[data-item-id]`);
+        if (container && layer.contains(container)) return container;
+
+        // stop if we bubbled up to this panel’s hit layer
+        if (el.id === `pcOverlayHits_${panelName}`) break;
+    }
+    return null;
+}
+
+
 // ---------- overlay per panel (host passed in) ----------
 function renderPanelOverlay(svg, name, host, showGrid) {
     const L = pc_getLayout(name);
@@ -364,8 +383,9 @@ function renderPanelOverlay(svg, name, host, showGrid) {
             inner.addEventListener('drop', onDropToCell(name, r, c, svg));
             inner.addEventListener('mousemove', (e) => {
                 const p = clientToSvgPoint(svg, e.clientX, e.clientY);
-                const g = hitTestItemsInPanel(svg, name, p.x, p.y);
+                // const g = hitTestItemsInPanel(svg, name, p.x, p.y);
                 // cursor
+                const g = hitTestItemAtClient(svg, name, e.clientX, e.clientY);
                 inner.style.cursor = g ? 'pointer' : 'default';
                 // optional: outline while hovering (no selection)
                 const hoverIdPrev = svg.getAttribute('data-pc-hover-id') || '';
@@ -386,9 +406,9 @@ function renderPanelOverlay(svg, name, host, showGrid) {
             inner.addEventListener('click', (e) => {
                 e.preventDefault();
                 const p = clientToSvgPoint(svg, e.clientX, e.clientY);
-                const g = hitTestItemsInPanel(svg, name, p.x, p.y);
+                // const g = hitTestItemsInPanel(svg, name, p.x, p.y);
+                const g = hitTestItemAtClient(svg, name, e.clientX, e.clientY);
                 if (g) {
-                    console.log(g);
                     const id = g.getAttribute('data-item-id');
                     if (id) {
                         setCurrentPanel(name);
