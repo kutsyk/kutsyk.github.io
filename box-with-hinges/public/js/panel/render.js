@@ -2,17 +2,28 @@
 // Renders per-panel items (text/SVG) onto the target SVG panel layer.
 // Adds dblclick on items → activate Object tab + enter edit.
 
-import {panelState, pc_getLayout, getSelectedItemId} from './state.js';
+import {panelState, pc_getLayout, getSelectedItemId, pc_selectItem} from './state.js';
 import {NS, UI_ATTR} from './constants.js';
-import {renderText, renderSvg} from './renderers.js';
+import {renderText, renderSvg, addSelectionRect, removeSelectionRect} from './renderers.js';
 import {findPanelNode, ensureLayer, clear} from './utils.js';
 import {pc_applyCellBoxTweaks} from './../panel-state-bridge.js';
+
+function makeItemGroup(panelName, item) {
+    const g = document.createElementNS(SVG_NS, 'g');
+    g.setAttribute('class', 'pc-item');
+    g.setAttribute('data-pc-item-id', item.id);
+    g.addEventListener('click', (e) => {
+        e.stopPropagation();               // prevent cell click
+        pc_selectItem(panelName, item.id); // select this object
+        addSelectionRect(g);
+        // suppress active-cell paint handled elsewhere
+    });
+    return g;
+}
 
 function drawSelectionFrame(layer, node) {
     if (!layer || !node) return;
     // remove previous selection frame in this layer
-    console.log(layer);
-    console.log(node);
     layer.querySelectorAll('[data-pc-sel="1"]').forEach(n => n.remove());
     let b;
     try {
@@ -42,7 +53,6 @@ function drawSelectionFrame(layer, node) {
 
     layer.appendChild(g);
 }
-
 
 export function renderPanel(svg, name) {
     const host = findPanelNode(svg, name);
@@ -101,6 +111,18 @@ export function renderPanel(svg, name) {
 export function renderAll(svg) {
     if (!svg) return;
     ['Bottom', 'Lid', 'Front', 'Back', 'Left', 'Right'].forEach(name => renderPanel(svg, name));
+    document.addEventListener('pc:itemSelectionChanged', (e) => {
+        const { id, panel } = e.detail || {};
+        const svg = document.querySelector('#out svg');
+        if (!svg) return;
+        // clear all
+        svg.querySelectorAll('g.pc-item').forEach(g => removeSelectionRect(g));
+        if (id) {
+            const sel = svg.querySelector(`g.pc-item[data-pc-item-id="${id}"]`);
+            if (sel) addSelectionRect(sel);
+        }
+    });
+
 }
 
 // ---- dblclick hook for items ----

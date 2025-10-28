@@ -536,3 +536,7 @@ body.editor-open .sidebar-right {
 body.editor-open .content {
     margin-right: var(--sidebar-w, 320px);
 }
+
+.pc-item { isolation: isolate; }
+.pc-item > .pc-selection { mix-blend-mode: normal; }
+g.pc-item { pointer-events: bounding-box; }

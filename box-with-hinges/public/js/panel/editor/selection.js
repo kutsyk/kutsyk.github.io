@@ -6,7 +6,7 @@ import {
     getSelectedItemId, setSelectedItemId,
     getEditItemId, setEditItemId,
     getEditOriginal, setEditOriginal,
-    setUiMode, UIMODES
+    setUiMode, UIMODES, setActiveCell
 } from './helpers.js';
 
 export function rebuildItemsList(){

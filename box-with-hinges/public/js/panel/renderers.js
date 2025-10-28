@@ -258,3 +258,26 @@ export function addDeleteCross(layer, node, onClick) {
     });
     layer.appendChild(g);
 }
+
+export function addSelectionRect(groupNode) {
+    const bbox = groupNode.getBBox();
+    let r = groupNode.querySelector(':scope > rect.pc-selection');
+    if (!r) {
+        r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        r.setAttribute('class', 'pc-selection');
+        groupNode.appendChild(r);
+    }
+    r.setAttribute('x', bbox.x);
+    r.setAttribute('y', bbox.y);
+    r.setAttribute('width', bbox.width);
+    r.setAttribute('height', bbox.height);
+    r.setAttribute('fill', 'none');
+    r.setAttribute('stroke', '#0d6efd');
+    r.setAttribute('stroke-dasharray', '4 2');
+    r.setAttribute('vector-effect', 'non-scaling-stroke');
+    r.setAttribute('pointer-events', 'none');
+}
+
+export function removeSelectionRect(groupNode) {
+    groupNode.querySelectorAll(':scope > rect.pc-selection').forEach(n => n.remove());
+}

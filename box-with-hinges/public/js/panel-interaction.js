@@ -8,7 +8,7 @@ import {
     getActiveCell,
     setActiveCell,
     setSelectedItemId,
-    pc_getLayout
+    pc_getLayout, pc_clearSelection
 } from './panel/state.js';
 import {
     pc_addItemAtGridCell,
@@ -18,6 +18,7 @@ import {
     pc_save, pc_getPanelState
 } from './panel-state-bridge.js';
 import {UI_ATTR, NS} from "./panel/constants.js";
+import {pc_getStateRef} from "./panel-content.js";
 
 // --- global hint about what the user started dragging (palette) ---
 let _lastDragKind = null; // 'text' | 'svg' | null
@@ -163,9 +164,113 @@ function drawGridLinesPct(ov, grid, layout) {
     ov.appendChild(g);
 }
 
+function clientToSvgPoint(svg, clientX, clientY) {
+    const pt = svg.createSVGPoint();
+    pt.x = clientX; pt.y = clientY;
+    return pt.matrixTransform(svg.getScreenCTM().inverse());
+}
+
+function onDropToCell(panelName, row, col, svg) {
+    return async function handleDrop(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        // clear any hover stroke on the drop target if you added one
+        const tgt = e.currentTarget;
+        if (tgt && tgt.setAttribute) tgt.setAttribute('stroke', 'none');
+
+        // resolve intended type
+        const dt = e.dataTransfer;
+        const hint = dt?.getData('text/plain') || '';
+        const files = dt?.files ? [...dt.files] : [];
+        const svgFile = files.find(f =>
+            (f.type && f.type.toLowerCase().includes('svg')) ||
+            (f.name && /\.svg$/i.test(f.name))
+        );
+        let type = svgFile ? 'svg' : (/svg/i.test(hint) ? 'svg' : 'text');
+
+        // guard: panel + grid mode
+        const pane = pc_getPanelState(panelName);
+        if (!pane || (pane.layout?.mode || 'grid') !== 'grid') return;
+
+        // final target cell
+        const rr = Number(tgt?.getAttribute?.('data-pc-cell-row')) || row;
+        const cc = Number(tgt?.getAttribute?.('data-pc-cell-col')) || col;
+
+        // create item
+        const newId = pc_addItemAtGridCell(panelName, type, { row: rr, col: cc });
+        if (!newId) return;
+
+        if (type === 'svg') {
+            pc_setItemType(panelName, newId, 'svg');
+            if (svgFile) {
+                try {
+                    const txt = await svgFile.text();
+                    pc_setItemSvg(panelName, newId, txt, svgFile.name);
+                } catch {}
+            }
+        }
+
+        // state + selection
+        setCurrentPanel(panelName);
+        setActiveCell({ panel: panelName, row: rr, col: cc }); // keep cell context for editor
+        setSelectedItemId(newId);
+        document.dispatchEvent(new CustomEvent('pc:panelChanged', { detail: { panel: panelName } }));
+        document.dispatchEvent(new CustomEvent('pc:activeCellChanged', { detail: { panel: panelName, row: rr, col: cc } }));
+        document.dispatchEvent(new CustomEvent('pc:itemSelectionChanged', { detail: { id: newId, panel: panelName } }));
+
+        // repaint
+        pc_renderAll(svg);
+        pi_onGeometryChanged(svg);
+        pc_save();
+
+        // focus editor tab / mode (optional, guarded)
+        try {
+            const mod = await import('./panel-content.js');
+            if (type === 'svg' && typeof mod.pc_forceType === 'function') mod.pc_forceType('svg');
+            if (typeof mod.pc_activateEditorTab === 'function') mod.pc_activateEditorTab('object');
+            if (typeof mod.pc_enterEdit === 'function') mod.pc_enterEdit(panelName, newId);
+        } catch {}
+    };
+}
+
+// return topmost .pc-item in panel layer whose bbox contains (x,y)
+function hitTestItemsInPanel(svg, panelName, x, y) {
+    const layer = svg.querySelector(`#pcLayer_${panelName}`);
+    if (!layer) return null;
+    const items = [...layer.querySelectorAll('g.pc-item')];
+    // DOM order = paint order; pick last bbox that contains point (topmost)
+    for (let i = items.length - 1; i >= 0; i--) {
+        const g = items[i];
+        const b = g.getBBox();
+        if (x >= b.x && y >= b.y && x <= b.x + b.width && y <= b.y + b.height) return g;
+    }
+    return null;
+}
+
 // ---------- overlay per panel (host passed in) ----------
 function renderPanelOverlay(svg, name, host, showGrid) {
+    // helpers (local)
+    function clientToSvgPoint(svgEl, clientX, clientY) {
+        const pt = svgEl.createSVGPoint();
+        pt.x = clientX; pt.y = clientY;
+        return pt.matrixTransform(svgEl.getScreenCTM().inverse());
+    }
+    function hitTestItemsInPanel(svgEl, panelName, x, y) {
+        const layer = svgEl.querySelector(`#pcLayer_${panelName}`);
+        if (!layer) return null;
+        const items = [...layer.querySelectorAll('g.pc-item')];
+        for (let i = items.length - 1; i >= 0; i--) {
+            const g = items[i];
+            const b = g.getBBox();
+            if (x >= b.x && y >= b.y && x <= b.x + b.width && y <= b.y + b.height) return g;
+        }
+        return null;
+    }
+
     const L = pc_getLayout(name);
+    const overlaysRoot = ensureOverlay(svg, 'pcOverlaysRoot');     // visual only
+    const hitsRoot     = ensureOverlay(svg, 'pcHitsRoot');          // interactive
     const root = ensureOverlay(svg, 'pcOverlaysRoot');
 
     let ov = svg.querySelector(`#pcOverlay_${name}`);
@@ -173,8 +278,8 @@ function renderPanelOverlay(svg, name, host, showGrid) {
         ov = document.createElementNS(NS, 'g');
         ov.setAttribute('id', `pcOverlay_${name}`);
         ov.setAttribute(UI_ATTR, '1');
-        ov.setAttribute('pointer-events', 'none');
-        root.appendChild(ov);
+        ov.setAttribute('pointer-events', 'none'); // safe here: only visuals will be appended
+        overlaysRoot.appendChild(ov);
     } else {
         while (ov.firstChild) ov.removeChild(ov.firstChild);
     }
@@ -189,15 +294,31 @@ function renderPanelOverlay(svg, name, host, showGrid) {
 
     if (showGrid) drawGridLinesPct(ov, G, L);
 
+    const S = pc_getStateRef?.();
+    const selectedOnThisPanel = !!(S && S._ui?.selectedItemId && S._ui.activePanel === name);
+
     const ac = getActiveCell();
     const color = panelColor(name);
+
+    // Events-enabled layer for hits
+    let hitLayer = svg.querySelector(`#pcOverlayHits_${name}`);
+    if (!hitLayer) {
+        hitLayer = document.createElementNS(NS, 'g');
+        hitLayer.setAttribute('id', `pcOverlayHits_${name}`);
+        hitLayer.setAttribute(UI_ATTR, '1');
+        // NOTE: do not set pointer-events:none here
+        hitsRoot.appendChild(hitLayer);
+    } else {
+        while (hitLayer.firstChild) hitLayer.removeChild(hitLayer.firstChild);
+    }
+    ov.appendChild(hitLayer);
 
     for (let r = 1; r <= G.rows; r++) {
         for (let c = 1; c <= G.cols; c++) {
             const rect = cellRectPct(G, r, c);
 
-            // active highlight
-            if (ac && ac.panel === name && ac.row === r && ac.col === c) {
+            // active cell highlight (suppressed if item is selected on this panel)
+            if (!selectedOnThisPanel && ac && ac.panel === name && ac.row === r && ac.col === c) {
                 const hi = document.createElementNS(NS, 'rect');
                 hi.setAttribute('x', rect.x);
                 hi.setAttribute('y', rect.y);
@@ -216,94 +337,80 @@ function renderPanelOverlay(svg, name, host, showGrid) {
                 ov.appendChild(notch);
             }
 
-            // hit area
-            const hit = document.createElementNS(NS, 'rect');
-            hit.setAttribute('x', rect.x);
-            hit.setAttribute('y', rect.y);
-            hit.setAttribute('width', safeLen(rect.w));
-            hit.setAttribute('height', safeLen(rect.h));
-            hit.setAttribute('fill', 'transparent');
-            hit.setAttribute('stroke', 'transparent');
-            hit.setAttribute('stroke-width', '0.3');
-            hit.setAttribute(UI_ATTR, '1');
-            hit.setAttribute('data-pc-cell-row', String(r));
-            hit.setAttribute('data-pc-cell-col', String(c));
-            hit.style.cursor = 'pointer';
-            hit.setAttribute('pointer-events', 'all');
+            // INNER hit: object-first selection, DnD; never activates cell
+            const inner = document.createElementNS(NS, 'rect');
+            inner.setAttribute('x', rect.x);
+            inner.setAttribute('y', rect.y);
+            inner.setAttribute('width', safeLen(rect.w));
+            inner.setAttribute('height', safeLen(rect.h));
+            inner.setAttribute('fill', 'rgba(0,0,0,0.001)');
+            inner.style.pointerEvents = 'all';
+            inner.setAttribute('stroke', 'none');
+            inner.setAttribute(UI_ATTR, '1');
+            inner.setAttribute('data-pc-cell-row', String(r));
+            inner.setAttribute('data-pc-cell-col', String(c));
 
-            hit.addEventListener('mouseenter', () => hit.setAttribute('stroke', hexToRgba(color, .5)));
-            hit.addEventListener('mouseleave', () => hit.setAttribute('stroke', 'transparent'));
-
-            hit.addEventListener('click', (e) => {
+            inner.addEventListener('click', (e) => {
                 e.preventDefault();
-                setCurrentPanel(name);
-                setActiveCell({ panel: name, row: r, col: c });
-                document.dispatchEvent(new CustomEvent('pc:panelChanged', { detail: { panel: name } }));
-                document.dispatchEvent(new CustomEvent('pc:activeCellChanged', { detail: { panel: name, row: r, col: c } }));
-                pi_onGeometryChanged(svg);
+                const p = clientToSvgPoint(svg, e.clientX, e.clientY);
+                const g = hitTestItemsInPanel(svg, name, p.x, p.y);
+                if (g) {
+                    const id = g.getAttribute('data-pc-item-id');
+                    if (id) {
+                        setCurrentPanel(name);
+                        setActiveCell(null);
+                        setSelectedItemId(id);
+                        document.dispatchEvent(new CustomEvent('pc:panelChanged', { detail: { panel: name } }));
+                        document.dispatchEvent(new CustomEvent('pc:itemSelectionChanged', { detail: { id, panel: name } }));
+                        pi_onGeometryChanged(svg);
+                    }
+                }
+                // else: do nothing; inner click without object doesn’t activate cell
             });
 
-            hit.addEventListener('dblclick', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setCurrentPanel(name);
-                setActiveCell({ panel: name, row: r, col: c });
-                document.dispatchEvent(new CustomEvent('pc:panelChanged', { detail: { panel: name } }));
-                document.dispatchEvent(new CustomEvent('pc:activeCellChanged', { detail: { panel: name, row: r, col: c } }));
-                pi_onGeometryChanged(svg);
-            });
-
-            // DnD add (text/svg, with file fallback for svg)
-            hit.addEventListener('dragenter', () => { hit.setAttribute('stroke', hexToRgba(color, .7)); });
-            hit.addEventListener('dragleave', () => { hit.setAttribute('stroke', 'transparent'); });
-            hit.addEventListener('dragover', (e) => {
+            // DnD on inner
+            inner.addEventListener('dragenter', () => { inner.setAttribute('stroke', hexToRgba(color, .7)); });
+            inner.addEventListener('dragleave', () => { inner.setAttribute('stroke', 'none'); });
+            inner.addEventListener('dragover', (e) => {
                 const t = e.dataTransfer?.getData('text/plain');
                 const hasFiles = !!(e.dataTransfer?.files && e.dataTransfer.files.length);
                 if (t === 'text' || t === 'svg' || !t || hasFiles) { e.preventDefault(); if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy'; }
             });
-            hit.addEventListener('drop', async (e) => {
-                e.preventDefault(); e.stopPropagation();
-                const files = e.dataTransfer?.files;
-                const hasSvgFile = !!(files && [...files].some(f => (f.type && f.type.includes('svg')) || (f.name && /\.svg$/i.test(f.name))));
-                let type = e.dataTransfer?.getData('text/plain');
-                if (!type) type = hasSvgFile ? 'svg' : (_lastDragKind || 'text');
-                type = /svg/i.test(type) ? 'svg' : 'text';
+            inner.addEventListener('drop', onDropToCell(name, r, c, svg));
 
-                const rr = Number(hit.getAttribute('data-pc-cell-row')) || r;
-                const cc = Number(hit.getAttribute('data-pc-cell-col')) || c;
-                const pane = pc_getPanelState(name);
-                if (!pane || (pane.layout?.mode || 'grid') !== 'grid') return;
+            // BORDER hit: activates cell; pointer-events on stroke only
+            const border = document.createElementNS(NS, 'rect');
+            border.setAttribute('x', rect.x);
+            border.setAttribute('y', rect.y);
+            border.setAttribute('width', safeLen(rect.w));
+            border.setAttribute('height', safeLen(rect.h));
+            border.setAttribute('fill', 'none');
+            border.setAttribute('stroke', 'transparent');
+            border.setAttribute('stroke-width', '8');
+            border.setAttribute('vector-effect', 'non-scaling-stroke');
+            border.setAttribute('pointer-events', 'stroke');
+            border.setAttribute(UI_ATTR, '1');
+            border.setAttribute('data-pc-cell-row', String(r));
+            border.setAttribute('data-pc-cell-col', String(c));
+            border.style.pointerEvents = 'stroke';
+            border.style.cursor = 'pointer';
 
-                const newId = pc_addItemAtGridCell(name, type, { row: rr, col: cc });
-                if (type === 'svg' && newId) pc_setItemType(name, newId, 'svg');
+            border.addEventListener('mouseenter', () => border.setAttribute('stroke', hexToRgba(color, .5)));
+            border.addEventListener('mouseleave', () => border.setAttribute('stroke', 'transparent'));
 
-                if (hasSvgFile && files && files.length && newId) {
-                    const file = [...files].find(f => (f.type && f.type.includes('svg')) || (f.name && /\.svg$/i.test(f.name)));
-                    if (file) {
-                        try { const txt = await file.text(); pc_setItemSvg(name, newId, txt, file.name); type = 'svg'; } catch {}
-                    }
-                }
-
+            border.addEventListener('click', (e) => {
+                e.preventDefault();
+                pc_clearSelection();
                 setCurrentPanel(name);
-                setActiveCell({ panel: name, row: rr, col: cc });
+                setActiveCell({ panel: name, row: r, col: c });
                 document.dispatchEvent(new CustomEvent('pc:panelChanged', { detail: { panel: name } }));
-                document.dispatchEvent(new CustomEvent('pc:activeCellChanged', { detail: { panel: name, row: rr, col: cc } }));
-
-                if (newId) setSelectedItemId(newId);
-
-                pc_renderAll(svg);
+                document.dispatchEvent(new CustomEvent('pc:activeCellChanged', { detail: { panel: name, row: r, col: c } }));
                 pi_onGeometryChanged(svg);
-                pc_save();
-
-                try {
-                    const mod = await import('./panel-content.js');
-                    if (type === 'svg' && typeof mod.pc_forceType === 'function') mod.pc_forceType('svg');
-                    if (newId && typeof mod.pc_activateEditorTab === 'function') mod.pc_activateEditorTab('object');
-                    if (newId && typeof mod.pc_enterEdit === 'function') mod.pc_enterEdit(name, newId);
-                } catch {}
             });
 
-            ov.appendChild(hit);
+            // order matters: inner below, border above
+            hitLayer.appendChild(inner);
+            hitLayer.appendChild(border);
         }
     }
 }

@@ -19,6 +19,7 @@ import {
 
 import { nid, bindSvgDeselect } from '../utils.js';
 import {bindAlignControls} from "./align.js";
+import {pc_clearSelection} from "../state.js";
 
 // ---------- Inline GLUE: Object type UI toggle (Text vs SVG) ----------
 function bindObjectTypeUI(){
@@ -118,6 +119,7 @@ export function pc_bindSvg(svg){
     setCurrentSvg(svg);
     // click-outside deselect: if your utils has a better hook, it can remain; otherwise minimal:
     bindSvgDeselect?.(svg, () => {
+        pc_clearSelection();
         setActiveCell(null);
         setSelectedItemId(null);
         document.dispatchEvent(new CustomEvent('pc:itemSelectionChanged', { detail:{ id: null } }));

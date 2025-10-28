@@ -113,7 +113,24 @@ export function defaultPanelState() {
     return { layout: { mode: 'grid', rows: 2, cols: 1, gutter: 2, padding: 4 }, items: [] };
 }
 
+export function pc_selectItem(panelName, itemId) {
+    const S = pc_getStateRef();
+    if (!S._ui) S._ui = {};
+    S._ui.activePanel = panelName;
+    S._ui.selectedItemId = itemId;
+    S._ui.editItemId = null;
+    pc_save();
+    document.dispatchEvent(new CustomEvent('pc:itemSelectionChanged', { detail: { id: itemId, panel: panelName }}));
+}
 
+export function pc_clearSelection() {
+    const S = pc_getStateRef();
+    if (!S._ui) S._ui = {};
+    S._ui.selectedItemId = null;
+    S._ui.editItemId = null;
+    pc_save();
+    document.dispatchEvent(new CustomEvent('pc:itemSelectionChanged', { detail: { id: null, panel: S._ui.activePanel }}));
+}
 // change loadState to accept a fresh flag
 function loadState(fresh = false) {
     if (!fresh) {
