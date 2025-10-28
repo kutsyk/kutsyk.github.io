@@ -18,7 +18,7 @@ import {
     pc_save, pc_getPanelState
 } from './panel-state-bridge.js';
 import {UI_ATTR, NS} from "./panel/constants.js";
-import {pc_getStateRef} from "./panel-content.js";
+import {pc_activateEditorTab, pc_getStateRef} from "./panel-content.js";
 import {hideHoverOutline, showActiveOutline, showHoverOutline} from "./panel/renderers.js";
 
 // --- global hint about what the user started dragging (palette) ---
@@ -85,6 +85,22 @@ function listFoundPanels(svg) {
     }
     return out;
 }
+
+(function bindTabAutoSwitchOnce() {
+    if (window._pcTabAutoBound) return;
+    window._pcTabAutoBound = true;
+
+    document.addEventListener('pc:activeCellChanged', (e) => {
+        const d = e.detail || {};
+        if (d && d.panel) pc_activateEditorTab('layout');
+    });
+
+    document.addEventListener('pc:itemSelectionChanged', (e) => {
+        const d = e.detail || {};
+        console.log(d);
+        if (d && d.id) pc_activateEditorTab('object');
+    });
+})();
 
 // ---------- percent-aware grid ----------
 function computeGridPct(panelBBox, layout) {
@@ -225,6 +241,7 @@ function onDropToCell(panelName, row, col, svg) {
         setCurrentPanel(panelName);
         setActiveCell({ panel: panelName, row: rr, col: cc }); // keep cell context for editor
         setSelectedItemId(newId);
+        pc_activateEditorTab('layout');
         document.dispatchEvent(new CustomEvent('pc:panelChanged', { detail: { panel: panelName } }));
         document.dispatchEvent(new CustomEvent('pc:activeCellChanged', { detail: { panel: panelName, row: rr, col: cc } }));
         document.dispatchEvent(new CustomEvent('pc:itemSelectionChanged', { detail: { id: newId, panel: panelName } }));
@@ -416,6 +433,7 @@ function renderPanelOverlay(svg, name, host, showGrid) {
                         setSelectedItemId(id);
                         document.dispatchEvent(new CustomEvent('pc:panelChanged', { detail: { panel: name } }));
                         document.dispatchEvent(new CustomEvent('pc:itemSelectionChanged', { detail: { id, panel: name } }));
+                        pc_activateEditorTab('object');
                         pi_onGeometryChanged(svg);
                     }
                 }
@@ -530,11 +548,11 @@ function attachDrops(svg) {
             pi_onGeometryChanged(svg);
             pc_save();
 
-            try {
-                const mod = await import('./panel-content.js');
-                if (newId && typeof mod.pc_activateEditorTab === 'function') mod.pc_activateEditorTab('object');
-                if (newId && typeof mod.pc_enterEdit === 'function') mod.pc_enterEdit(name, newId);
-            } catch {}
+            // try {
+            //     const mod = await import('./panel-content.js');
+            //     if (newId && typeof mod.pc_activateEditorTab === 'function') pc_activateEditorTab('object');
+            //     if (newId && typeof mod.pc_enterEdit === 'function') mod.pc_enterEdit(name, newId);
+            // } catch {}
         });
     });
 }
@@ -596,6 +614,11 @@ export function pi_onGeometryChanged(svg) {
 
     attachDrops(svg);
     bindBackgroundDeselect(svg);
+
+    const ac = getActiveCell();
+    const selId = getSelectedItemId?.();
+
+    if (!ac && selId) pc_activateEditorTab('object');
+    else if (ac && ac.panel) pc_activateEditorTab('layout');
 }
-export function pi_refreshAllOverlays(svg) { pi_onGeometryChanged(svg); }
 export function pi_beforeDownload(svgClone) { svgClone.querySelectorAll(`[${UI_ATTR}]`).forEach(n => n.remove()); }

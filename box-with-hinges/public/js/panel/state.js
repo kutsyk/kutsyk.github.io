@@ -126,10 +126,16 @@ export function pc_selectItem(panelName, itemId) {
 export function pc_clearSelection() {
     const S = pc_getStateRef();
     if (!S._ui) S._ui = {};
+    const prev = S._ui.selectedItemId || null;
+
     S._ui.selectedItemId = null;
     S._ui.editItemId = null;
     pc_save();
-    document.dispatchEvent(new CustomEvent('pc:itemSelectionChanged', { detail: { id: null, panel: S._ui.activePanel }}));
+
+    // fire null-selection so UI can close the object editor
+    document.dispatchEvent(new CustomEvent('pc:itemSelectionChanged', {
+        detail: { id: null, prev }
+    }));
 }
 // change loadState to accept a fresh flag
 function loadState(fresh = false) {

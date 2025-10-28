@@ -226,6 +226,7 @@ function buildGridPanel(panelName, p, ac) {
                 e.preventDefault();
                 setCurrentPanel(panelName);
                 setActiveCell({panel: panelName, row: r, col: c});
+                pc_activateEditorTab('layout');
             });
 
             // ---- DnD onto tree cell header (NEW) ----
