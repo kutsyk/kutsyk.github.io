@@ -87,18 +87,25 @@ function listFoundPanels(svg) {
 }
 
 (function bindTabAutoSwitchOnce() {
-    if (window._pcTabAutoBound) return;
-    window._pcTabAutoBound = true;
-
-    document.addEventListener('pc:activeCellChanged', (e) => {
-        const d = e.detail || {};
-        if (d && d.panel) pc_activateEditorTab('layout');
-    });
+    if (window._pcTabAutoBound) return; window._pcTabAutoBound = true;
 
     document.addEventListener('pc:itemSelectionChanged', (e) => {
-        const d = e.detail || {};
-        console.log(d);
-        if (d && d.id) pc_activateEditorTab('object');
+        const id = e.detail?.id || null;
+        if (id) {
+            pc_activateEditorTab('object');   // object always wins
+        } else {
+            // only fall back to layout if some cell is active
+            const ac = getActiveCell?.();
+            if (ac && ac.panel) pc_activateEditorTab('layout');
+        }
+    });
+
+    document.addEventListener('pc:activeCellChanged', (e) => {
+        // do NOT switch to layout if an item is selected
+        const sel = getSelectedItemId?.();
+        if (sel) return;
+        const panel = e.detail?.panel;
+        if (panel) pc_activateEditorTab('layout');
     });
 })();
 
@@ -196,16 +203,73 @@ function clientToSvgPoint(svg, clientX, clientY) {
     return pt.matrixTransform(svg.getScreenCTM().inverse());
 }
 
+// function onDropToCell(panelName, row, col, svg) {
+//     return async function handleDrop(e) {
+//         e.preventDefault();
+//         e.stopPropagation();
+//
+//         // clear any hover stroke on the drop target if you added one
+//         const tgt = e.currentTarget;
+//         if (tgt && tgt.setAttribute) tgt.setAttribute('stroke', 'none');
+//
+//         // resolve intended type
+//         const dt = e.dataTransfer;
+//         const hint = dt?.getData('text/plain') || '';
+//         const files = dt?.files ? [...dt.files] : [];
+//         const svgFile = files.find(f =>
+//             (f.type && f.type.toLowerCase().includes('svg')) ||
+//             (f.name && /\.svg$/i.test(f.name))
+//         );
+//         let type = svgFile ? 'svg' : (/svg/i.test(hint) ? 'svg' : 'text');
+//
+//         // guard: panel + grid mode
+//         const pane = pc_getPanelState(panelName);
+//         if (!pane || (pane.layout?.mode || 'grid') !== 'grid') return;
+//
+//         // final target cell
+//         const rr = Number(tgt?.getAttribute?.('data-pc-cell-row')) || row;
+//         const cc = Number(tgt?.getAttribute?.('data-pc-cell-col')) || col;
+//
+//         // create item
+//         const newId = pc_addItemAtGridCell(panelName, type, { row: rr, col: cc });
+//         if (!newId) return;
+//
+//         if (type === 'svg') {
+//             pc_setItemType(panelName, newId, 'svg');
+//             if (svgFile) {
+//                 try {
+//                     const txt = await svgFile.text();
+//                     pc_setItemSvg(panelName, newId, txt, svgFile.name);
+//                 } catch {}
+//             }
+//         }
+//
+//         // state + selection
+//         setCurrentPanel(panelName);
+//         setActiveCell({ panel: panelName, row: rr, col: cc }); // keep cell context for editor
+//
+//         document.dispatchEvent(new CustomEvent('pc:panelChanged', { detail: { panel: panelName } }));
+//         document.dispatchEvent(new CustomEvent('pc:activeCellChanged', { detail: { panel: panelName, row: rr, col: cc } }));
+//         document.dispatchEvent(new CustomEvent('pc:itemSelectionChanged', { detail: { id: newId, panel: panelName } }));
+//
+//         setSelectedItemId(newId);
+//
+//         // repaint
+//         pc_activateEditorTab('object');
+//         pc_save();
+//         pc_renderAll(svg);
+//         pi_onGeometryChanged(svg);
+//     };
+// }
 function onDropToCell(panelName, row, col, svg) {
     return async function handleDrop(e) {
         e.preventDefault();
         e.stopPropagation();
 
-        // clear any hover stroke on the drop target if you added one
         const tgt = e.currentTarget;
-        if (tgt && tgt.setAttribute) tgt.setAttribute('stroke', 'none');
+        if (tgt?.setAttribute) tgt.setAttribute('stroke', 'none');
 
-        // resolve intended type
+        // Resolve intended type
         const dt = e.dataTransfer;
         const hint = dt?.getData('text/plain') || '';
         const files = dt?.files ? [...dt.files] : [];
@@ -215,15 +279,15 @@ function onDropToCell(panelName, row, col, svg) {
         );
         let type = svgFile ? 'svg' : (/svg/i.test(hint) ? 'svg' : 'text');
 
-        // guard: panel + grid mode
+        // Guard: panel exists and in grid mode
         const pane = pc_getPanelState(panelName);
         if (!pane || (pane.layout?.mode || 'grid') !== 'grid') return;
 
-        // final target cell
+        // Target cell (attrs win; fallback to provided coords)
         const rr = Number(tgt?.getAttribute?.('data-pc-cell-row')) || row;
         const cc = Number(tgt?.getAttribute?.('data-pc-cell-col')) || col;
 
-        // create item
+        // 1) Create item in state
         const newId = pc_addItemAtGridCell(panelName, type, { row: rr, col: cc });
         if (!newId) return;
 
@@ -237,56 +301,31 @@ function onDropToCell(panelName, row, col, svg) {
             }
         }
 
-        // state + selection
-        setCurrentPanel(panelName);
-        setActiveCell({ panel: panelName, row: rr, col: cc }); // keep cell context for editor
-        setSelectedItemId(newId);
-        pc_activateEditorTab('layout');
-        document.dispatchEvent(new CustomEvent('pc:panelChanged', { detail: { panel: panelName } }));
-        document.dispatchEvent(new CustomEvent('pc:activeCellChanged', { detail: { panel: panelName, row: rr, col: cc } }));
-        document.dispatchEvent(new CustomEvent('pc:itemSelectionChanged', { detail: { id: newId, panel: panelName } }));
-
-        // repaint
-        pc_renderAll(svg);
-        pi_onGeometryChanged(svg);
+        // 2) Persist now to avoid stale reads in editor
         pc_save();
 
-        // focus editor tab / mode (optional, guarded)
-        try {
-            const mod = await import('./panel-content.js');
-            if (type === 'svg' && typeof mod.pc_forceType === 'function') mod.pc_forceType('svg');
-            if (typeof mod.pc_activateEditorTab === 'function') mod.pc_activateEditorTab('object');
-            if (typeof mod.pc_enterEdit === 'function') mod.pc_enterEdit(panelName, newId);
-        } catch {}
+        // 3) Render DOM so the wrapper [data-item-id] exists
+        setCurrentPanel(panelName);
+        setActiveCell({ panel: panelName, row: rr, col: cc });
+        document.dispatchEvent(new CustomEvent('pc:panelChanged', { detail: { panel: panelName } }));
+        document.dispatchEvent(new CustomEvent('pc:activeCellChanged', { detail: { panel: panelName, row: rr, col: cc } }));
+        pc_renderAll(svg);
+        pi_onGeometryChanged(svg);
+
+        // 4) Select item (fires pc:itemSelectionChanged)
+        setSelectedItemId(newId);
+
+        // 5) Activate Object tab immediately; enter edit on next frame
+        pc_activateEditorTab('object');
+        requestAnimationFrame(async () => {
+            try {
+                const mod = await import('./panel-content.js');
+                if (typeof mod.pc_enterEdit === 'function') mod.pc_enterEdit(panelName, newId);
+            } catch {}
+        });
     };
 }
 
-// return topmost .pc-item in panel layer whose bbox contains (x,y)
-function hitTestItemsInPanel(svgEl, panelName, svgX, svgY) {
-    const layer = svgEl.querySelector(`#pcLayer_${panelName}`);
-    if (!layer) return null;
-
-    const svgToScreen = svgEl.getScreenCTM();
-    const pt = svgEl.createSVGPoint();
-    pt.x = svgX; pt.y = svgY;
-    const pScreen = svgToScreen ? pt.matrixTransform(svgToScreen) : pt;
-
-    const items = [...layer.querySelectorAll('g.pc-item')];
-    for (let i = items.length - 1; i >= 0; i--) {
-        const g = items[i];
-        const ctm = g.getScreenCTM();
-        if (!ctm) continue;
-
-        const pLocal = pScreen.matrixTransform(ctm.inverse());
-        const b = g.getBBox();
-        if (b && b.width > 0 && b.height > 0 &&
-            pLocal.x >= b.x && pLocal.y >= b.y &&
-            pLocal.x <= b.x + b.width && pLocal.y <= b.y + b.height) {
-            return g;
-        }
-    }
-    return null;
-}
 
 function hitTestItemAtClient(svgEl, panelName, clientX, clientY) {
     const layer = svgEl.querySelector(`#pcLayer_${panelName}`);
@@ -542,17 +581,15 @@ function attachDrops(svg) {
             document.dispatchEvent(new CustomEvent('pc:panelChanged', { detail: { panel: name } }));
             document.dispatchEvent(new CustomEvent('pc:activeCellChanged', { detail: { panel: name, row: hit.row, col: hit.col } }));
 
-            if (newId) setSelectedItemId(newId);
+            if (newId) {
+                setSelectedItemId(newId);
+                document.dispatchEvent(new CustomEvent('pc:itemSelectionChanged', { detail: { id: newId, panel: name } }));
+                pc_activateEditorTab('object');
+            }
 
             pc_renderAll(svg);
             pi_onGeometryChanged(svg);
             pc_save();
-
-            // try {
-            //     const mod = await import('./panel-content.js');
-            //     if (newId && typeof mod.pc_activateEditorTab === 'function') pc_activateEditorTab('object');
-            //     if (newId && typeof mod.pc_enterEdit === 'function') mod.pc_enterEdit(name, newId);
-            // } catch {}
         });
     });
 }
