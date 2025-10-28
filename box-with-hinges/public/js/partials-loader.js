@@ -9,20 +9,6 @@ export async function loadPartials() {
         el.removeAttribute('data-include');
     }));
 
-    // LEFT SIDEBAR: toggle + remember state
-    (function () {
-        const root = document.getElementById('appLayout');
-        const btnSidebar = document.getElementById('btnToggleSidebar');
-        if (!root || !btnSidebar) return; // fix bug: was `btn`
-        const key = 'ui_sidebar_collapsed';
-        const collapsed = localStorage.getItem(key) === '1';
-        if (collapsed) root.classList.add('collapsed');
-        btnSidebar.addEventListener('click', () => {
-            root.classList.toggle('collapsed');
-            localStorage.setItem(key, root.classList.contains('collapsed') ? '1' : '0');
-        });
-    })();
-
     // RIGHT EDITORBAR: toggle + remember state (works for both navbar and panel buttons)
     (function () {
         const key = 'ui_editor_open';
