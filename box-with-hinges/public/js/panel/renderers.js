@@ -281,3 +281,49 @@ export function addSelectionRect(groupNode) {
 export function removeSelectionRect(groupNode) {
     groupNode.querySelectorAll(':scope > rect.pc-selection').forEach(n => n.remove());
 }
+
+export function ensureOutlineRect(group, className) {
+    let r = group.querySelector(`:scope > rect.pc-outline`);
+    const bb = group.getBBox();
+    if (!r) {
+        r = document.createElementNS(NS, 'rect');
+        r.setAttribute('class', `pc-outline ${className || ''}`.trim());
+        r.setAttribute(UI_ATTR, '1');                               // stripped on export
+        r.setAttribute('fill', 'none');
+        r.setAttribute('vector-effect', 'non-scaling-stroke');
+        r.setAttribute('pointer-events', 'none');
+        group.appendChild(r);
+    } else {
+        // ensure class contains pc-outline + current mode-specific class
+        r.setAttribute('class', `pc-outline ${className || ''}`.trim());
+    }
+    r.setAttribute('x', bb.x);
+    r.setAttribute('y', bb.y);
+    r.setAttribute('width',  bb.width  || 0);
+    r.setAttribute('height', bb.height || 0);
+    return r;
+}
+
+export function showHoverOutline(group) {
+    const r = ensureOutlineRect(group, 'pc-outline-hover');
+    r.setAttribute('stroke', '#0d6efd');
+    r.setAttribute('stroke-dasharray', '4 2');
+    r.setAttribute('stroke-width', '0.9');
+    r.setAttribute('opacity', '0.9');
+}
+
+export function hideHoverOutline(group) {
+    group.querySelectorAll(':scope > rect.pc-outline-hover').forEach(n => n.remove());
+}
+
+export function showActiveOutline(group) {
+    const r = ensureOutlineRect(group, 'pc-outline-active');
+    r.setAttribute('stroke', '#0d6efd');
+    r.setAttribute('stroke-dasharray', '4 2');
+    r.setAttribute('stroke-width', '1.6');
+    r.setAttribute('opacity', '1');
+}
+
+export function hideActiveOutline(group) {
+    group.querySelectorAll(':scope > rect.pc-outline-active').forEach(n => n.remove());
+}

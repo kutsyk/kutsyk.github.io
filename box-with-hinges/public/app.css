@@ -539,4 +539,6 @@ body.editor-open .content {
 
 .pc-item { isolation: isolate; }
 .pc-item > .pc-selection { mix-blend-mode: normal; }
+.pc-outline { mix-blend-mode: normal; }
 g.pc-item { pointer-events: bounding-box; }
+g.pc-item > rect.pc-outline { fill: none; vector-effect: non-scaling-stroke; pointer-events: none; }

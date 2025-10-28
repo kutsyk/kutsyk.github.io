@@ -8,7 +8,7 @@ import {
     getActiveCell,
     setActiveCell,
     setSelectedItemId,
-    pc_getLayout, pc_clearSelection
+    pc_getLayout, pc_clearSelection, getSelectedItemId
 } from './panel/state.js';
 import {
     pc_addItemAtGridCell,
@@ -19,6 +19,7 @@ import {
 } from './panel-state-bridge.js';
 import {UI_ATTR, NS} from "./panel/constants.js";
 import {pc_getStateRef} from "./panel-content.js";
+import {hideHoverOutline, showActiveOutline, showHoverOutline} from "./panel/renderers.js";
 
 // --- global hint about what the user started dragging (palette) ---
 let _lastDragKind = null; // 'text' | 'svg' | null
@@ -44,11 +45,20 @@ function ensureOverlay(svg, id) {
         ov = document.createElementNS(NS, 'g');
         ov.setAttribute('id', id);
         ov.setAttribute(UI_ATTR, '1');
-        ov.setAttribute('pointer-events', 'none');
+        // only visuals are non-interactive
+        if (id === 'pcOverlaysRoot') {
+            ov.setAttribute('pointer-events', 'none');
+        } else if (id === 'pcHitsRoot') {
+            // interactive root must accept events
+            ov.removeAttribute('pointer-events');
+            svg.appendChild(ov); // keep on top
+            return ov;
+        }
         svg.appendChild(ov);
     }
     return ov;
 }
+
 function safeLen(v, min = 0.01) { const n = Number(v); return Number.isFinite(n) ? Math.max(min, n) : min; }
 function pointInSvgUserSpace(svg, clientX, clientY) {
     const pt = svg.createSVGPoint(); pt.x = clientX; pt.y = clientY;
@@ -235,39 +245,34 @@ function onDropToCell(panelName, row, col, svg) {
 }
 
 // return topmost .pc-item in panel layer whose bbox contains (x,y)
-function hitTestItemsInPanel(svg, panelName, x, y) {
-    const layer = svg.querySelector(`#pcLayer_${panelName}`);
+function hitTestItemsInPanel(svgEl, panelName, svgX, svgY) {
+    const layer = svgEl.querySelector(`#pcLayer_${panelName}`);
     if (!layer) return null;
+
+    const svgToScreen = svgEl.getScreenCTM();
+    const pt = svgEl.createSVGPoint();
+    pt.x = svgX; pt.y = svgY;
+    const pScreen = svgToScreen ? pt.matrixTransform(svgToScreen) : pt;
+
     const items = [...layer.querySelectorAll('g.pc-item')];
-    // DOM order = paint order; pick last bbox that contains point (topmost)
     for (let i = items.length - 1; i >= 0; i--) {
         const g = items[i];
+        const ctm = g.getScreenCTM();
+        if (!ctm) continue;
+
+        const pLocal = pScreen.matrixTransform(ctm.inverse());
         const b = g.getBBox();
-        if (x >= b.x && y >= b.y && x <= b.x + b.width && y <= b.y + b.height) return g;
+        if (b && b.width > 0 && b.height > 0 &&
+            pLocal.x >= b.x && pLocal.y >= b.y &&
+            pLocal.x <= b.x + b.width && pLocal.y <= b.y + b.height) {
+            return g;
+        }
     }
     return null;
 }
 
 // ---------- overlay per panel (host passed in) ----------
 function renderPanelOverlay(svg, name, host, showGrid) {
-    // helpers (local)
-    function clientToSvgPoint(svgEl, clientX, clientY) {
-        const pt = svgEl.createSVGPoint();
-        pt.x = clientX; pt.y = clientY;
-        return pt.matrixTransform(svgEl.getScreenCTM().inverse());
-    }
-    function hitTestItemsInPanel(svgEl, panelName, x, y) {
-        const layer = svgEl.querySelector(`#pcLayer_${panelName}`);
-        if (!layer) return null;
-        const items = [...layer.querySelectorAll('g.pc-item')];
-        for (let i = items.length - 1; i >= 0; i--) {
-            const g = items[i];
-            const b = g.getBBox();
-            if (x >= b.x && y >= b.y && x <= b.x + b.width && y <= b.y + b.height) return g;
-        }
-        return null;
-    }
-
     const L = pc_getLayout(name);
     const overlaysRoot = ensureOverlay(svg, 'pcOverlaysRoot');     // visual only
     const hitsRoot     = ensureOverlay(svg, 'pcHitsRoot');          // interactive
@@ -311,7 +316,6 @@ function renderPanelOverlay(svg, name, host, showGrid) {
     } else {
         while (hitLayer.firstChild) hitLayer.removeChild(hitLayer.firstChild);
     }
-    ov.appendChild(hitLayer);
 
     for (let r = 1; r <= G.rows; r++) {
         for (let c = 1; c <= G.cols; c++) {
@@ -349,13 +353,43 @@ function renderPanelOverlay(svg, name, host, showGrid) {
             inner.setAttribute(UI_ATTR, '1');
             inner.setAttribute('data-pc-cell-row', String(r));
             inner.setAttribute('data-pc-cell-col', String(c));
-
+            // DnD on inner
+            inner.addEventListener('dragenter', () => { inner.setAttribute('stroke', hexToRgba(color, .7)); });
+            inner.addEventListener('dragleave', () => { inner.setAttribute('stroke', 'none'); });
+            inner.addEventListener('dragover', (e) => {
+                const t = e.dataTransfer?.getData('text/plain');
+                const hasFiles = !!(e.dataTransfer?.files && e.dataTransfer.files.length);
+                if (t === 'text' || t === 'svg' || !t || hasFiles) { e.preventDefault(); if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy'; }
+            });
+            inner.addEventListener('drop', onDropToCell(name, r, c, svg));
+            inner.addEventListener('mousemove', (e) => {
+                const p = clientToSvgPoint(svg, e.clientX, e.clientY);
+                const g = hitTestItemsInPanel(svg, name, p.x, p.y);
+                // cursor
+                inner.style.cursor = g ? 'pointer' : 'default';
+                // optional: outline while hovering (no selection)
+                const hoverIdPrev = svg.getAttribute('data-pc-hover-id') || '';
+                const hoverIdNext = g ? (g.getAttribute('data-pc-item-id') || '') : '';
+                if (hoverIdPrev !== hoverIdNext) {
+                    if (hoverIdPrev) {
+                        const prev = svg.querySelector(`g.pc-item[data-pc-item-id="${hoverIdPrev}"]`);
+                        if (prev) hideHoverOutline(prev);
+                    }
+                    if (hoverIdNext) {
+                        const selId = pc_getStateRef()?._ui?.selectedItemId || null;
+                        if (selId !== hoverIdNext) showHoverOutline(g);
+                    }
+                    if (hoverIdNext) svg.setAttribute('data-pc-hover-id', hoverIdNext);
+                    else svg.removeAttribute('data-pc-hover-id');
+                }
+            });
             inner.addEventListener('click', (e) => {
                 e.preventDefault();
                 const p = clientToSvgPoint(svg, e.clientX, e.clientY);
                 const g = hitTestItemsInPanel(svg, name, p.x, p.y);
                 if (g) {
-                    const id = g.getAttribute('data-pc-item-id');
+                    console.log(g);
+                    const id = g.getAttribute('data-item-id');
                     if (id) {
                         setCurrentPanel(name);
                         setActiveCell(null);
@@ -368,15 +402,15 @@ function renderPanelOverlay(svg, name, host, showGrid) {
                 // else: do nothing; inner click without object doesn’t activate cell
             });
 
-            // DnD on inner
-            inner.addEventListener('dragenter', () => { inner.setAttribute('stroke', hexToRgba(color, .7)); });
-            inner.addEventListener('dragleave', () => { inner.setAttribute('stroke', 'none'); });
-            inner.addEventListener('dragover', (e) => {
-                const t = e.dataTransfer?.getData('text/plain');
-                const hasFiles = !!(e.dataTransfer?.files && e.dataTransfer.files.length);
-                if (t === 'text' || t === 'svg' || !t || hasFiles) { e.preventDefault(); if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy'; }
+            inner.addEventListener('mouseleave', () => {
+                inner.style.cursor = 'default';
+                const prevId = svg.getAttribute('data-pc-hover-id') || '';
+                if (prevId) {
+                    const prev = svg.querySelector(`g.pc-item[data-pc-item-id="${prevId}"]`);
+                    if (prev) hideHoverOutline(prev);
+                    svg.removeAttribute('data-pc-hover-id');
+                }
             });
-            inner.addEventListener('drop', onDropToCell(name, r, c, svg));
 
             // BORDER hit: activates cell; pointer-events on stroke only
             const border = document.createElementNS(NS, 'rect');
