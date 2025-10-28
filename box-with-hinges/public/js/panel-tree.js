@@ -9,7 +9,7 @@ import {
     pc_activateEditorTab,
     pc_renderAll // NEW: for live SVG repaint after drop
 } from './panel-content.js';
-import {setActiveCell, getActiveCell, setCurrentPanel, setSelectedItemId} from './panel/state.js'; // NEW: setSelectedItemId
+import {setActiveCell, getActiveCell, setCurrentPanel, setSelectedItemId, getSelectedItemId} from './panel/state.js'; // NEW: setSelectedItemId
 import {PANELS} from './panel/constants.js';
 import {
     pc_getPanelState,
@@ -141,28 +141,40 @@ function render() {
     const tree = el('div', { class: 'tree' });
     mount.appendChild(tree);
 
-    // toolbar
     const bar = el('div', { class: 'tree-toolbar d-flex gap-1 mb-2' },
         el('button', { class: 'btn btn-sm btn-outline-secondary', onclick: collapseAll }, 'Collapse all'),
         el('button', { class: 'btn btn-sm btn-outline-secondary', onclick: expandAll }, 'Expand all'),
     );
     tree.appendChild(bar);
 
-    const rootUL = el('ul');
-    tree.appendChild(rootUL);
-
+    const rootUL = el('ul'); tree.appendChild(rootUL);
     const body = el('ul');
     const header = el('span', { class: 'fw-semibold' }, 'Panel Content');
     const rootLI = makeBranch(header, body, true);
     rootUL.appendChild(rootLI);
 
     const ac = getActiveCell();
+    const selId = getSelectedItemId?.() || null;
+
+    // locate selected item’s panel/row/col
+    let selPanel = null, selRow = null, selCol = null;
+    if (selId) {
+        for (const panelName of PANELS) {
+            const p = pc_getPanelState(panelName);
+            const hit = (p.items || []).find(it => it.id === selId);
+            if (hit) {
+                selPanel = panelName;
+                if (hit.grid) { selRow = hit.grid.row || null; selCol = hit.grid.col || null; }
+                break;
+            }
+        }
+    }
+
     PANELS.forEach((panelName) => {
         const p = pc_getPanelState(panelName);
         const isGrid = (p.layout?.mode || 'grid') === 'grid';
         const total = (p.items || []).length;
 
-        // summary WITHOUT layout/gutter/padding meta
         const sum = el('div', { class: 'd-flex align-items-center justify-content-between w-100' },
             el('span', {},
                 el('i', { class: I.panel }),
@@ -170,156 +182,142 @@ function render() {
                 el('span', { class: 'badge text-bg-info ms-2' }, String(total))
             ),
             el('span', { class: 'actions' },
-                el('button', {
-                    class: 'btn-action', title: 'Panel layout',
+                el('button', { class: 'btn-action', title: 'Panel layout',
                     onclick: () => { setCurrentPanel(panelName); pc_activateEditorTab('layout'); }
                 }, el('i', { class: 'bi bi-columns' })),
-                el('button', {
-                    class: 'btn-action', title: 'Object edit',
+                el('button', { class: 'btn-action', title: 'Object edit',
                     onclick: () => { setCurrentPanel(panelName); pc_activateEditorTab('object'); }
                 }, el('i', { class: 'bi bi-pencil-square' }))
             )
         );
 
-        const panelBody = isGrid ? buildGridPanel(panelName, p, ac) : buildFreePanel(panelName, p);
-        const openPanel = !!ac && ac.panel === panelName;
+        const panelBody = isGrid
+            ? buildGridPanel(panelName, p, ac, selId, selRow, selCol)
+            : buildFreePanel(panelName, p, selId);
+
+        const openPanel =
+            (!!ac && ac.panel === panelName) ||
+            (selPanel === panelName);
+
         const pli = makeBranch(sum, panelBody, openPanel);
         body.appendChild(pli);
     });
+
+    // ensure selected item is visible
+    if (selId) {
+        const node = mount.querySelector(`[data-item-id="${selId}"]`);
+        if (node) node.scrollIntoView({ block: 'nearest' });
+    }
 }
 
-
-function buildGridPanel(panelName, p, ac) {
+function buildGridPanel(panelName, p, ac, selId, selRow, selCol) {
     const rows = Number(p.layout?.rows || 1);
     const cols = Number(p.layout?.cols || 1);
     const rootUL = el('ul');
 
     for (let r = 1; r <= rows; r++) {
         const rowUL = el('ul');
-        const openRow = !!ac && ac.panel === panelName && ac.row === r;
+        const openRow = (!!ac && ac.panel === panelName && ac.row === r) || (selRow === r);
         const rowLI = makeBranch(el('span', {}, `Row ${r}`), rowUL, openRow);
         rootUL.appendChild(rowLI);
 
         for (let c = 1; c <= cols; c++) {
-            const isActive = !!ac && ac.panel === panelName && ac.row === r && ac.col === c;
+            const isActiveCell = !!ac && ac.panel === panelName && ac.row === r && ac.col === c;
 
-            const itemsInCell = (p.items || []).filter(it => {
-                const g = it.grid || {};
-                return g.row === r && g.col === c;
-            });
+            const itemsInCell = (p.items || []).filter(it => (it.grid?.row === r && it.grid?.col === c));
             const count = itemsInCell.length;
 
             const cellHdr = el('div', {});
             const badge = el('span', {
-                class: `badge rounded-pill ${isActive ? 'text-bg-primary active-cell' : 'text-bg-secondary'} badge-cell`,
-                dataset: {pcCellBadge: `${panelName}-${r}-${c}`}
+                class: `badge rounded-pill ${isActiveCell ? 'text-bg-primary active-cell' : 'text-bg-secondary'} badge-cell`,
+                dataset: { pcCellBadge: `${panelName}-${r}-${c}` }
             }, `r${r}c${c}`);
-            const title = el('span', {class: 'text-secondary small me-2'}, 'cell');
-            const cnt = el('span', {class: 'badge text-bg-light'}, String(count));
+            const title = el('span', { class: 'text-secondary small me-2' }, 'cell');
+            const cnt = el('span', { class: 'badge text-bg-light' }, String(count));
             cellHdr.append(badge, title, cnt);
 
             const cellUL = el('ul');
-            const cellLI = makeBranch(cellHdr, cellUL, isActive);
+            const cellHasSelection = !!selId && itemsInCell.some(it => it.id === selId);
+            const cellLI = makeBranch(cellHdr, cellUL, isActiveCell || cellHasSelection);
             rowUL.appendChild(cellLI);
 
             cellHdr.addEventListener('click', (e) => {
                 e.preventDefault();
                 setCurrentPanel(panelName);
-                setActiveCell({panel: panelName, row: r, col: c});
+                setActiveCell({ panel: panelName, row: r, col: c });
                 pc_activateEditorTab('layout');
             });
 
-            // ---- DnD onto tree cell header (NEW) ----
-            cellHdr.addEventListener('dragenter', (e) => {
-                e.stopPropagation();
-                badge.classList.add('text-bg-info');
-            });
-            cellHdr.addEventListener('dragleave', (e) => {
-                e.stopPropagation();
-                badge.classList.remove('text-bg-info');
-            });
-            cellHdr.addEventListener('dragover', (e) => {
-                const dt = e.dataTransfer;
-                const k = _kindFromDataTransfer(dt);
-                const hasFiles = !!(dt?.files && dt.files.length);
-                if (k === 'text' || k === 'svg' || hasFiles) {
-                    e.preventDefault();
-                    e.dataTransfer.dropEffect = 'copy';
-                }
-            });
-            cellHdr.addEventListener('drop', async (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                badge.classList.remove('text-bg-info');
-                await _handleDropToCell({ panelName, row: r, col: c, dataTransfer: e.dataTransfer });
-            });
-            // -----------------------------------------
-
             if (!itemsInCell.length) {
-                cellUL.appendChild(el('li', {class: 'meta'}, '— empty —'));
+                cellUL.appendChild(el('li', { class: 'meta' }, '— empty —'));
             } else {
-                itemsInCell.forEach((it, idx) => cellUL.appendChild(itemRow(panelName, it, idx)));
+                itemsInCell.forEach((it, idx) => cellUL.appendChild(itemRow(panelName, it, idx, selId)));
             }
         }
     }
     return rootUL;
 }
 
-function buildFreePanel(panelName, p) {
+function buildFreePanel(panelName, p, selId) {
     const rootUL = el('ul');
     const items = p.items || [];
     if (!items.length) {
-        rootUL.appendChild(el('li', {class: 'meta'}, '— empty —'));
+        rootUL.appendChild(el('li', { class: 'meta' }, '— empty —'));
     } else {
-        items.forEach((it, idx) => rootUL.appendChild(itemRow(panelName, it, idx)));
+        items.forEach((it, idx) => rootUL.appendChild(itemRow(panelName, it, idx, selId)));
     }
     return rootUL;
 }
 
-function itemRow(panelName, it, idx) {
-    const icon = el('i', {class: it.type === 'svg' ? I.svg : I.text});
+function itemRow(panelName, it, idx, selId) {
+    const icon = el('i', { class: it.type === 'svg' ? I.svg : I.text });
     const displayName = it?.name?.trim() || (it.type === 'svg' ? `SVG #${idx + 1}` : `Text #${idx + 1}`);
     const meta = it.type === 'text' ? trimPreview(it.text?.value || '', 40) : (it.name || '').toString();
 
-    const li = el('li');
-    const label = el('span', {class: 'd-inline-flex align-items-center w-100'});
-    const left = el('span', {class: 'd-inline-flex align-items-center flex-grow-1 text-truncate'},
+    const li = el('li', { 'data-item-id': it.id, 'data-panel': panelName });
+    if (selId && it.id === selId) li.classList.add('is-active');
+
+    const label = el('span', {
+        class: 'd-inline-flex align-items-center w-100',
+        onclick: async (e) => {
+            e.preventDefault();
+            setCurrentPanel(panelName);
+            setSelectedItemId(it.id);
+            pc_activateEditorTab('object');
+            pc_enterEdit(panelName, it.id);
+        }
+    });
+
+    const left = el('span', { class: 'd-inline-flex align-items-center flex-grow-1 text-truncate' },
         icon,
-        el('span', {class: 'ms-1 text-truncate'}, displayName),
-        el('span', {class: 'meta ms-2 text-truncate'}, meta)
+        el('span', { class: 'ms-1 text-truncate' }, displayName),
+        el('span', { class: 'meta ms-2 text-truncate' }, meta)
     );
-    const actions = el('span', {class: 'actions'},
+
+    const actions = el('span', { class: 'actions' },
         el('button', {
             class: 'btn btn-sm btn-outline-primary ms-2',
             onclick: async () => {
+                setCurrentPanel(panelName);
+                setSelectedItemId(it.id);
+                pc_activateEditorTab('object');
                 pc_enterEdit(panelName, it.id);
-                const mod = await import('./panel/edit.js');
-                if (typeof mod.edit_openTab === 'function') mod.edit_openTab('object');
-                if (typeof mod.edit_focusPrimary === 'function') mod.edit_focusPrimary(); // optional focus
             }
-        }, el('i', { class:'bi bi-pencil' })),
+        }, el('i', { class: 'bi bi-pencil' })),
         el('button', {
             class: 'btn-action', title: 'Rename',
             onclick: () => {
                 const nn = prompt('Rename item', displayName);
-                if (nn && nn.trim()) {
-                    it.name = nn.trim();
-                    pc_save();
-                    render();
-                }
+                if (nn && nn.trim()) { it.name = nn.trim(); pc_save(); render(); }
             }
-        }, el('i', {class: 'bi bi-input-cursor-text'})),
+        }, el('i', { class: 'bi bi-input-cursor-text' })),
         el('button', {
-            class: 'btn-action text-danger', title: 'Delete', onclick: () => {
-                pc_deleteItem(panelName, it.id);
-                render();
-            }
-        }, el('i', {class: 'bi bi-trash'}))
+            class: 'btn-action text-danger', title: 'Delete',
+            onclick: () => { pc_deleteItem(panelName, it.id); render(); }
+        }, el('i', { class: 'bi bi-trash' }))
     );
 
     label.append(left, actions);
-    li.setAttribute('data-item-id', it.id);
-    li.setAttribute('data-panel', panelName);
     li.appendChild(label);
     return li;
 }

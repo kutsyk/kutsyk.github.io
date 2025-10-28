@@ -628,7 +628,10 @@ export function pi_onGeometryChanged(svg) {
     // tab reconcile
     const ac = getActiveCell();
     const selId = getSelectedItemId?.();
-    if (!ac && selId) pc_activateEditorTab('object');
+    if (!ac && selId) {
+        pc_activateEditorTab('object');
+        pc_leftnav_activate('content');
+    }
     else if (ac && ac.panel) pc_activateEditorTab('layout');
 }
 
