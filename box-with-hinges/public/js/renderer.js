@@ -84,21 +84,3 @@ export function colorPanels(svg) {
         g.querySelectorAll('[stroke]').forEach(n => n.setAttribute('stroke', color));
     });
 }
-
-function ensureOutlineRect(group, cls) {
-    let r = group.querySelector(`:scope > rect.${cls}`);
-    if (!r) {
-        r = document.createElementNS(NS, 'rect');
-        r.setAttribute('class', cls);
-        group.appendChild(r); // last → on top
-    }
-    const b = group.getBBox();
-    r.setAttribute('x', b.x);
-    r.setAttribute('y', b.y);
-    r.setAttribute('width', b.width);
-    r.setAttribute('height', b.height);
-    return r;
-}
-
-
-
