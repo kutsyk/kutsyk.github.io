@@ -2,17 +2,31 @@
 // Renders per-panel items (text/SVG) onto the target SVG panel layer.
 // Adds dblclick on items → activate Object tab + enter edit.
 
-import {panelState, pc_getLayout, getSelectedItemId} from './state.js';
+import {
+    panelState,
+    pc_getLayout,
+    getSelectedItemId,
+    pc_selectItem,
+    setActiveCell,
+    setCurrentPanel,
+    setSelectedItemId
+} from './state.js';
 import {NS, UI_ATTR} from './constants.js';
-import {renderText, renderSvg} from './renderers.js';
+import {
+    renderText,
+    renderSvg,
+    addSelectionRect,
+    removeSelectionRect,
+    showHoverOutline,
+    hideHoverOutline, showActiveOutline, hideActiveOutline
+} from './renderers.js';
 import {findPanelNode, ensureLayer, clear} from './utils.js';
 import {pc_applyCellBoxTweaks} from './../panel-state-bridge.js';
+import {pc_getStateRef} from "./edit.js";
 
 function drawSelectionFrame(layer, node) {
     if (!layer || !node) return;
     // remove previous selection frame in this layer
-    console.log(layer);
-    console.log(node);
     layer.querySelectorAll('[data-pc-sel="1"]').forEach(n => n.remove());
     let b;
     try {
@@ -43,7 +57,6 @@ function drawSelectionFrame(layer, node) {
     layer.appendChild(g);
 }
 
-
 export function renderPanel(svg, name) {
     const host = findPanelNode(svg, name);
     if (!host) return;
@@ -70,9 +83,14 @@ export function renderPanel(svg, name) {
                 let box = {x: cell.x, y: cell.y, w: cell.w, h: cell.h};
                 box = pc_applyCellBoxTweaks(name, it, box);
 
-                const node = it.type === 'text' ? renderText(layer, box, it)
-                    : it.type === 'svg' ? renderSvg(layer, box, it)
-                        : null;
+                let node = null;
+                if (it.type === 'text') {
+                    node = renderText(layer, box, it)
+                    finalizeItemRender(layer, it);
+                } else if (it.type === 'svg') {
+                    node = renderSvg(layer, box, it)
+                    finalizeItemRender(layer, it);
+                }
                 if (node){
                     decorateItemNodeForEditing(node, name, it.id);
                     if (selectedId && it.id === selectedId) selectedNode = node;
@@ -84,9 +102,14 @@ export function renderPanel(svg, name) {
             let box = it.box || {x: bbox.x, y: bbox.y, w: bbox.width, h: bbox.height};
             box = pc_applyCellBoxTweaks(name, it, box);
 
-            const node = it.type === 'text' ? renderText(layer, box, it)
-                : it.type === 'svg' ? renderSvg(layer, box, it)
-                    : null;
+            let node = null;
+            if (it.type === 'text') {
+                node = renderText(layer, box, it)
+                finalizeItemRender(layer, it);
+            } else if (it.type === 'svg') {
+                node = renderSvg(layer, box, it)
+                finalizeItemRender(layer, it);
+            }
             if (node){
                 decorateItemNodeForEditing(node, name, it.id);
                 if (selectedId && it.id === selectedId) selectedNode = node;
@@ -101,8 +124,35 @@ export function renderPanel(svg, name) {
 export function renderAll(svg) {
     if (!svg) return;
     ['Bottom', 'Lid', 'Front', 'Back', 'Left', 'Right'].forEach(name => renderPanel(svg, name));
+    document.addEventListener('pc:itemSelectionChanged', (e) => {
+        const { id } = e.detail || {};
+        const svg = document.querySelector('#out svg');
+        if (!svg) return;
+        svg.querySelectorAll('g.pc-item').forEach(g => {
+            hideHoverOutline(g);
+            hideActiveOutline(g);
+        });
+        if (id) {
+            const sel = svg.querySelector(`g.pc-item[data-item-id="${id}"]`);
+            if (sel) showActiveOutline(sel);
+        }
+    });
+    const selId = pc_getStateRef()?._ui?.selectedItemId || null;
+    if (selId) {
+        const g = svg.querySelector(`g.pc-item[data-item-id="${selId}"]`);
+        if (g) { hideHoverOutline(g); showActiveOutline(g); }
+    }
 }
 
+function finalizeItemRender(groupNode, item) {
+    const selId = getSelectedItemId?.();
+    if (selId === item.id) {
+        hideHoverOutline(groupNode);
+        showActiveOutline(groupNode);
+    } else {
+        hideActiveOutline(groupNode);
+    }
+}
 // ---- dblclick hook for items ----
 function decorateItemNodeForEditing(node, panelName, itemId) {
     node.classList.add('pc-item');
@@ -184,4 +234,3 @@ function buildCellBox(grid, place) {
 
     return {x, y, w, h};
 }
-

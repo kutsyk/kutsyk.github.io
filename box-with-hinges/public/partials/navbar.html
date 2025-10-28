@@ -1,11 +1,16 @@
 <nav class="navbar navbar-dark bg-dark border-bottom py-2">
     <div class="container-fluid">
         <div class="d-flex align-items-center gap-2">
-            <button id="btnToggleSidebar" class="sidebar-toggle" aria-label="Toggle sidebar" title="Toggle sidebar">
-                <i class="bi bi-layout-sidebar-inset"></i>
+            <button id="btnToggleSidebar" class="btn btn-sm btn-outline-secondary ms-2" aria-label="Toggle sidebar" title="Toggle sidebar">
+                <i class="bi bi-layout-sidebar-inset"></i>Workspace
             </button>
-            <span class="navbar-brand mb-0 h6">Box with Hinges Generator</span>
         </div>
-        <span class="text-secondary small">by Kutsyk</span>
+        <div class="d-flex align-items-center gap-2">
+            <span class="navbar-brand mb-0 h6">Box with Hinges Generator</span>
+            <span class="text-secondary small">by Kutsyk</span>
+        </div>
+        <button id="btnToggleEditorNavbar" class="btn btn-sm btn-outline-secondary ms-2" type="button" title="Editor">
+            <i class="bi bi-layout-sidebar-inset-reverse me-1"></i>Editor
+        </button>
     </div>
 </nav>

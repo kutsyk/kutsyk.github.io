@@ -1,6 +1,6 @@
 // js/main.js
 import {generateSvg} from './geometry.js';
-import {colorPanels, mountSvg} from './renderer.js';
+import {colorPanels, colorTabs, mountSvg} from './renderer.js';
 import {addLabels} from './labels.js';
 import {initInfiniteGrid} from "./grid.js";
 import {initRulers} from "./ruler.js";
@@ -14,7 +14,7 @@ const els = {
     out: $('#out'),
     status: $('#status'),
     download: $('#download'),
-    resetBtn: $('#resetBtn'),
+    resetBtn: $('#confirmResetYes'),
     zoomIn: $('#zoomIn'),
     zoomOut: $('#zoomOut'),
     zoomReset: $('#zoomReset'),
@@ -252,6 +252,7 @@ async function generate() {
         const svgText = generateSvg(params);
         const svg = mountSvg(svgText, els.out);
         colorPanels(svg);
+        colorTabs(svg);
         fitToContent(svg, 10);
 
         // render panel content + overlays
@@ -368,11 +369,8 @@ async function generate() {
     });
 
     els.resetBtn?.addEventListener('click', () => {
-        const btn = document.getElementById('resetBtn');
-
-        if (!btn || btn._pcBoundReset) return;
-        btn._pcBoundReset = true;
-        els.form.reset();
+        const m = bootstrap?.Modal?.getInstance(document.getElementById('confirmResetModal'));
+        if (m) m.hide();
 
         if (els.widthRange && els.widthNum) els.widthNum.value = els.widthRange.value;
         if (els.depthRange && els.depthNum) els.depthNum.value = els.depthRange.value;

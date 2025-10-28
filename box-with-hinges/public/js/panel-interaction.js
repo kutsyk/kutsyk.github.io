@@ -1,6 +1,6 @@
+// Refactored from panel-interaction.js :contentReference[oaicite:0]{index=0}
 // js/panel-interaction.js
-// Overlays: panel frame, layout grid lines, active-cell highlight, cell hit-rects,
-// drag-and-drop targets. Renders on ALL detected panels. Percent-aware grid.
+// Responsibilities: overlays (visual), hits (interactive), DnD, selection routing, tab + leftnav sync.
 
 import {
     getCurrentPanel,
@@ -8,74 +8,169 @@ import {
     getActiveCell,
     setActiveCell,
     setSelectedItemId,
-    pc_getLayout
+    getSelectedItemId,
+    pc_getLayout,
+    pc_clearSelection
 } from './panel/state.js';
+
 import {
     pc_addItemAtGridCell,
     pc_renderAll,
     pc_setItemSvg,
     pc_setItemType,
-    pc_save, pc_getPanelState
+    pc_save,
+    pc_getPanelState
 } from './panel-state-bridge.js';
-import {UI_ATTR, NS} from "./panel/constants.js";
 
-// --- global hint about what the user started dragging (palette) ---
-let _lastDragKind = null; // 'text' | 'svg' | null
-window.removeEventListener('dragstart', window._pcDragStartCap, true);
-window._pcDragStartCap = (e) => {
-    const t = e.target;
-    const k = (t && (t.getAttribute('data-pc-drag') || t.getAttribute('data-pc-add') || t.dataset?.pcDrag || '')).toLowerCase();
-    _lastDragKind = /svg/.test(k) ? 'svg' : /text/.test(k) ? 'text' : _lastDragKind;
-};
-window.addEventListener('dragstart', window._pcDragStartCap, true);
-window.addEventListener('dragend', () => { _lastDragKind = null; }, true);
+import { UI_ATTR, NS } from './panel/constants.js';
+import { pc_activateEditorTab, pc_getStateRef } from './panel-content.js';
+import { hideHoverOutline, showHoverOutline } from './panel/renderers.js';
+import { pc_leftnav_activate } from './ui-leftnav.js';
 
-const PANEL_COLORS = {
-    Front: '#6366f1', Back: '#06b6d4', Left: '#84cc16',
-    Right: '#f59e0b', Lid: '#ec4899', Bottom: '#22c55e'
-};
-const panelColor = n => PANEL_COLORS[n] || '#60a5fa';
+// ---------- constants ----------
+const PANEL_COLORS = Object.freeze({
+    Front:  '#6366f1',
+    Back:   '#06b6d4',
+    Left:   '#84cc16',
+    Right:  '#f59e0b',
+    Lid:    '#ec4899',
+    Bottom: '#22c55e'
+});
+const panelColor = (n) => PANEL_COLORS[n] || '#60a5fa';
 
-// ---------- helpers ----------
+// Global hint about palette drag kind
+let _lastDragKind = null;
+
+// ---------- one-time global binds ----------
+(function bindGlobalDnDKindCapture() {
+    window.removeEventListener('dragstart', window._pcDragStartCap, true);
+    window._pcDragStartCap = (e) => {
+        const t = e.target;
+        const k = (t && (t.getAttribute('data-pc-drag') || t.getAttribute('data-pc-add') || t.dataset?.pcDrag || '')).toLowerCase();
+        _lastDragKind = /svg/.test(k) ? 'svg' : /text/.test(k) ? 'text' : _lastDragKind;
+    };
+    window.addEventListener('dragstart', window._pcDragStartCap, true);
+    window.addEventListener('dragend',   () => { _lastDragKind = null; }, true);
+})();
+
+(function bindLeftNavCellSyncOnce() {
+    if (window._pcLeftNavCellSyncBound) return; window._pcLeftNavCellSyncBound = true;
+    document.addEventListener('pc:activeCellChanged', (e) => {
+        if (!e.detail?.panel) return;
+        // do not override object editing
+        const sel = (typeof getSelectedItemId === 'function') ? getSelectedItemId() : null;
+        if (sel) return;
+        pc_leftnav_activate('content');
+    });
+})();
+
+(function bindTreeSyncOnce() {
+    if (window._pcTreeSyncBound) return; window._pcTreeSyncBound = true;
+
+    // cell → highlight in external tree (if present)
+    document.addEventListener('pc:activeCellChanged', (e) => {
+        const d = e.detail || {};
+        const tree = document.getElementById('pc-structure');
+        if (!tree) return;
+        tree.querySelectorAll('.is-active').forEach(n => n.classList.remove('is-active'));
+        if (d && d.panel && Number.isFinite(d.row) && Number.isFinite(d.col)) {
+            const node =
+                tree.querySelector(`[data-panel="${d.panel}"][data-row="${d.row}"][data-col="${d.col}"]`) ||
+                tree.querySelector(`[data-cell-key="${d.panel}:${d.row}:${d.col}"]`);
+            if (!node) return;
+            node.classList.add('is-active');
+            node.closest('[data-tree-group]')?.classList.add('open');
+            node.scrollIntoView({ block:'nearest' });
+        }
+    });
+
+    // item → highlight in external tree (if present)
+    document.addEventListener('pc:itemSelectionChanged', (e) => {
+        const d = e.detail || {};
+        const tree = document.getElementById('pc-structure');
+        if (!tree) return;
+        tree.querySelectorAll('.is-active').forEach(n => n.classList.remove('is-active'));
+        if (!d || !d.id) return;
+        const node =
+            tree.querySelector(`[data-item-id="${d.id}"][data-panel="${d.panel || ''}"]`) ||
+            tree.querySelector(`[data-item-id="${d.id}"]`);
+        if (!node) return;
+        node.classList.add('is-active');
+        node.closest('[data-tree-group]')?.classList.add('open');
+        node.scrollIntoView({ block:'nearest' });
+    });
+})();
+
+(function bindTabAutoSwitchOnce() {
+    if (window._pcTabAutoBound) return; window._pcTabAutoBound = true;
+
+    // Object selection wins
+    document.addEventListener('pc:itemSelectionChanged', (e) => {
+        const id = e.detail?.id || null;
+        if (id) pc_activateEditorTab('object');
+        else {
+            const ac = getActiveCell?.();
+            if (ac && ac.panel) pc_activateEditorTab('layout');
+        }
+    });
+
+    // Switch to layout only if no item is selected
+    document.addEventListener('pc:activeCellChanged', (e) => {
+        const sel = getSelectedItemId?.();
+        if (sel) return;
+        if (e.detail?.panel) pc_activateEditorTab('layout');
+    });
+})();
+
+// ---------- utils ----------
 function ensureOverlay(svg, id) {
     let ov = svg.querySelector(`#${id}`);
     if (!ov) {
         ov = document.createElementNS(NS, 'g');
         ov.setAttribute('id', id);
         ov.setAttribute(UI_ATTR, '1');
-        ov.setAttribute('pointer-events', 'none');
+        if (id === 'pcOverlaysRoot') {
+            ov.setAttribute('pointer-events', 'none');      // visuals only
+        } else if (id === 'pcHitsRoot') {
+            ov.removeAttribute('pointer-events');           // interactive
+            svg.appendChild(ov);
+            return ov;
+        }
         svg.appendChild(ov);
     }
     return ov;
 }
 function safeLen(v, min = 0.01) { const n = Number(v); return Number.isFinite(n) ? Math.max(min, n) : min; }
-function pointInSvgUserSpace(svg, clientX, clientY) {
-    const pt = svg.createSVGPoint(); pt.x = clientX; pt.y = clientY;
-    const viewport = svg.querySelector('.svg-pan-zoom_viewport') || svg;
-    const ctm = viewport.getScreenCTM();
-    return ctm ? pt.matrixTransform(ctm.inverse()) : { x: 0, y: 0 };
-}
 function hexToRgba(hex, a) {
     const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     if (!m) return `rgba(96,165,250,${a})`;
     const r = parseInt(m[1], 16), g = parseInt(m[2], 16), b = parseInt(m[3], 16);
     return `rgba(${r},${g},${b},${a})`;
 }
-// detect panels from the live SVG (don’t rely on a static list)
+function clientToSvgPoint(svg, clientX, clientY) {
+    const pt = svg.createSVGPoint(); pt.x = clientX; pt.y = clientY;
+    return pt.matrixTransform(svg.getScreenCTM().inverse());
+}
+function pointInSvgUserSpace(svg, clientX, clientY) {
+    const pt = svg.createSVGPoint(); pt.x = clientX; pt.y = clientY;
+    const viewport = svg.querySelector('.svg-pan-zoom_viewport') || svg;
+    const ctm = viewport.getScreenCTM();
+    return ctm ? pt.matrixTransform(ctm.inverse()) : { x: 0, y: 0 };
+}
 function listFoundPanels(svg) {
-    const CANDIDATES = ['Bottom', 'Lid', 'Front', 'Back', 'Left', 'Right'];
+    const CANDIDATES = ['Bottom','Lid','Front','Back','Left','Right'];
     const out = [];
     for (const n of CANDIDATES) {
         const host =
             svg.querySelector(`g[id$="${n}"]`) ||
             svg.querySelector(`path[id$="${n}"]`) ||
             svg.querySelector(`[id$="${n}"]`);
-        if (host) out.push({ name: n, host });
+        if (host) out.push({ name:n, host });
     }
     return out;
 }
 
-// ---------- percent-aware grid ----------
+// ---------- grid math ----------
 function computeGridPct(panelBBox, layout) {
     const { x, y, width, height } = panelBBox;
     const pad = Math.max(0, Number(layout.padding) || 0);
@@ -88,9 +183,12 @@ function computeGridPct(panelBBox, layout) {
     const availH = Math.max(0, inner.h - gutter * (rows - 1));
 
     const rowP = (Array.isArray(layout.rowPercents) && layout.rowPercents.length === rows)
-        ? layout.rowPercents.map(n => Number(n) || 0) : Array.from({ length: rows }, () => 100 / rows);
+        ? layout.rowPercents.map(n => Number(n) || 0)
+        : Array.from({ length: rows }, () => 100 / rows);
+
     const colP = (Array.isArray(layout.colPercents) && layout.colPercents.length === cols)
-        ? layout.colPercents.map(n => Number(n) || 0) : Array.from({ length: cols }, () => 100 / cols);
+        ? layout.colPercents.map(n => Number(n) || 0)
+        : Array.from({ length: cols }, () => 100 / cols);
 
     const rowPx = rowP.map(p => availH * Math.max(0, p) / 100);
     const colPx = colP.map(p => availW * Math.max(0, p) / 100);
@@ -163,25 +261,86 @@ function drawGridLinesPct(ov, grid, layout) {
     ov.appendChild(g);
 }
 
-// ---------- overlay per panel (host passed in) ----------
-function renderPanelOverlay(svg, name, host, showGrid) {
-    const L = pc_getLayout(name);
-    const root = ensureOverlay(svg, 'pcOverlaysRoot');
+// ---------- hit testing ----------
+function hitTestItemAtClient(svgEl, panelName, clientX, clientY) {
+    const layer = svgEl.querySelector(`#pcLayer_${panelName}`);
+    if (!layer) return null;
+    const stack = document.elementsFromPoint(clientX, clientY);
+    for (const el of stack) {
+        if (el.getAttribute && el.getAttribute(UI_ATTR) === '1') continue;          // skip UI overlay
+        const container = el.closest?.('[data-item-id]');
+        if (container && layer.contains(container)) return container;                // found topmost item
+        if (el.id === `pcOverlayHits_${panelName}`) break;                           // stop on this panel’s hits layer
+    }
+    return null;
+}
 
-    let ov = svg.querySelector(`#pcOverlay_${name}`);
+// ---------- DnD: cell drop handler factory ----------
+function onDropToCell(panelName, row, col, svg) {
+    return async function handleDrop(e) {
+        e.preventDefault(); e.stopPropagation();
+
+        const tgt = e.currentTarget;
+        if (tgt && tgt.setAttribute) tgt.setAttribute('stroke', 'none');
+
+        const dt = e.dataTransfer;
+        const hint = dt?.getData('text/plain') || '';
+        const files = dt?.files ? [...dt.files] : [];
+        const svgFile = files.find(f =>
+            (f.type && f.type.toLowerCase().includes('svg')) || (f.name && /\.svg$/i.test(f.name))
+        );
+        let type = svgFile ? 'svg' : (/svg/i.test(hint) ? 'svg' : 'text');
+
+        const pane = pc_getPanelState(panelName);
+        if (!pane || (pane.layout?.mode || 'grid') !== 'grid') return;
+
+        const rr = Number(tgt?.getAttribute?.('data-pc-cell-row')) || row;
+        const cc = Number(tgt?.getAttribute?.('data-pc-cell-col')) || col;
+
+        const newId = pc_addItemAtGridCell(panelName, type, { row: rr, col: cc });
+        if (!newId) return;
+
+        if (type === 'svg') {
+            pc_setItemType(panelName, newId, 'svg');
+            if (svgFile) {
+                try { const txt = await svgFile.text(); pc_setItemSvg(panelName, newId, txt, svgFile.name); } catch {}
+            }
+        }
+
+        setCurrentPanel(panelName);
+        setActiveCell({ panel: panelName, row: rr, col: cc });
+        document.dispatchEvent(new CustomEvent('pc:panelChanged',      { detail: { panel: panelName } }));
+        document.dispatchEvent(new CustomEvent('pc:activeCellChanged', { detail: { panel: panelName, row: rr, col: cc } }));
+        document.dispatchEvent(new CustomEvent('pc:itemSelectionChanged', { detail: { id: newId, panel: panelName } }));
+
+        pc_save();
+        pc_renderAll(svg);
+        pi_onGeometryChanged(svg);
+
+        setSelectedItemId(newId);
+        pc_activateEditorTab('object');
+    };
+}
+
+// ---------- per-panel overlay ----------
+function renderPanelOverlay(svg, panelName, host, showGrid) {
+    const L = pc_getLayout(panelName);
+    const overlaysRoot = ensureOverlay(svg, 'pcOverlaysRoot');
+    const hitsRoot     = ensureOverlay(svg, 'pcHitsRoot');
+
+    let ov = svg.querySelector(`#pcOverlay_${panelName}`);
     if (!ov) {
         ov = document.createElementNS(NS, 'g');
-        ov.setAttribute('id', `pcOverlay_${name}`);
+        ov.setAttribute('id', `pcOverlay_${panelName}`);
         ov.setAttribute(UI_ATTR, '1');
         ov.setAttribute('pointer-events', 'none');
-        root.appendChild(ov);
+        overlaysRoot.appendChild(ov);
     } else {
         while (ov.firstChild) ov.removeChild(ov.firstChild);
     }
 
-    if (getCurrentPanel() === name) drawPanelFrame(ov, host, name);
+    if (getCurrentPanel() === panelName) drawPanelFrame(ov, host, panelName);
 
-    // only grid mode draws cells
     if ((L.mode || 'grid') !== 'grid') return;
 
     const bbox = host.getBBox();
@@ -189,19 +348,32 @@ function renderPanelOverlay(svg, name, host, showGrid) {
 
     if (showGrid) drawGridLinesPct(ov, G, L);
 
+    const S = pc_getStateRef?.();
+    const selectedOnThisPanel = !!(S && S._ui?.selectedItemId && S._ui.activePanel === panelName);
+
     const ac = getActiveCell();
-    const color = panelColor(name);
+    const color = panelColor(panelName);
+
+    let hitLayer = svg.querySelector(`#pcOverlayHits_${panelName}`);
+    if (!hitLayer) {
+        hitLayer = document.createElementNS(NS, 'g');
+        hitLayer.setAttribute('id', `pcOverlayHits_${panelName}`);
+        hitLayer.setAttribute(UI_ATTR, '1');
+        hitsRoot.appendChild(hitLayer);
+    } else {
+        while (hitLayer.firstChild) hitLayer.removeChild(hitLayer.firstChild);
+    }
 
     for (let r = 1; r <= G.rows; r++) {
         for (let c = 1; c <= G.cols; c++) {
             const rect = cellRectPct(G, r, c);
 
-            // active highlight
-            if (ac && ac.panel === name && ac.row === r && ac.col === c) {
+            // active cell highlight (suppressed if an item is selected on this panel)
+            if (!selectedOnThisPanel && ac && ac.panel === panelName && ac.row === r && ac.col === c) {
                 const hi = document.createElementNS(NS, 'rect');
                 hi.setAttribute('x', rect.x);
                 hi.setAttribute('y', rect.y);
-                hi.setAttribute('width', safeLen(rect.w));
+                hi.setAttribute('width',  safeLen(rect.w));
                 hi.setAttribute('height', safeLen(rect.h));
                 hi.setAttribute('fill', hexToRgba(color, 0.14));
                 hi.setAttribute('stroke', color);
@@ -216,99 +388,122 @@ function renderPanelOverlay(svg, name, host, showGrid) {
                 ov.appendChild(notch);
             }
 
-            // hit area
-            const hit = document.createElementNS(NS, 'rect');
-            hit.setAttribute('x', rect.x);
-            hit.setAttribute('y', rect.y);
-            hit.setAttribute('width', safeLen(rect.w));
-            hit.setAttribute('height', safeLen(rect.h));
-            hit.setAttribute('fill', 'transparent');
-            hit.setAttribute('stroke', 'transparent');
-            hit.setAttribute('stroke-width', '0.3');
-            hit.setAttribute(UI_ATTR, '1');
-            hit.setAttribute('data-pc-cell-row', String(r));
-            hit.setAttribute('data-pc-cell-col', String(c));
-            hit.style.cursor = 'pointer';
-            hit.setAttribute('pointer-events', 'all');
+            // INNER hit: object-first selection, DnD; never activates cell
+            const inner = document.createElementNS(NS, 'rect');
+            inner.setAttribute('x', rect.x);
+            inner.setAttribute('y', rect.y);
+            inner.setAttribute('width',  safeLen(rect.w));
+            inner.setAttribute('height', safeLen(rect.h));
+            inner.setAttribute('fill', 'rgba(0,0,0,0.001)');
+            inner.setAttribute('stroke', 'none');
+            inner.style.pointerEvents = 'all';
+            inner.setAttribute(UI_ATTR, '1');
+            inner.setAttribute('data-pc-cell-row', String(r));
+            inner.setAttribute('data-pc-cell-col', String(c));
 
-            hit.addEventListener('mouseenter', () => hit.setAttribute('stroke', hexToRgba(color, .5)));
-            hit.addEventListener('mouseleave', () => hit.setAttribute('stroke', 'transparent'));
-
-            hit.addEventListener('click', (e) => {
-                e.preventDefault();
-                setCurrentPanel(name);
-                setActiveCell({ panel: name, row: r, col: c });
-                document.dispatchEvent(new CustomEvent('pc:panelChanged', { detail: { panel: name } }));
-                document.dispatchEvent(new CustomEvent('pc:activeCellChanged', { detail: { panel: name, row: r, col: c } }));
-                pi_onGeometryChanged(svg);
-            });
-
-            hit.addEventListener('dblclick', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setCurrentPanel(name);
-                setActiveCell({ panel: name, row: r, col: c });
-                document.dispatchEvent(new CustomEvent('pc:panelChanged', { detail: { panel: name } }));
-                document.dispatchEvent(new CustomEvent('pc:activeCellChanged', { detail: { panel: name, row: r, col: c } }));
-                pi_onGeometryChanged(svg);
-            });
-
-            // DnD add (text/svg, with file fallback for svg)
-            hit.addEventListener('dragenter', () => { hit.setAttribute('stroke', hexToRgba(color, .7)); });
-            hit.addEventListener('dragleave', () => { hit.setAttribute('stroke', 'transparent'); });
-            hit.addEventListener('dragover', (e) => {
+            // DnD on inner
+            inner.addEventListener('dragenter', () =>  inner.setAttribute('stroke', hexToRgba(color, .7)));
+            inner.addEventListener('dragleave', () =>  inner.setAttribute('stroke', 'none'));
+            inner.addEventListener('dragover', (e) => {
                 const t = e.dataTransfer?.getData('text/plain');
                 const hasFiles = !!(e.dataTransfer?.files && e.dataTransfer.files.length);
-                if (t === 'text' || t === 'svg' || !t || hasFiles) { e.preventDefault(); if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy'; }
+                if (t === 'text' || t === 'svg' || !t || hasFiles) { e.preventDefault(); e.dataTransfer && (e.dataTransfer.dropEffect = 'copy'); }
             });
-            hit.addEventListener('drop', async (e) => {
-                e.preventDefault(); e.stopPropagation();
-                const files = e.dataTransfer?.files;
-                const hasSvgFile = !!(files && [...files].some(f => (f.type && f.type.includes('svg')) || (f.name && /\.svg$/i.test(f.name))));
-                let type = e.dataTransfer?.getData('text/plain');
-                if (!type) type = hasSvgFile ? 'svg' : (_lastDragKind || 'text');
-                type = /svg/i.test(type) ? 'svg' : 'text';
+            inner.addEventListener('drop', onDropToCell(panelName, r, c, svg));
 
-                const rr = Number(hit.getAttribute('data-pc-cell-row')) || r;
-                const cc = Number(hit.getAttribute('data-pc-cell-col')) || c;
-                const pane = pc_getPanelState(name);
-                if (!pane || (pane.layout?.mode || 'grid') !== 'grid') return;
+            // Hover → hit test → cursor + hover outline
+            inner.addEventListener('mousemove', (e) => {
+                const g = hitTestItemAtClient(svg, panelName, e.clientX, e.clientY);
+                inner.style.cursor = g ? 'pointer' : 'default';
 
-                const newId = pc_addItemAtGridCell(name, type, { row: rr, col: cc });
-                if (type === 'svg' && newId) pc_setItemType(name, newId, 'svg');
+                const hoverIdPrev = svg.getAttribute('data-pc-hover-id') || '';
+                const hoverIdNext = g ? (g.getAttribute('data-item-id') || '') : '';
+                if (hoverIdPrev === hoverIdNext) return;
 
-                if (hasSvgFile && files && files.length && newId) {
-                    const file = [...files].find(f => (f.type && f.type.includes('svg')) || (f.name && /\.svg$/i.test(f.name)));
-                    if (file) {
-                        try { const txt = await file.text(); pc_setItemSvg(name, newId, txt, file.name); type = 'svg'; } catch {}
-                    }
+                if (hoverIdPrev) {
+                    const prev = svg.querySelector(`g.pc-item[data-item-id="${hoverIdPrev}"]`);
+                    if (prev) hideHoverOutline(prev);
                 }
-
-                setCurrentPanel(name);
-                setActiveCell({ panel: name, row: rr, col: cc });
-                document.dispatchEvent(new CustomEvent('pc:panelChanged', { detail: { panel: name } }));
-                document.dispatchEvent(new CustomEvent('pc:activeCellChanged', { detail: { panel: name, row: rr, col: cc } }));
-
-                if (newId) setSelectedItemId(newId);
-
-                pc_renderAll(svg);
-                pi_onGeometryChanged(svg);
-                pc_save();
-
-                try {
-                    const mod = await import('./panel-content.js');
-                    if (type === 'svg' && typeof mod.pc_forceType === 'function') mod.pc_forceType('svg');
-                    if (newId && typeof mod.pc_activateEditorTab === 'function') mod.pc_activateEditorTab('object');
-                    if (newId && typeof mod.pc_enterEdit === 'function') mod.pc_enterEdit(name, newId);
-                } catch {}
+                if (hoverIdNext) {
+                    const selId = pc_getStateRef()?._ui?.selectedItemId || null;
+                    if (selId !== hoverIdNext) showHoverOutline(g);
+                }
+                if (hoverIdNext) svg.setAttribute('data-pc-hover-id', hoverIdNext);
+                else svg.removeAttribute('data-pc-hover-id');
             });
 
-            ov.appendChild(hit);
+            inner.addEventListener('mouseleave', () => {
+                inner.style.cursor = 'default';
+                const prevId = svg.getAttribute('data-pc-hover-id') || '';
+                if (prevId) {
+                    const prev = svg.querySelector(`g.pc-item[data-item-id="${prevId}"]`);
+                    if (prev) hideHoverOutline(prev);
+                    svg.removeAttribute('data-pc-hover-id');
+                }
+            });
+
+            // Click inside → select topmost item (if any)
+            inner.addEventListener('click', (e) => {
+                e.preventDefault();
+                const g = hitTestItemAtClient(svg, panelName, e.clientX, e.clientY);
+                if (!g) return;
+                const id = g.getAttribute('data-item-id');
+                if (!id) return;
+
+                setCurrentPanel(panelName);
+                setActiveCell(null);
+                setSelectedItemId(id);
+
+                document.dispatchEvent(new CustomEvent('pc:panelChanged',        { detail: { panel: panelName } }));
+                document.dispatchEvent(new CustomEvent('pc:itemSelectionChanged', { detail: { id, panel: panelName } }));
+
+                pc_activateEditorTab('object');
+                pi_onGeometryChanged(svg);
+            });
+
+            // BORDER hit: activates cell; pointer-events on stroke only
+            const border = document.createElementNS(NS, 'rect');
+            border.setAttribute('x', rect.x);
+            border.setAttribute('y', rect.y);
+            border.setAttribute('width',  safeLen(rect.w));
+            border.setAttribute('height', safeLen(rect.h));
+            border.setAttribute('fill', 'none');
+            border.setAttribute('stroke', 'transparent');
+            border.setAttribute('stroke-width', '8');
+            border.setAttribute('vector-effect', 'non-scaling-stroke');
+            border.setAttribute('pointer-events', 'stroke');
+            border.style.pointerEvents = 'stroke';
+            border.style.cursor = 'pointer';
+            border.setAttribute(UI_ATTR, '1');
+            border.setAttribute('data-pc-cell-row', String(r));
+            border.setAttribute('data-pc-cell-col', String(c));
+
+            border.addEventListener('mouseenter', () => border.setAttribute('stroke', hexToRgba(color, .5)));
+            border.addEventListener('mouseleave', () => border.setAttribute('stroke', 'transparent'));
+
+            border.addEventListener('click', (e) => {
+                e.preventDefault();
+                pc_clearSelection();
+                setCurrentPanel(panelName);
+                setActiveCell({ panel: panelName, row: r, col: c });
+
+                document.dispatchEvent(new CustomEvent('pc:panelChanged',      { detail: { panel: panelName } }));
+                document.dispatchEvent(new CustomEvent('pc:activeCellChanged', { detail: { panel: panelName, row: r, col: c } }));
+
+                pc_activateEditorTab('layout');
+                pc_leftnav_activate('content');
+
+                pi_onGeometryChanged(svg);
+            });
+
+            // order: inner below, border above
+            hitLayer.appendChild(inner);
+            hitLayer.appendChild(border);
         }
     }
 }
 
-// ---------- global toggle ----------
+// ---------- global toggles ----------
 function getShowGridFlag() {
     const g = document.getElementById('pc-show-guides-global');
     return !!(g && g.checked);
@@ -324,7 +519,7 @@ function bindGlobalTogglesOnce() {
     }
 }
 
-// ---------- drops (enumerate actual hosts) ----------
+// ---------- host-level drops (fallback) ----------
 function attachDrops(svg) {
     const panels = listFoundPanels(svg);
     panels.forEach(({ name, host }) => {
@@ -345,9 +540,7 @@ function attachDrops(svg) {
             for (let rr = 1; rr <= G.rows; rr++) {
                 for (let cc = 1; cc <= G.cols; cc++) {
                     const rect = cellRectPct(G, rr, cc);
-                    if (pxy.x >= rect.x && pxy.x <= rect.x + rect.w && pxy.y >= rect.y && pxy.y <= rect.y + rect.h) {
-                        hit = { row: rr, col: cc };
-                    }
+                    if (pxy.x >= rect.x && pxy.x <= rect.x + rect.w && pxy.y >= rect.y && pxy.y <= rect.y + rect.h) hit = { row: rr, col: cc };
                 }
             }
 
@@ -360,20 +553,18 @@ function attachDrops(svg) {
 
             setCurrentPanel(name);
             setActiveCell({ panel: name, row: hit.row, col: hit.col });
-            document.dispatchEvent(new CustomEvent('pc:panelChanged', { detail: { panel: name } }));
+            document.dispatchEvent(new CustomEvent('pc:panelChanged',      { detail: { panel: name } }));
             document.dispatchEvent(new CustomEvent('pc:activeCellChanged', { detail: { panel: name, row: hit.row, col: hit.col } }));
 
-            if (newId) setSelectedItemId(newId);
+            if (newId) {
+                setSelectedItemId(newId);
+                document.dispatchEvent(new CustomEvent('pc:itemSelectionChanged', { detail: { id: newId, panel: name } }));
+                pc_activateEditorTab('object');
+            }
 
             pc_renderAll(svg);
             pi_onGeometryChanged(svg);
             pc_save();
-
-            try {
-                const mod = await import('./panel-content.js');
-                if (newId && typeof mod.pc_activateEditorTab === 'function') mod.pc_activateEditorTab('object');
-                if (newId && typeof mod.pc_enterEdit === 'function') mod.pc_enterEdit(name, newId);
-            } catch {}
         });
     });
 }
@@ -419,7 +610,7 @@ function bindBackgroundDeselect(svg) {
     }, { once: false });
 }
 
-// ---------- public ----------
+// ---------- public API ----------
 export function pi_onGeometryChanged(svg) {
     if (!svg) return;
     bindGlobalTogglesOnce();
@@ -429,12 +620,21 @@ export function pi_onGeometryChanged(svg) {
 
     const showGrid = getShowGridFlag();
     const panels = listFoundPanels(svg);
-    for (const { name, host } of panels) {
-        renderPanelOverlay(svg, name, host, showGrid);
-    }
+    for (const { name, host } of panels) renderPanelOverlay(svg, name, host, showGrid);
 
     attachDrops(svg);
     bindBackgroundDeselect(svg);
+
+    // tab reconcile
+    const ac = getActiveCell();
+    const selId = getSelectedItemId?.();
+    if (!ac && selId) {
+        pc_activateEditorTab('object');
+        pc_leftnav_activate('content');
+    }
+    else if (ac && ac.panel) pc_activateEditorTab('layout');
 }
-export function pi_refreshAllOverlays(svg) { pi_onGeometryChanged(svg); }
-export function pi_beforeDownload(svgClone) { svgClone.querySelectorAll(`[${UI_ATTR}]`).forEach(n => n.remove()); }
+
+export function pi_beforeDownload(svgClone) {
+    svgClone.querySelectorAll(`[${UI_ATTR}]`).forEach(n => n.remove());
+}

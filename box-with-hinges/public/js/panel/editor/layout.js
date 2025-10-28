@@ -9,7 +9,7 @@ import {
     getActiveCell,
     repaint,
     getCurrentSvg,
-    nowPanel
+    nowPanel, getSelectedItemId
 } from './helpers.js';
 
 import {

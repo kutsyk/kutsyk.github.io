@@ -1,5 +1,5 @@
 // public/js/renderer.js
-import {PANELS} from "./panel/constants.js";
+import {PANELS, UI_ATTR} from "./panel/constants.js";
 
 export function mountSvg(rawSvgText, outEl) {
     outEl.innerHTML = '';
@@ -37,6 +37,44 @@ export function mountSvg(rawSvgText, outEl) {
     return svg;
 }
 
+export function colorTabs(svg) {
+    // female tabs = blue
+    svg.querySelectorAll('g[id$="__femaleTabs__"] rect, g[id$="__femaleTabs__"] path')
+        .forEach(n => {
+            n.setAttribute('stroke', '#1e3a8a');   // blue
+            n.setAttribute('fill', 'none');
+            n.setAttribute('opacity', '0.9');
+            n.setAttribute('vector-effect', 'non-scaling-stroke');
+            n.setAttribute('stroke-width', '0.6');
+            n.setAttribute(UI_ATTR, '1');          // UI-only; stripped by export.js
+            n.style.pointerEvents = 'none';
+        });
+
+    // male tabs = green
+    svg.querySelectorAll('g[id$="__maleTabs__"] rect, g[id$="__maleTabs__"] path')
+        .forEach(n => {
+            n.setAttribute('stroke', '#065f46');   // green
+            n.setAttribute('fill', 'none');
+            n.setAttribute('opacity', '0.9');
+            n.setAttribute('vector-effect', 'non-scaling-stroke');
+            n.setAttribute('stroke-width', '0.6');
+            n.setAttribute(UI_ATTR, '1');
+            n.style.pointerEvents = 'none';
+        });
+
+    // lid bottom 2× tab = purple
+    svg.querySelectorAll('#Lid g[id$="__lidBottomTab__"] rect, #Lid g[id$="__lidBottomTab__"] path')
+        .forEach(n => {
+            n.setAttribute('stroke', '#6b21a8');   // purple
+            n.setAttribute('fill', 'none');
+            n.setAttribute('opacity', '0.1');
+            n.setAttribute('vector-effect', 'non-scaling-stroke');
+            n.setAttribute('stroke-width', '1');
+            n.setAttribute(UI_ATTR, '1');
+            n.style.pointerEvents = 'none';
+        });
+}
+
 export function colorPanels(svg) {
     Object.entries(PANELS).forEach(([id]) => {
         const g = svg.querySelector(`#${CSS.escape(id)}`);
@@ -46,4 +84,3 @@ export function colorPanels(svg) {
         g.querySelectorAll('[stroke]').forEach(n => n.setAttribute('stroke', color));
     });
 }
-

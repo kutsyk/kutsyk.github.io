@@ -1,0 +1,409 @@
+<!-- /partials/editor-right.html -->
+<aside class="sidebar sidebar-right">
+    <div class="card">
+      <div class="card-header py-2 d-flex justify-content-between align-items-center">
+        <span class="fw-semibold small text-uppercase d-inline-flex align-items-center gap-1">
+          <i class="bi bi-pencil-square"></i> Editor
+        </span>
+        <button id="btnToggleEditor" class="btn btn-sm btn-outline-secondary">
+          <i class="bi bi-layout-sidebar-inset-reverse me-1"></i>Hide
+        </button>
+      </div>
+
+      <div class="card-body p-2">
+        <!-- Add Elements -->
+        <details id="pc-sec-add" open class="mb-2">
+          <summary class="fw-semibold d-flex align-items-center gap-1">
+            <i class="bi bi-plus-square-dotted"></i> Add Elements
+          </summary>
+          <div class="mt-2 d-grid gap-2" id="pc-add-list">
+            <button id="pc-drag-text" class="add-item-btn" draggable="true" type="button" data-pc-drag="text">
+              <i class="bi bi-type"></i><span class="title">Text</span>
+              <span class="hint">Drag to a cell or click</span>
+            </button>
+            <button id="pc-drag-svg" class="add-item-btn" draggable="true" type="button" data-pc-drag="svg">
+              <i class="bi bi-image"></i><span class="title">SVG</span>
+              <span class="hint">Drag to a cell or click</span>
+            </button>
+          </div>
+        </details>
+
+        <!-- Structure -->
+        <details id="pc-sec-structure" open class="mb-2">
+          <summary class="fw-semibold d-flex align-items-center gap-1">
+            <i class="bi bi-diagram-3"></i> Structure
+          </summary>
+          <div id="pc-tree" class="tree mt-2"></div>
+        </details>
+
+        <!-- Editor Tabs -->
+        <details id="pc-sec-editor" open>
+          <summary class="fw-semibold d-flex align-items-center gap-1">
+            <i class="bi bi-braces-asterisk"></i> Properties
+          </summary>
+
+          <div class="mt-2">
+            <ul class="nav nav-tabs" id="pc-editor-tabs" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="pc-tabbtn-layout" data-bs-toggle="tab"
+                        data-bs-target="#pc-tab-layout" type="button" role="tab">
+                  <i class="bi bi-grid-3x3-gap me-1"></i> Panel layout
+                </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="pc-tabbtn-object" data-bs-toggle="tab"
+                        data-bs-target="#pc-tab-object" type="button" role="tab">
+                  <i class="bi bi-braces-asterisk me-1"></i> Object edit
+                </button>
+              </li>
+            </ul>
+
+            <div class="tab-content border border-top-0 rounded-bottom p-2">
+              <!-- Panel layout tab (moved as-is) -->
+              <div class="tab-pane fade show active" id="pc-tab-layout" role="tabpanel" aria-labelledby="pc-tabbtn-layout">
+                  <div class="row g-1 mb-2">
+                      <div class="col-12">
+                          <label class="form-label mb-1 d-flex align-items-center gap-1">
+                              <i class="bi bi-layers"></i> Panel
+                          </label>
+                          <select id="pc-panel" class="form-select form-select-sm">
+                              <option>Bottom</option>
+                              <option>Lid</option>
+                              <option selected>Front</option>
+                              <option>Back</option>
+                              <option>Left</option>
+                              <option>Right</option>
+                          </select>
+                      </div>
+                  </div>
+
+                  <!-- Presets -->
+                  <div class="row g-1 mb-2 align-items-end">
+                      <div class="col-8">
+                          <label class="form-label mb-1 d-flex align-items-center gap-1">
+                              <i class="bi bi-grid"></i> Layout preset
+                          </label>
+                          <select id="pc-layout-preset" class="form-select form-select-sm">
+                              <option value="">— Choose preset —</option>
+                              <option value="center-1x1">Centered (1 × 1)</option>
+                              <option value="rows-2">2 rows (2 × 1)</option>
+                              <option value="cols-2">2 cols (1 × 2)</option>
+                              <option value="grid-2x2">Grid (2 × 2)</option>
+                              <option value="grid-3x3">Grid (3 × 3)</option>
+                              <option value="header-1-2">Header 1/3 + body (2 rows)</option>
+                              <option value="sidebar-1-2">Sidebar 1/3 + body (2 cols)</option>
+                          </select>
+                      </div>
+                      <div class="col-4">
+                          <button id="pc-apply-preset" class="btn btn-sm btn-outline-secondary w-100">
+                              Apply
+                          </button>
+                      </div>
+                  </div>
+
+                  <!-- perc chips + editors -->
+                  <div class="row g-1 mb-2">
+                      <div class="col-12">
+                          <div class="dist-chips">
+                              <div class="d-flex align-items-center gap-1">
+                                  <span class="chip-label"><i class="bi bi-arrows-vertical me-1"></i>Rows:</span>
+                                  <div id="pc-row-chips" class="chips"></div>
+                                  <button id="pc-edit-row-sizes" class="btn btn-xs btn-outline-secondary ms-auto"
+                                          data-bs-toggle="modal" data-bs-target="#pcRowSizesModal">
+                                      Edit
+                                  </button>
+                              </div>
+                              <div class="d-flex align-items-center gap-1 mt-1">
+                                  <span class="chip-label"><i class="bi bi-arrows-horizontal me-1"></i>Cols:</span>
+                                  <div id="pc-col-chips" class="chips"></div>
+                                  <button id="pc-edit-col-sizes" class="btn btn-xs btn-outline-secondary ms-auto"
+                                          data-bs-toggle="modal" data-bs-target="#pcColSizesModal">
+                                      Edit
+                                  </button>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+
+                  <!-- Row sizes modal -->
+                  <div class="modal fade" id="pcRowSizesModal" tabindex="-1" aria-hidden="true">
+                      <div class="modal-dialog modal-sm modal-dialog-centered">
+                          <div class="modal-content">
+                              <div class="modal-header py-2">
+                                  <h6 class="modal-title d-flex align-items-center gap-1">
+                                      <i class="bi bi-arrows-vertical"></i> Row sizes (%)
+                                  </h6>
+                                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                              </div>
+                              <div class="modal-body py-2" id="pcm-rows-body"></div>
+                              <div class="modal-footer py-2">
+                                  <small class="text-secondary me-auto" id="pcm-rows-sum">sum: 100%</small>
+                                  <button id="pcm-rows-balance" class="btn btn-sm btn-outline-secondary">Balance</button>
+                                  <button id="pcm-rows-save" class="btn btn-sm btn-primary">Save</button>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+
+                  <!-- Column sizes modal -->
+                  <div class="modal fade" id="pcColSizesModal" tabindex="-1" aria-hidden="true">
+                      <div class="modal-dialog modal-sm modal-dialog-centered">
+                          <div class="modal-content">
+                              <div class="modal-header py-2">
+                                  <h6 class="modal-title d-flex align-items-center gap-1">
+                                      <i class="bi bi-arrows-horizontal"></i> Column sizes (%)
+                                  </h6>
+                                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                              </div>
+                              <div class="modal-body py-2" id="pcm-cols-body"></div>
+                              <div class="modal-footer py-2">
+                                  <small class="text-secondary me-auto" id="pcm-cols-sum">sum: 100%</small>
+                                  <button id="pcm-cols-balance" class="btn btn-sm btn-outline-secondary">Balance</button>
+                                  <button id="pcm-cols-save" class="btn btn-sm btn-primary">Save</button>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+
+                  <!-- Cell config modal -->
+                  <div class="d-flex justify-content-end mb-2">
+                      <button id="pc-cell-config-open" class="btn btn-sm btn-outline-secondary" disabled
+                              data-bs-toggle="modal" data-bs-target="#pcCellConfigModal">
+                          <i class="bi bi-vector-pen me-1"></i>Cell config…
+                      </button>
+                  </div>
+                  <div class="modal fade" id="pcCellConfigModal" tabindex="-1" aria-labelledby="pcCellConfigLabel" aria-hidden="true">
+                      <div class="modal-dialog modal-sm modal-dialog-centered">
+                          <div class="modal-content">
+                              <div class="modal-header py-2">
+                                  <h6 class="modal-title d-flex align-items-center gap-1" id="pcCellConfigLabel">
+                                      <i class="bi bi-vector-pen"></i> Cell config
+                                  </h6>
+                                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body py-2">
+                                  <div class="row g-1">
+                                      <div class="col-6">
+                                          <label class="form-label mb-1">Row</label>
+                                          <input id="pcm-cell-row" type="number" class="form-control form-control-sm" readonly>
+                                      </div>
+                                      <div class="col-6">
+                                          <label class="form-label mb-1">Col</label>
+                                          <input id="pcm-cell-col" type="number" class="form-control form-control-sm" readonly>
+                                      </div>
+                                      <div class="col-12">
+                                          <label class="form-label mb-1">Inner pad (mm)</label>
+                                          <input id="pcm-cell-pad" type="number" step="0.5" min="0" class="form-control form-control-sm" placeholder="0">
+                                      </div>
+                                      <div class="col-12">
+                                          <label class="form-label mb-1">Align H (override)</label>
+                                          <select id="pcm-cell-align-h" class="form-select form-select-sm">
+                                              <option value="">— inherit —</option>
+                                              <option>left</option><option>center</option><option>right</option>
+                                          </select>
+                                      </div>
+                                      <div class="col-12">
+                                          <label class="form-label mb-1">Align V (override)</label>
+                                          <select id="pcm-cell-align-v" class="form-select form-select-sm">
+                                              <option value="">— inherit —</option>
+                                              <option>top</option><option>middle</option><option>bottom</option>
+                                          </select>
+                                      </div>
+                                  </div>
+                              </div>
+                              <div class="modal-footer py-2">
+                                  <button id="pcm-cell-clear" type="button" class="btn btn-sm btn-outline-secondary">Clear</button>
+                                  <button id="pcm-cell-save" type="button" class="btn btn-sm btn-primary">Save</button>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+
+                  <!-- Layout mode + grid/free controls -->
+                  <div class="btn-group btn-group-sm mb-2" role="group" aria-label="layout">
+                      <input type="radio" class="btn-check" name="pc-layout" id="pc-layout-grid" autocomplete="off" checked>
+                      <label class="btn btn-outline-secondary" for="pc-layout-grid"><i class="bi bi-grid-1x2"></i> Grid</label>
+                      <input type="radio" class="btn-check" name="pc-layout" id="pc-layout-free" autocomplete="off">
+                      <label class="btn btn-outline-secondary" for="pc-layout-free"><i class="bi bi-bounding-box-circles"></i> Freeform</label>
+                  </div>
+
+                  <div id="pc-grid-controls" class="row g-1 mb-2">
+                      <div class="col-3"><label class="form-label mb-1">Rows</label><input id="pc-rows" type="number" min="1" class="form-control form-control-sm" value="2"></div>
+                      <div class="col-3"><label class="form-label mb-1">Cols</label><input id="pc-cols" type="number" min="1" class="form-control form-control-sm" value="2"></div>
+                      <div class="col-3"><label class="form-label mb-1">Gutter</label><input id="pc-gutter" type="number" step="0.5" min="0" class="form-control form-control-sm" value="2"></div>
+                      <div class="col-3"><label class="form-label mb-1">Padding</label><input id="pc-padding" type="number" step="0.5" min="0" class="form-control form-control-sm" value="4"></div>
+                  </div>
+
+                  <div id="pc-place-grid" class="row g-1 mb-2">
+                      <div class="col-3"><label class="form-label mb-1">Row</label><input id="pc-row" type="number" min="1" class="form-control form-control-sm" value="1"></div>
+                      <div class="col-3"><label class="form-label mb-1">Col</label><input id="pc-col" type="number" min="1" class="form-control form-control-sm" value="1"></div>
+                      <div class="col-3"><label class="form-label mb-1">RowSpan</label><input id="pc-rowspan" type="number" min="1" class="form-control form-control-sm" value="1"></div>
+                      <div class="col-3"><label class="form-label mb-1">ColSpan</label><input id="pc-colspan" type="number" min="1" class="form-control form-control-sm" value="1"></div>
+                  </div>
+
+                  <div id="pc-free-controls" class="row g-1 mb-2 d-none">
+                      <div class="col-3"><label class="form-label mb-1">X</label><input id="pc-x" type="number" step="0.5" class="form-control form-control-sm" value="0"></div>
+                      <div class="col-3"><label class="form-label mb-1">Y</label><input id="pc-y" type="number" step="0.5" class="form-control form-control-sm" value="0"></div>
+                      <div class="col-3"><label class="form-label mb-1">W</label><input id="pc-w" type="number" step="0.5" class="form-control form-control-sm" value="20"></div>
+                      <div class="col-3"><label class="form-label mb-1">H</label><input id="pc-h" type="number" step="0.5" class="form-control form-control-sm" value="20"></div>
+                  </div>
+
+                  <div class="d-flex gap-2 mt-2">
+                      <button id="pc-layout-save" class="btn btn-sm btn-success">
+                          <i class="bi bi-check2-circle me-1"></i>Save layout
+                      </button>
+                  </div>
+              </div>
+
+              <!-- Object edit tab (moved as-is) -->
+              <div class="tab-pane fade" id="pc-tab-object" role="tabpanel" aria-labelledby="pc-tabbtn-object">
+                  <input type="hidden" id="pc-type" value="text">
+
+                  <!-- Name + alignment (slim) -->
+                  <div class="row g-1 mb-2">
+                      <div class="col-7">
+                          <label class="form-label mb-1 d-flex align-items-center gap-1">
+                              <i class="bi bi-tag"></i> Name
+                          </label>
+                          <input id="pc-name" type="text" class="form-control form-control-sm" placeholder="Item name">
+                      </div>
+                      <div class="col-5">
+                          <label class="form-label mb-1 d-flex align-items-center gap-1">
+                              <i class="bi bi-distribute-vertical"></i> Align
+                          </label>
+                          <div class="d-flex gap-1">
+                              <select id="pc-align-h" class="form-select form-select-sm">
+                                  <option>left</option><option selected>center</option><option>right</option>
+                              </select>
+                              <select id="pc-align-v" class="form-select form-select-sm">
+                                  <option>top</option><option selected>middle</option><option>bottom</option>
+                              </select>
+                          </div>
+                      </div>
+                  </div>
+
+                  <!-- Text props (unchanged IDs, slimmer) -->
+                  <div id="pc-text-props" class="row g-1 mb-2">
+                      <div class="col-12">
+                          <label class="form-label mb-1 d-flex align-items-center gap-1"><i class="bi bi-input-cursor-text"></i> Text</label>
+                          <textarea id="pc-textarea" rows="3" class="form-control form-control-sm" placeholder="enter your text" maxlength="1000"></textarea>
+                      </div>
+                      <div class="col-8">
+                          <label class="form-label mb-1">Font</label>
+                          <select id="pc-font-select" class="form-select form-select-sm"></select>
+                      </div>
+                      <div class="col-4">
+                          <label class="form-label mb-1">Size (mm)</label>
+                          <input id="pc-font-size" type="number" step="0.1" class="form-control form-control-sm" value="4">
+                      </div>
+                      <div class="col-12">
+                          <div id="pc-font-preview" class="font-preview">The quick brown fox 123</div>
+                      </div>
+                      <div class="col-6">
+                          <label class="form-label mb-1">Line</label>
+                          <input id="pc-line" type="number" step="0.1" class="form-control form-control-sm" value="1.2">
+                      </div>
+                  </div>
+
+                  <!-- SVG props (unchanged IDs, slimmer) -->
+                  <div id="pc-svg-props" class="row g-1 mb-2 d-none">
+                      <div class="col-12">
+                          <label class="form-label mb-1 d-flex align-items-center gap-1"><i class="bi bi-filetype-svg"></i> SVG Source</label>
+                          <small id="pc-svg-filename" class="text-muted text-truncate" style="max-width:50%"></small>
+                          <div class="d-flex align-items-center gap-2">
+                              <input id="pc-svg-src" type="file" accept=".svg,image/svg+xml" class="form-control form-control-sm">
+                          </div>
+                      </div>
+                      <div class="col-4"><label class="form-label mb-1">Width (mm)</label><input id="pc-svg-w" type="number" step="0.1" class="form-control form-control-sm" placeholder="auto"></div>
+                      <div class="col-4"><label class="form-label mb-1">Height (mm)</label><input id="pc-svg-h" type="number" step="0.1" class="form-control form-control-sm" placeholder="auto"></div>
+                      <div class="col-4"><label class="form-label mb-1">Scale (%)</label><input id="pc-scale" type="number" step="1" value="100" class="form-control form-control-sm"></div>
+                      <div class="col-6 d-flex align-items-end">
+                          <div class="form-check"><input class="form-check-input" type="checkbox" id="pc-preserve" checked><label class="form-check-label" for="pc-preserve">Preserve aspect</label></div>
+                      </div>
+                      <div class="col-6 d-flex align-items-end">
+                          <div class="form-check"><input class="form-check-input" type="checkbox" id="pc-svg-invert"><label class="form-check-label" for="pc-svg-invert">Invert (fill vs stroke)</label></div>
+                      </div>
+                  </div>
+
+                  <!-- Transform toolbar (rotate + mirrors) -->
+                  <div class="mb-2">
+                      <label class="form-label mb-1 d-flex align-items-center gap-1"><i class="bi bi-bezier2"></i> Transform</label>
+                      <div class="d-flex align-items-center gap-1 flex-wrap">
+                          <div class="d-flex align-items-center gap-1">
+                              <i class="bi bi-arrow-repeat"></i>
+                              <input id="pc-rotate" type="range" min="-180" max="180" step="1" class="form-range form-range-sm" style="width:160px">
+                              <input id="pc-rotate-num" type="number" step="1" class="form-control form-control-xs" style="width:70px" value="0">
+                          </div>
+                          <div class="btn-group btn-group-sm ms-1" role="group" aria-label="rotate presets">
+                              <button type="button" class="btn btn-outline-secondary pc-rot-p" data-val="0">0°</button>
+                              <button type="button" class="btn btn-outline-secondary pc-rot-p" data-val="90">90°</button>
+                              <button type="button" class="btn btn-outline-secondary pc-rot-p" data-val="180">180°</button>
+                              <button type="button" class="btn btn-outline-secondary pc-rot-p" data-val="-90">−90°</button>
+                          </div>
+                          <div class="btn-group btn-group-sm ms-auto" role="group" aria-label="mirror">
+                              <button id="pc-mirror-x-btn" type="button" class="btn btn-outline-secondary" title="Mirror X"><i class="bi bi-symmetry-horizontal"></i></button>
+                              <button id="pc-mirror-y-btn" type="button" class="btn btn-outline-secondary" title="Mirror Y"><i class="bi bi-symmetry-vertical"></i></button>
+                          </div>
+                          <!-- keep hidden checkboxes for existing logic -->
+                          <input type="checkbox" id="pc-mirror-x" class="d-none">
+                          <input type="checkbox" id="pc-mirror-y" class="d-none">
+                      </div>
+                  </div>
+
+                  <!-- Appearance collapsible -->
+                  <details class="mb-2" id="pc-appearance-wrap" open>
+                      <summary class="form-label mb-1 d-flex align-items-center gap-1">
+                          <i class="bi bi-palette2"></i> Appearance
+                          <span class="text-secondary small ms-1" id="pc-appearance-pill"></span>
+                      </summary>
+                      <div class="row g-1 mt-1" id="pc-appearance">
+                          <div class="col-6">
+                              <label class="form-label mb-1">Fill</label>
+                              <div class="d-flex align-items-center gap-1">
+                                  <input id="pc-fill" type="color" class="form-control form-control-color form-control-sm" value="#000000" title="Fill">
+                                  <div class="pc-swatches" data-for="pc-fill"></div>
+                              </div>
+                              <div class="form-check mt-1">
+                                  <input class="form-check-input" type="checkbox" id="pc-fill-none">
+                                  <label class="form-check-label small" for="pc-fill-none">No fill</label>
+                              </div>
+                          </div>
+                          <div class="col-6">
+                              <label class="form-label mb-1">Stroke</label>
+                              <div class="d-flex align-items-center gap-1">
+                                  <input id="pc-stroke-color" type="color" class="form-control form-control-color form-control-sm" value="#000000" title="Stroke">
+                                  <div class="pc-swatches" data-for="pc-stroke-color"></div>
+                              </div>
+                              <div class="form-check mt-1">
+                                  <input class="form-check-input" type="checkbox" id="pc-stroke-none">
+                                  <label class="form-check-label small" for="pc-stroke-none">No stroke</label>
+                              </div>
+                          </div>
+                          <div class="col-4">
+                              <label class="form-label mb-1">Stroke (mm)</label>
+                              <input id="pc-stroke" type="number" step="0.05" class="form-control form-control-sm" value="0.35">
+                          </div>
+                          <div class="col-4">
+                              <label class="form-label mb-1">Opacity (%)</label>
+                              <input id="pc-opacity" type="number" step="1" min="0" max="100" class="form-control form-control-sm" value="100">
+                          </div>
+                          <div class="col-4 d-flex align-items-end">
+                              <div class="form-check mt-1">
+                                  <input class="form-check-input" type="checkbox" id="pc-invert">
+                                  <label class="form-check-label small" for="pc-invert">Invert</label>
+                              </div>
+                          </div>
+                      </div>
+                  </details>
+
+                  <div class="d-flex gap-2">
+                      <button id="pc-edit-confirm" class="btn btn-sm btn-primary"><i class="bi bi-check2 me-1"></i>Confirm</button>
+                      <button id="pc-edit-cancel" class="btn btn-sm btn-outline-secondary">Cancel</button>
+                  </div>
+              </div>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+</aside>
