@@ -318,6 +318,8 @@ function itemRow(panelName, it, idx) {
     );
 
     label.append(left, actions);
+    li.setAttribute('data-item-id', it.id);
+    li.setAttribute('data-panel', panelName);
     li.appendChild(label);
     return li;
 }
