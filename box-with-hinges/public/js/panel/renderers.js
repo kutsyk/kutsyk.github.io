@@ -1,5 +1,9 @@
 import {NS, UI_ATTR} from './constants.js';
 import {mm, alignInBox} from './utils.js';
+import {pc_deleteItem} from "../panel-content.js";
+import {getCurrentPanel, getSelectedItemId, setSelectedItemId} from "./state.js";
+import {pc_renderAll, pc_save} from "../panel-state-bridge.js";
+import {pi_onGeometryChanged} from "../panel-interaction.js";
 
 function _styleVals(item) {
     const st = item.style || {};
@@ -220,48 +224,6 @@ export function renderSvg(layer, box, item) {
     function safeBBox(node) { try { return node.getBBox(); } catch { return { x:0, y:0, width:0, height:0 }; } }
 }
 
-// Delete cross
-export function addDeleteCross(layer, node, onClick) {
-    const b = node.getBBox();
-    const size = 6, pad = 1.5;
-    const cx = b.x + b.width - pad - size / 2;
-    const cy = b.y + pad + size / 2;
-
-    const g = document.createElementNS(NS, 'g');
-    g.setAttribute(UI_ATTR, '1');
-    g.setAttribute('cursor', 'pointer');
-
-    const bg = document.createElementNS(NS, 'circle');
-    bg.setAttribute('cx', cx);
-    bg.setAttribute('cy', cy);
-    bg.setAttribute('r', size / 2);
-    bg.setAttribute('fill', '#ffffff');
-    bg.setAttribute('fill-opacity', '0.9');
-    bg.setAttribute('stroke', '#ef4444');
-    bg.setAttribute('stroke-width', '0.3');
-    g.appendChild(bg);
-
-    const mk = (x1, y1, x2, y2) => {
-        const l = document.createElementNS(NS, 'line');
-        l.setAttribute('x1', x1);
-        l.setAttribute('y1', y1);
-        l.setAttribute('x2', x2);
-        l.setAttribute('y2', y2);
-        l.setAttribute('stroke', '#ef4444');
-        l.setAttribute('stroke-width', '0.5');
-        return l;
-    };
-    const d = size * 0.35;
-    g.appendChild(mk(cx - d, cy - d, cx + d, cy + d));
-    g.appendChild(mk(cx - d, cy + d, cx + d, cy - d));
-
-    g.addEventListener('click', (e) => {
-        e.stopPropagation();
-        onClick();
-    });
-    layer.appendChild(g);
-}
-
 export function addSelectionRect(groupNode) {
     const bbox = groupNode.getBBox();
     let r = groupNode.querySelector(':scope > rect.pc-selection');
@@ -285,19 +247,121 @@ export function removeSelectionRect(groupNode) {
     groupNode.querySelectorAll(':scope > rect.pc-selection').forEach(n => n.remove());
 }
 
+// --- Delete cross: attach inside the selected group and handle deletion inline ---
+export function applyActiveDeleteBtn(svgRoot) {
+    if (!svgRoot) return;
+
+    // remove any previous overlay delete buttons
+    svgRoot.querySelectorAll('g.pc-del-btn-ov').forEach(n => n.remove());
+
+    const panel = getCurrentPanel?.();
+    const selId = getSelectedItemId?.();
+    if (!panel || !selId) return;
+
+    // find the active item group
+    const item = svgRoot.querySelector(`#pcLayer_${panel} g.pc-item[data-item-id="${selId}"]`);
+    if (!item) return;
+    // compute top-right corner in the root SVG coord space
+    let bb; try { bb = item.getBBox(); } catch { return; }
+    const m = item.getCTM(); if (!m) return;
+    const pt = svgRoot.createSVGPoint();
+
+    // top-right (x2, y1)
+    pt.x = bb.x + bb.width; pt.y = bb.y;
+    const p = pt.matrixTransform(m);
+
+    const size = 5, pad = 0.05;
+    const px = p.x - size - pad;
+    const py = p.y + pad;
+
+    // place the button inside the panel's hits layer so it sits ABOVE cell hit rects
+    const hitLayer = svgRoot.querySelector(`#pcOverlayHits_${panel}`);
+    if (!hitLayer) return;
+    const { x, y } = _btnTransformFor(item, hitLayer, pad, size);
+    const g = document.createElementNS(NS, 'g');
+    g.setAttribute('class', 'pc-del-btn-ov');
+    g.setAttribute(UI_ATTR, '1');
+    g.setAttribute('transform', `translate(${x+size} ${y})`);
+    g.style.pointerEvents = 'all';
+    g.style.cursor = 'pointer';
+
+    const bg = document.createElementNS(NS, 'rect');
+    bg.setAttribute('x', '0'); bg.setAttribute('y', '0');
+    bg.setAttribute('width', String(size)); bg.setAttribute('height', String(size));
+    bg.setAttribute('rx', '1'); bg.setAttribute('ry', '1');
+    bg.setAttribute('fill', '#ffffff'); bg.setAttribute('fill-opacity', '0.95');
+    bg.setAttribute('stroke', '#dc3545'); bg.setAttribute('stroke-width', '0.8');
+    bg.setAttribute('vector-effect', 'non-scaling-stroke');
+    g.appendChild(bg);
+
+    const cross = document.createElementNS(NS, 'path');
+    cross.setAttribute('d', `M 2 2 L ${size-2} ${size-2} M ${size-2} 2 L 2 ${size-2}`);
+    cross.setAttribute('stroke', '#dc3545');
+    cross.setAttribute('stroke-width', '0.8');
+    cross.setAttribute('stroke-linecap', 'round');
+    cross.setAttribute('vector-effect', 'non-scaling-stroke');
+    g.appendChild(cross);
+
+    g.addEventListener('mouseenter', () => bg.setAttribute('fill', '#fff5f5'));
+    g.addEventListener('mouseleave', () => bg.setAttribute('fill', '#ffffff'));
+
+    g.addEventListener('click', async (e) => {
+        e.preventDefault(); e.stopPropagation();
+        const id = selId; const pnl = panel;
+        try {
+            pc_deleteItem(pnl, id);
+            setSelectedItemId(null);
+            pc_save();
+
+            const svg = document.querySelector('#out svg');
+            if (svg) { pc_renderAll(svg); pi_onGeometryChanged(svg); }
+
+            document.dispatchEvent(new CustomEvent('pc:itemSelectionChanged', { detail: { id: null, panel: pnl } }));
+        } catch {}
+    });
+
+    hitLayer.appendChild(g); // append last to be on top
+}
+
+function _btnTransformFor(itemGroup, overlay, pad = 1.2, size = 8) {
+    // guard
+    if (!itemGroup || !overlay) return { x: 0, y: 0 };
+
+    // item bbox in item-local space
+    let bb; try { bb = itemGroup.getBBox(); } catch { return { x: 0, y: 0 }; }
+
+    const mItem = itemGroup.getCTM();
+    const mOv   = overlay.getCTM();
+    if (!mItem || !mOv) return { x: 0, y: 0 };
+
+    const svg = overlay.ownerSVGElement || overlay.closest('svg');
+    const pt  = svg.createSVGPoint();
+
+    // top-right in item-local
+    pt.x = bb.x + bb.width;
+    pt.y = bb.y;
+
+    // item-local → root → overlay-local
+    const pRoot = pt.matrixTransform(mItem);
+    const pOv   = pRoot.matrixTransform(mOv.inverse());
+
+    // place a size×size button inset from the corner
+    return { x: pOv.x - size - pad, y: pOv.y + pad };
+}
+
+// --- outlines ---
 export function ensureOutlineRect(group, className) {
     let r = group.querySelector(`:scope > rect.pc-outline`);
     const bb = group.getBBox();
     if (!r) {
-        r = document.createElementNS(NS, 'rect');
+        r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
         r.setAttribute('class', `pc-outline ${className || ''}`.trim());
-        r.setAttribute(UI_ATTR, '1');                               // stripped on export
+        r.setAttribute(UI_ATTR, '1');
         r.setAttribute('fill', 'none');
         r.setAttribute('vector-effect', 'non-scaling-stroke');
         r.setAttribute('pointer-events', 'none');
         group.appendChild(r);
     } else {
-        // ensure class contains pc-outline + current mode-specific class
         r.setAttribute('class', `pc-outline ${className || ''}`.trim());
     }
     r.setAttribute('x', bb.x);
@@ -320,6 +384,9 @@ export function hideHoverOutline(group) {
 }
 
 export function showActiveOutline(group) {
+    // ensure only one active UI on this group
+    hideActiveOutline(group);
+
     const r = ensureOutlineRect(group, 'pc-outline-active');
     r.setAttribute('stroke', '#0d6efd');
     r.setAttribute('stroke-dasharray', '4 2');
@@ -328,5 +395,5 @@ export function showActiveOutline(group) {
 }
 
 export function hideActiveOutline(group) {
-    group.querySelectorAll(':scope > rect.pc-outline-active').forEach(n => n.remove());
+    group.querySelectorAll(':scope > rect.pc-outline-active, :scope > g.pc-delete').forEach(n => n.remove());
 }

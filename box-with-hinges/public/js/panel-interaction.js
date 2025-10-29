@@ -24,7 +24,7 @@ import {
 
 import { UI_ATTR, NS } from './panel/constants.js';
 import { pc_activateEditorTab, pc_getStateRef } from './panel-content.js';
-import { hideHoverOutline, showHoverOutline } from './panel/renderers.js';
+import {applyActiveDeleteBtn, hideHoverOutline, showHoverOutline} from './panel/renderers.js';
 import { pc_leftnav_activate } from './ui-leftnav.js';
 
 // ---------- constants ----------
@@ -610,6 +610,55 @@ function bindBackgroundDeselect(svg) {
     }, { once: false });
 }
 
+(function wireAlignIcons(){
+    const selH = document.getElementById('pc-align-h');
+    const selV = document.getElementById('pc-align-v');
+    const rowH = document.getElementById('pc-align-row-h');
+    const rowV = document.getElementById('pc-align-row-v');
+
+    if (rowH && selH && !rowH._pcBound) {
+        rowH._pcBound = true;
+        rowH.addEventListener('click', (e) => {
+            const btn = e.target.closest('.btn[data-align-h]');
+            if (!btn) return;
+            const v = btn.getAttribute('data-align-h');
+            if (selH.value !== v) {
+                selH.value = v;
+                selH.dispatchEvent(new Event('change', { bubbles: true })); // triggers commitAlign('h')
+            }
+            // visual active state
+            rowH.querySelectorAll('.btn').forEach(b => b.classList.toggle('active', b === btn));
+        });
+    }
+
+    if (rowV && selV && !rowV._pcBound) {
+        rowV._pcBound = true;
+        rowV.addEventListener('click', (e) => {
+            const btn = e.target.closest('.btn[data-align-v]');
+            if (!btn) return;
+            const v = btn.getAttribute('data-align-v');
+            if (selV.value !== v) {
+                selV.value = v;
+                selV.dispatchEvent(new Event('change', { bubbles: true })); // triggers commitAlign('v')
+            }
+            rowV.querySelectorAll('.btn').forEach(b => b.classList.toggle('active', b === btn));
+        });
+    }
+
+    // keep icons in sync when selection changes (align.js emits these)
+    function reflectSelects() {
+        const vH = selH?.value || 'center';
+        const vV = selV?.value || 'middle';
+        if (rowH) rowH.querySelectorAll('.btn').forEach(b => b.classList.toggle('active', b.getAttribute('data-align-h') === vH));
+        if (rowV) rowV.querySelectorAll('.btn').forEach(b => b.classList.toggle('active', b.getAttribute('data-align-v') === vV));
+    }
+    ['pc:itemSelectionChanged','pc:enterEditChanged','pc:panelChanged','pc:stateRestored']
+        .forEach(ev => document.addEventListener(ev, reflectSelects));
+
+    // initial
+    requestAnimationFrame(reflectSelects);
+})();
+
 // ---------- public API ----------
 export function pi_onGeometryChanged(svg) {
     if (!svg) return;
@@ -625,6 +674,7 @@ export function pi_onGeometryChanged(svg) {
     attachDrops(svg);
     bindBackgroundDeselect(svg);
 
+    applyActiveDeleteBtn(svg);
     // tab reconcile
     const ac = getActiveCell();
     const selId = getSelectedItemId?.();
