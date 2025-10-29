@@ -286,6 +286,7 @@ export function applyActiveDeleteBtn(svgRoot) {
     g.style.cursor = 'pointer';
 
     const bg = document.createElementNS(NS, 'rect');
+    bg.setAttribute(UI_ATTR, '1');
     bg.setAttribute('x', '0'); bg.setAttribute('y', '0');
     bg.setAttribute('width', String(size)); bg.setAttribute('height', String(size));
     bg.setAttribute('rx', '1'); bg.setAttribute('ry', '1');
@@ -295,6 +296,7 @@ export function applyActiveDeleteBtn(svgRoot) {
     g.appendChild(bg);
 
     const cross = document.createElementNS(NS, 'path');
+    cross.setAttribute(UI_ATTR, '1');
     cross.setAttribute('d', `M 2 2 L ${size-2} ${size-2} M ${size-2} 2 L 2 ${size-2}`);
     cross.setAttribute('stroke', '#dc3545');
     cross.setAttribute('stroke-width', '0.8');
@@ -302,7 +304,7 @@ export function applyActiveDeleteBtn(svgRoot) {
     cross.setAttribute('vector-effect', 'non-scaling-stroke');
     g.appendChild(cross);
 
-    g.addEventListener('mouseenter', () => bg.setAttribute('fill', '#fff5f5'));
+    g.addEventListener('mouseenter', () => { bg.setAttribute('fill', '#fff5f5')});
     g.addEventListener('mouseleave', () => bg.setAttribute('fill', '#ffffff'));
 
     g.addEventListener('click', async (e) => {
