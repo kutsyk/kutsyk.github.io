@@ -24,7 +24,7 @@ import {
 
 import { UI_ATTR, NS } from './panel/constants.js';
 import { pc_activateEditorTab, pc_getStateRef } from './panel-content.js';
-import { hideHoverOutline, showHoverOutline } from './panel/renderers.js';
+import {applyActiveDeleteBtn, hideHoverOutline, showHoverOutline} from './panel/renderers.js';
 import { pc_leftnav_activate } from './ui-leftnav.js';
 
 // ---------- constants ----------
@@ -674,6 +674,7 @@ export function pi_onGeometryChanged(svg) {
     attachDrops(svg);
     bindBackgroundDeselect(svg);
 
+    applyActiveDeleteBtn(svg);
     // tab reconcile
     const ac = getActiveCell();
     const selId = getSelectedItemId?.();
