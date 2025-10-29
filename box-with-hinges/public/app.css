@@ -722,3 +722,18 @@ g.pc-item { pointer-events: bounding-box; }
 g.pc-item > rect.pc-outline { fill: none; vector-effect: non-scaling-stroke; pointer-events: none; }
 
 #pc-structure .is-active { outline: 2px solid var(--bs-primary); background: rgba(13,110,253,.08); }
+
+/* Right editor "no active object" look */
+#pc-tab-object.pc-form-disabled,
+#objectEditor.pc-form-disabled { opacity: .65; }
+
+#pc-tab-object.pc-form-disabled input,
+#pc-tab-object.pc-form-disabled select,
+#pc-tab-object.pc-form-disabled textarea,
+#pc-tab-object.pc-form-disabled .form-check-input,
+#pc-tab-object.pc-form-disabled .btn,
+#objectEditor.pc-form-disabled input,
+#objectEditor.pc-form-disabled select,
+#objectEditor.pc-form-disabled textarea,
+#objectEditor.pc-form-disabled .form-check-input,
+#objectEditor.pc-form-disabled .btn { pointer-events: none; }

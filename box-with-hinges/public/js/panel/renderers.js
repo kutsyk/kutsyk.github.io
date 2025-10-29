@@ -261,7 +261,6 @@ export function applyActiveDeleteBtn(svgRoot) {
     // find the active item group
     const item = svgRoot.querySelector(`#pcLayer_${panel} g.pc-item[data-item-id="${selId}"]`);
     if (!item) return;
-    console.log(item);
     // compute top-right corner in the root SVG coord space
     let bb; try { bb = item.getBBox(); } catch { return; }
     const m = item.getCTM(); if (!m) return;
