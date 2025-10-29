@@ -347,28 +347,35 @@
 
                                     <!-- Name + alignment (slim) -->
                                     <div class="row g-1 mb-2">
-                                        <div class="col-7">
+                                        <div class="col-12">
                                             <label class="form-label mb-1 d-flex align-items-center gap-1">
                                                 <i class="bi bi-tag"></i> Name
                                             </label>
                                             <input id="pc-name" type="text" class="form-control form-control-sm"
                                                    placeholder="Item name">
                                         </div>
-                                        <div class="col-5">
-                                            <label class="form-label mb-1 d-flex align-items-center gap-1">
-                                                <i class="bi bi-distribute-vertical"></i> Align
-                                            </label>
-                                            <div class="d-flex gap-1">
-                                                <select id="pc-align-h" class="form-select form-select-sm">
-                                                    <option>left</option>
-                                                    <option selected>center</option>
-                                                    <option>right</option>
-                                                </select>
-                                                <select id="pc-align-v" class="form-select form-select-sm">
-                                                    <option>top</option>
-                                                    <option selected>middle</option>
-                                                    <option>bottom</option>
-                                                </select>
+                                        <div class="col-12">
+                                            <select id="pc-align-h" class="d-none">
+                                                <option value="left">Left</option>
+                                                <option value="center">Center</option>
+                                                <option value="right">Right</option>
+                                            </select>
+                                            <select id="pc-align-v" class="d-none">
+                                                <option value="top">Top</option>
+                                                <option value="middle">Middle</option>
+                                                <option value="bottom">Bottom</option>
+                                            </select>
+
+                                            <!-- icon rows -->
+                                            <div class="align-row" id="pc-align-row-h">
+                                                <button type="button" class="btn" data-align-h="left"><i class="bi bi-text-left"></i></button>
+                                                <button type="button" class="btn" data-align-h="center"><i class="bi bi-text-center"></i></button>
+                                                <button type="button" class="btn" data-align-h="right"><i class="bi bi-text-right"></i></button>
+                                            </div>
+                                            <div class="align-row" id="pc-align-row-v">
+                                                <button type="button" class="btn" data-align-v="top"><i class="bi bi-align-top"></i></button>
+                                                <button type="button" class="btn" data-align-v="middle"><i class="bi bi-align-middle"></i></button>
+                                                <button type="button" class="btn" data-align-v="bottom"><i class="bi bi-align-bottom"></i></button>
                                             </div>
                                         </div>
                                     </div>
