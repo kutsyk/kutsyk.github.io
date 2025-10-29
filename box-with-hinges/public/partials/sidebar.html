@@ -1,197 +1,227 @@
-<!-- sidebar.html — compact, icon-led, one-column controls; IDs preserved -->
+<!-- sidebar.html — LEFT SIDENAV (accordion/collapsible, scrollable body + sticky footer actions) -->
 <aside class="sidebar">
     <div class="sidebar-inner">
         <div class="card">
-            <div class="pc-sidebar-scroll">
-                <div class="card-header py-2 d-flex justify-content-between align-items-center">
-                <span class="fw-semibold small text-uppercase d-inline-flex align-items-center gap-1">
-                  <i class="bi bi-layout-sidebar-inset"></i> Workspace
-                </span>
-                    <!-- header button -->
-                    <button id="resetBtn"
-                            class="btn btn-sm btn-outline-danger"
-                            data-bs-toggle="modal"
-                            data-bs-target="#confirmResetModal"
-                            title="Reset parameters and panel content">
-                        <i class="bi bi-arrow-counterclockwise me-1"></i>Reset all
-                    </button>
+            <div class="card-header py-2 d-flex justify-content-between align-items-center">
+        <span class="fw-semibold small text-uppercase d-inline-flex align-items-center gap-1">
+          <i class="bi bi-layout-sidebar-inset"></i> Workspace
+        </span>
 
-                    <!-- confirm modal (place near end of sidebar partial) -->
-                    <div class="modal fade" id="confirmResetModal" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog modal-sm modal-dialog-centered">
-                            <div class="modal-content">
-                                <div class="modal-header py-2">
-                                    <h6 class="modal-title">Reset workspace</h6>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                </div>
-                                <div class="modal-body small">
-                                    This will restore default parameters and clear all panel content.
-                                </div>
-                                <div class="modal-footer py-2">
-                                    <button type="button" class="btn btn-outline-secondary btn-sm"
-                                            data-bs-dismiss="modal">Cancel
-                                    </button>
-                                    <button id="confirmResetYes" type="button" class="btn btn-danger btn-sm">Reset
-                                    </button>
-                                </div>
+                <!-- Reset -->
+                <button id="resetBtn"
+                        class="btn btn-sm btn-outline-danger"
+                        data-bs-toggle="modal"
+                        data-bs-target="#confirmResetModal"
+                        title="Reset parameters and panel content">
+                    <i class="bi bi-arrow-counterclockwise me-1"></i>Reset all
+                </button>
+
+                <!-- Confirm reset modal -->
+                <div class="modal fade" id="confirmResetModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-sm modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header py-2">
+                                <h6 class="modal-title">Reset workspace</h6>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body small">
+                                This will restore default parameters and clear all panel content.
+                            </div>
+                            <div class="modal-footer py-2">
+                                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                                <button id="confirmResetYes" type="button" class="btn btn-danger btn-sm">Reset</button>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div><!-- /card-header -->
 
-                <div class="card-body p-2">
-                    <ul class="nav nav-tabs small px-2 pt-2" id="sidebarTabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="params-tab" data-bs-toggle="tab"
-                                    data-bs-target="#params"
-                                    type="button" role="tab" aria-controls="params" aria-selected="true">
-                                <i class="bi bi-sliders me-1"></i>Parameters
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="content-tab" data-bs-toggle="tab" data-bs-target="#content"
-                                    type="button" role="tab" aria-controls="content" aria-selected="false">
-                                <i class="bi bi-app-indicator me-1"></i>Panel Content
-                            </button>
-                        </li>
-                    </ul>
+            <div class="card-body p-2">
+                <!-- scrollable content -->
+                <div class="pc-sidebar-scroll">
 
-                    <div class="tab-content p-2">
-                        <!-- Parameters -->
-                        <div class="tab-pane fade show active" id="params" role="tabpanel" aria-labelledby="params-tab">
+                    <!-- Projects -->
+                    <details id="acc-projects" data-acc-key="projects" open>
+                        <summary class="acc-hdr">
+                            <i class="bi bi-collection me-1"></i>
+                            <span class="hdr-text">Projects</span>
+                            <i class="bi bi-caret-down-fill acc-caret ms-auto"></i>
+                        </summary>
+                        <div class="acc-body">
+                            <div class="d-flex flex-wrap gap-1 mb-2">
+                                <button id="proj-new"        class="btn btn-sm btn-primary"><i class="bi bi-plus-lg me-1"></i>New</button>
+                                <button id="proj-save"       class="btn btn-sm btn-outline-secondary"><i class="bi bi-save me-1"></i>Save</button>
+                                <button id="proj-saveas"     class="btn btn-sm btn-outline-secondary"><i class="bi bi-save2 me-1"></i>Save as…</button>
+                                <button id="proj-duplicate"  class="btn btn-sm btn-outline-secondary"><i class="bi bi-files me-1"></i>Duplicate</button>
+                                <button id="proj-delete"     class="btn btn-sm btn-outline-danger"><i class="bi bi-trash me-1"></i>Delete</button>
+                            </div>
+                            <div id="proj-list" class="list-group small" style="max-height: 40vh; overflow:auto;"></div>
+                        </div>
+                    </details>
+
+                    <!-- Box setup -->
+                    <details id="acc-box" data-acc-key="box" open>
+                        <summary class="acc-hdr">
+                            <i class="bi bi-box-seam me-1"></i>
+                            <span class="hdr-text">Box setup</span>
+                            <i class="bi bi-caret-down-fill acc-caret ms-auto"></i>
+                        </summary>
+                        <div class="acc-body">
                             <form id="form" novalidate class="small">
-                                <!-- XYZ -->
+                                <!-- Width -->
                                 <div class="mb-2">
-                                    <label for="width"
-                                           class="form-label text-secondary mb-1 d-flex align-items-center gap-1">
+                                    <label for="width" class="form-label text-secondary mb-1 d-flex align-items-center gap-1">
                                         <i class="bi bi-arrows"></i> Width (X)
                                     </label>
                                     <div class="row g-1 align-items-center">
-                                        <div class="col-8"><input id="width" name="width" type="range" min="10"
-                                                                  max="500"
-                                                                  step="1" value="80" class="form-range"></div>
-                                        <div class="col-4"><input id="widthNum" type="number" min="10" max="500"
-                                                                  step="1"
-                                                                  value="80" class="form-control form-control-sm"></div>
-                                    </div>
-                                </div>
-                                <div class="mb-2">
-                                    <label for="depth"
-                                           class="form-label text-secondary mb-1 d-flex align-items-center gap-1">
-                                        <i class="bi bi-arrows"></i> Depth (Y)
-                                    </label>
-                                    <div class="row g-1 align-items-center">
-                                        <div class="col-8"><input id="depth" name="depth" type="range" min="10"
-                                                                  max="500"
-                                                                  step="1" value="50" class="form-range"></div>
-                                        <div class="col-4"><input id="depthNum" type="number" min="10" max="500"
-                                                                  step="1"
-                                                                  value="50" class="form-control form-control-sm"></div>
-                                    </div>
-                                </div>
-                                <div class="mb-2">
-                                    <label for="height"
-                                           class="form-label text-secondary mb-1 d-flex align-items-center gap-1">
-                                        <i class="bi bi-arrows"></i> Height (Z)
-                                    </label>
-                                    <div class="row g-1 align-items-center">
-                                        <div class="col-8"><input id="height" name="height" type="range" min="10"
-                                                                  max="500"
-                                                                  step="1" value="40" class="form-range"></div>
-                                        <div class="col-4"><input id="heightNum" type="number" min="10" max="500"
-                                                                  step="1"
-                                                                  value="40" class="form-control form-control-sm"></div>
+                                        <div class="col-8">
+                                            <input id="width" name="width" type="range" min="10" max="500" step="1" value="80" class="form-range">
+                                        </div>
+                                        <div class="col-4">
+                                            <input id="widthNum" type="number" min="10" max="500" step="1" value="80" class="form-control form-control-sm">
+                                        </div>
                                     </div>
                                 </div>
 
-                                <!-- Tabs + material -->
+                                <!-- Depth -->
                                 <div class="mb-2">
-                                    <label for="tabWidth"
-                                           class="form-label text-secondary mb-1 d-flex align-items-center gap-1">
+                                    <label for="depth" class="form-label text-secondary mb-1 d-flex align-items-center gap-1">
+                                        <i class="bi bi-arrows"></i> Depth (Y)
+                                    </label>
+                                    <div class="row g-1 align-items-center">
+                                        <div class="col-8">
+                                            <input id="depth" name="depth" type="range" min="10" max="500" step="1" value="50" class="form-range">
+                                        </div>
+                                        <div class="col-4">
+                                            <input id="depthNum" type="number" min="10" max="500" step="1" value="50" class="form-control form-control-sm">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Height -->
+                                <div class="mb-2">
+                                    <label for="height" class="form-label text-secondary mb-1 d-flex align-items-center gap-1">
+                                        <i class="bi bi-arrows"></i> Height (Z)
+                                    </label>
+                                    <div class="row g-1 align-items-center">
+                                        <div class="col-8">
+                                            <input id="height" name="height" type="range" min="10" max="500" step="1" value="40" class="form-range">
+                                        </div>
+                                        <div class="col-4">
+                                            <input id="heightNum" type="number" min="10" max="500" step="1" value="40" class="form-control form-control-sm">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Tab width -->
+                                <div class="mb-2">
+                                    <label for="tabWidth" class="form-label text-secondary mb-1 d-flex align-items-center gap-1">
                                         <i class="bi bi-border-width"></i> Tab width
                                     </label>
                                     <div class="row g-1 align-items-center">
-                                        <div class="col-8"><input id="tabWidth" name="tabWidth" type="range" min="2"
-                                                                  max="120" step="1" value="10" class="form-range">
+                                        <div class="col-8">
+                                            <input id="tabWidth" name="tabWidth" type="range" min="2" max="120" step="1" value="10" class="form-range">
                                         </div>
-                                        <div class="col-4"><input id="tabWidthNum" type="number" min="2" max="120"
-                                                                  step="1"
-                                                                  value="10" class="form-control form-control-sm"></div>
+                                        <div class="col-4">
+                                            <input id="tabWidthNum" type="number" min="2" max="120" step="1" value="10" class="form-control form-control-sm">
+                                        </div>
                                     </div>
                                     <div class="form-text">Evenly distributed along edges.</div>
                                 </div>
 
+                                <!-- Thickness / Kerf -->
                                 <div class="row g-1 mb-2">
                                     <div class="col-6">
                                         <label class="form-label text-secondary mb-1 d-flex align-items-center gap-1">
                                             <i class="bi bi-box-seam"></i> Thickness
                                         </label>
-                                        <input name="thickness" type="number" step="0.01" min="0.1" value="3"
-                                               class="form-control form-control-sm">
+                                        <input name="thickness" type="number" step="0.01" min="0.1" value="3" class="form-control form-control-sm">
                                     </div>
                                     <div class="col-6">
                                         <label class="form-label text-secondary mb-1 d-flex align-items-center gap-1">
                                             <i class="bi bi-scissors"></i> Kerf (mm)
                                         </label>
-                                        <input name="kerf" type="number" step="0.001" min="0" value="0.12"
-                                               class="form-control form-control-sm">
+                                        <input name="kerf" type="number" step="0.001" min="0" value="0.12" class="form-control form-control-sm">
                                     </div>
                                 </div>
-
-                                <div class="row g-1 mb-2">
-                                    <div class="col-6">
-                                        <label class="form-label text-secondary mb-1 d-flex align-items-center gap-1">
-                                            <i class="bi bi-bounding-box"></i> Padding (gap)
-                                        </label>
-                                        <input name="margin" type="number" step="1" min="0" value="12"
-                                               class="form-control form-control-sm">
-                                    </div>
-                                    <div class="col-6 d-flex align-items-end">
-                                        <div class="form-check form-switch mt-2 w-100">
-                                            <input class="form-check-input" type="checkbox" id="addRightHole"
-                                                   name="addRightHole" checked>
-                                            <label class="form-check-label" for="addRightHole">
-                                                Right-panel hole
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!--                            <div class="d-grid gap-1 mt-2">-->
-                                <!--                                <button type="submit" class="btn btn-primary btn-sm">-->
-                                <!--                                    <i class="bi bi-lightning-charge-fill me-1"></i>Generate-->
-                                <!--                                </button>-->
-                                <!--                                <button id="download" type="button" class="btn btn-outline-secondary btn-sm" disabled>-->
-                                <!--                                    <i class="bi bi-download me-1"></i>Download SVG-->
-                                <!--                                </button>-->
-                                <!--                            </div>-->
                             </form>
                         </div>
+                    </details>
 
-                        <!-- Panel Content -->
-                        <div class="tab-pane fade" id="content" role="tabpanel" aria-labelledby="content-tab">
-                            <div class="p-1">
-                                <!-- Structure -->
-                                <details id="pc-sec-structure" open class="mb-2">
-                                    <summary class="fw-semibold d-flex align-items-center gap-1">
-                                        <i class="bi bi-diagram-3"></i> Structure
-                                    </summary>
-                                    <div id="pc-tree" class="tree mt-2"></div>
-                                </details>
+                    <!-- Options -->
+                    <details id="acc-options" data-acc-key="options">
+                        <summary class="acc-hdr">
+                            <i class="bi bi-sliders me-1"></i>
+                            <span class="hdr-text">Options</span>
+                            <i class="bi bi-caret-down-fill acc-caret ms-auto"></i>
+                        </summary>
+                        <div class="acc-body">
+                            <div class="row g-1 mb-2">
+                                <div class="col-6">
+                                    <label class="form-label text-secondary mb-1 d-flex align-items-center gap-1">
+                                        <i class="bi bi-bounding-box"></i> Padding (gap)
+                                    </label>
+                                    <input name="margin" type="number" step="1" min="0" value="12" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-6 d-flex align-items-end">
+                                    <div class="form-check form-switch mt-2 w-100">
+                                        <input class="form-check-input" type="checkbox" id="addRightHole" name="addRightHole" checked>
+                                        <label class="form-check-label" for="addRightHole">Right-panel hole</label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <!-- /Panel Content -->
-                    </div>
+                    </details>
+
+                    <!-- Panel content -->
+                    <details id="acc-content" data-acc-key="content" open>
+                        <summary class="acc-hdr">
+                            <i class="bi bi-app-indicator me-1"></i>
+                            <span class="hdr-text">Panel Content</span>
+                            <i class="bi bi-caret-down-fill acc-caret ms-auto"></i>
+                        </summary>
+                        <div class="acc-body">
+                            <details id="pc-sec-structure" open class="mb-2">
+                                <summary class="fw-semibold d-flex align-items-center gap-1">
+                                    <i class="bi bi-diagram-3"></i> Structure
+                                </summary>
+                                <div id="pc-tree" class="tree mt-2"></div>
+                            </details>
+                        </div>
+                    </details>
+
+                    <!-- Guides -->
+                    <details id="acc-guides" data-acc-key="guides">
+                        <summary class="acc-hdr">
+                            <i class="bi bi-grid-1x2 me-1"></i>
+                            <span class="hdr-text">Guides</span>
+                            <i class="bi bi-caret-down-fill acc-caret ms-auto"></i>
+                        </summary>
+                        <div class="acc-body">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="pc-show-guides-global" checked>
+                                <label class="form-check-label" for="pc-show-guides-global">Show grid / guides</label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="showLabels" checked>
+                                <label class="form-check-label" for="showLabels">Show labels on panels</label>
+                            </div>
+                            <div id="gridInfo" class="text-secondary small mt-1"></div>
+                        </div>
+                    </details>
+
+                </div><!-- /.pc-sidebar-scroll -->
+
+                <!-- sticky footer actions -->
+                <div class="pc-sidebar-actions">
+                    <button form="form" type="submit" class="btn btn-sidebar btn-sidebar-primary">
+                        <i class="bi bi-lightning-charge-fill me-1"></i>Generate
+                    </button>
+                    <button id="download" type="button" class="btn btn-sidebar btn-sidebar-secondary" disabled>
+                        <i class="bi bi-download me-1"></i>Download SVG
+                    </button>
                 </div>
-            </div>
-            <div class="pc-sidebar-actions">
-                <button form="form" type="submit" class="btn btn-sidebar btn-sidebar-primary">
-                    <i class="bi bi-lightning-charge-fill me-1"></i>Generate
-                </button>
-                <button id="download" type="button" class="btn btn-sidebar btn-sidebar-secondary" disabled>
-                    <i class="bi bi-download me-1"></i>Download SVG
-                </button>
-            </div>
+            </div><!-- /card-body -->
         </div>
     </div>
 </aside>
