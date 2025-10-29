@@ -282,7 +282,7 @@ export function applyActiveDeleteBtn(svgRoot) {
     const g = document.createElementNS(NS, 'g');
     g.setAttribute('class', 'pc-del-btn-ov');
     g.setAttribute(UI_ATTR, '1');
-    g.setAttribute('transform', `translate(${x} ${y})`);
+    g.setAttribute('transform', `translate(${x+size} ${y})`);
     g.style.pointerEvents = 'all';
     g.style.cursor = 'pointer';
 
