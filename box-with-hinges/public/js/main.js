@@ -111,49 +111,90 @@ function syncPair(rangeEl, numEl, onChange) {
 }
 
 // -------- params I/O --------
+const PARAM_DEFAULTS = {
+    width: 80,
+    depth: 50,
+    height: 40,
+    thickness: 3,
+    kerf: 0.12,
+    tabWidth: 10,
+    margin: 12,
+    showLabels: true,
+    addRightHole: true
+};
+
 function readParams() {
-    const data = new FormData(els.form);
-    const showLabelsEl = document.getElementById('showLabels');
+    const form = document.getElementById('form');
+
+    // helper: read numeric by name with fallback
+    const num = (name, def) => {
+        if (!form || !form.elements) return def;
+        const el = form.elements.namedItem(name);
+        if (!el || !('value' in el)) return def;
+        const v = parseFloat(el.value);
+        return Number.isFinite(v) ? v : def;
+    };
+
+    // helper: read checkbox by id or name with fallback
+    const bool = (idOrName, def) => {
+        const byId = document.getElementById(idOrName);
+        if (byId && 'checked' in byId) return !!byId.checked;
+        if (form && form.elements) {
+            const el = form.elements.namedItem(idOrName);
+            if (el && 'checked' in el) return !!el.checked;
+        }
+        return def;
+    };
+
     return {
-        width: parseFloat(data.get('width')),
-        depth: parseFloat(data.get('depth')),
-        height: parseFloat(data.get('height')),
-        thickness: parseFloat(data.get('thickness')),
-        kerf: parseFloat(data.get('kerf')),
-        tabWidth: parseFloat(data.get('tabWidth')),
-        margin: parseFloat(data.get('margin')),
-        showLabels: !!showLabelsEl?.checked,
-        addRightHole: !!data.get('addRightHole')
+        width:     num('width',     PARAM_DEFAULTS.width),
+        depth:     num('depth',     PARAM_DEFAULTS.depth),
+        height:    num('height',    PARAM_DEFAULTS.height),
+        thickness: num('thickness', PARAM_DEFAULTS.thickness),
+        kerf:      num('kerf',      PARAM_DEFAULTS.kerf),
+        tabWidth:  num('tabWidth',  PARAM_DEFAULTS.tabWidth),
+        margin:    num('margin',    PARAM_DEFAULTS.margin),
+        showLabels: bool('showLabels',  PARAM_DEFAULTS.showLabels),
+        addRightHole: bool('addRightHole', PARAM_DEFAULTS.addRightHole)
     };
 }
+
 
 function saveParams(p) {
     localStorage.setItem('pressfit_simple', JSON.stringify(p));
 }
 
 function loadParams() {
-    try {
-        const raw = localStorage.getItem('pressfit_simple');
-        if (!raw) return;
-        const p = JSON.parse(raw);
+    let p = null;
+    try { p = JSON.parse(localStorage.getItem('pressfit_simple') || 'null'); } catch {}
+    if (!p) return;
 
-        Object.keys(p).forEach(k => {
-            if (k === 'showLabels') {
-                const s = document.getElementById('showLabels');
-                if (s) s.checked = !!p.showLabels;
-            } else {
-                const el = els.form.elements.namedItem(k);
-                if (el && 'value' in el) el.value = p[k];
-            }
-        });
+    const form = document.getElementById('form');
+    if (!form || !form.elements) return;
 
-        // mirror range/number pairs
-        if (els.widthRange && els.widthNum) els.widthNum.value = els.widthRange.value;
-        if (els.depthRange && els.depthNum) els.depthNum.value = els.depthRange.value;
-        if (els.heightRange && els.heightNum) els.heightNum.value = els.heightRange.value;
-        if (els.tabRange && els.tabNum) els.tabNum.value = els.tabRange.value;
-        updateBadges();
-    } catch {}
+    const setNum = (name, val) => {
+        const el = form.elements.namedItem(name);
+        if (el && 'value' in el && Number.isFinite(Number(val))) el.value = String(val);
+    };
+    setNum('width', p.width);
+    setNum('depth', p.depth);
+    setNum('height', p.height);
+    setNum('thickness', p.thickness);
+    setNum('kerf', p.kerf);
+    setNum('tabWidth', p.tabWidth);
+    setNum('margin', p.margin);
+
+    const s = document.getElementById('showLabels');
+    if (s) s.checked = !!p.showLabels;
+
+    // mirror range ↔ number if pairs exist
+    const id = (x) => document.getElementById(x);
+    if (id('width') && id('widthNum'))   id('widthNum').value  = id('width').value;
+    if (id('depth') && id('depthNum'))   id('depthNum').value  = id('depth').value;
+    if (id('height') && id('heightNum')) id('heightNum').value = id('height').value;
+    if (id('tabWidth') && id('tabWidthNum')) id('tabWidthNum').value = id('tabWidth').value;
+
+    updateBadges && updateBadges();
 }
 
 // redraw bridge (keep this function and call it once after the SVG exists)
@@ -302,11 +343,65 @@ async function generate() {
 }
 
 // -------- wiring --------
+function bindLeftSidebarOnce() {
+    if (bindLeftSidebarOnce._bound) return;
+
+    const doBind = () => {
+        const form = document.getElementById('form');
+        if (!form) return false;
+
+        // submit
+        form.addEventListener('submit', (e) => { e.preventDefault(); generate(); });
+
+        // field changes
+        const on = (name) => {
+            const el = form.elements.namedItem(name);
+            if (el && el.addEventListener) el.addEventListener('change', debouncedGenerate);
+        };
+        on('thickness'); on('kerf'); on('margin');
+
+        // show labels (if present)
+        const showLabelsEl = document.getElementById('showLabels');
+        if (showLabelsEl) showLabelsEl.addEventListener('change', debouncedGenerate);
+
+        // slider-number pairs
+        const WR = document.getElementById('width');
+        const WN = document.getElementById('widthNum');
+        const DR = document.getElementById('depth');
+        const DN = document.getElementById('depthNum');
+        const HR = document.getElementById('height');
+        const HN = document.getElementById('heightNum');
+        const TR = document.getElementById('tabWidth');
+        const TN = document.getElementById('tabWidthNum');
+
+        if (WR && WN) syncPair(WR, WN, debouncedGenerate);
+        if (DR && DN) syncPair(DR, DN, debouncedGenerate);
+        if (HR && HN) syncPair(HR, HN, debouncedGenerate);
+        if (TR && TN) syncPair(TR, TN, debouncedGenerate);
+
+        // initial badges mirror
+        updateBadges();
+
+        bindLeftSidebarOnce._bound = true;
+        return true;
+    };
+
+    // try immediately
+    if (doBind()) return;
+
+    // wait once for partials to land
+    const mo = new MutationObserver(() => {
+        if (doBind()) mo.disconnect();
+    });
+    mo.observe(document.body, { childList: true, subtree: true });
+}
+
 (function wire() {
     loadParams();
 
     // ensure redraw hook exists even before first generate (idempotent)
     bindPcRedrawHook();
+    bindLeftSidebarOnce();
 
     els.showLabels?.addEventListener('change', () => {
         // trigger full rebuild (labels layer added/removed inside generate())
@@ -314,22 +409,22 @@ async function generate() {
     });
 
     // Pair sliders with number inputs + live preview
-    syncPair(els.widthRange, els.widthNum, debouncedGenerate);
-    syncPair(els.depthRange, els.depthNum, debouncedGenerate);
-    syncPair(els.heightRange, els.heightNum, debouncedGenerate);
-    syncPair(els.tabRange, els.tabNum, debouncedGenerate);
+    // syncPair(els.widthRange, els.widthNum, debouncedGenerate);
+    // syncPair(els.depthRange, els.depthNum, debouncedGenerate);
+    // syncPair(els.heightRange, els.heightNum, debouncedGenerate);
+    // syncPair(els.tabRange, els.tabNum, debouncedGenerate);
     updateBadges();
 
     // Submit still works
-    els.form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        generate();
-    });
+    // els.form.addEventListener('submit', (e) => {
+    //     e.preventDefault();
+    //     generate();
+    // });
 
     // Other fields live-update on change
-    els.form.thickness.addEventListener('change', debouncedGenerate);
-    els.form.kerf.addEventListener('change', debouncedGenerate);
-    els.form.margin.addEventListener('change', debouncedGenerate);
+    // els.form.thickness.addEventListener('change', debouncedGenerate);
+    // els.form.kerf.addEventListener('change', debouncedGenerate);
+    // els.form.margin.addEventListener('change', debouncedGenerate);
     els.showLabels.addEventListener('change', debouncedGenerate);
 
     // Download (clean server SVG)
