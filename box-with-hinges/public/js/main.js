@@ -6,6 +6,7 @@ import {initInfiniteGrid} from "./grid.js";
 import {initRulers} from "./ruler.js";
 import {pc_onGeometryChanged, pc_resetAll} from './panel-content.js';
 import {pi_onGeometryChanged, pi_beforeDownload} from './panel-interaction.js';
+import {findPanelHost, findPanelLayer, inlineTextPaintFromLive, prependLayer, unhideAllLayers} from "./units.js";
 
 const $ = (s) => document.querySelector(s);
 
@@ -430,29 +431,42 @@ function bindLeftSidebarOnce() {
     els.download.addEventListener('click', async () => {
         const params = readParams();
         const svgText = generateSvg(params);
-        const wrap = document.createElement('div');
-        wrap.innerHTML = svgText;
+        const wrap = document.createElement('div'); wrap.innerHTML = svgText;
         const svgNode = wrap.firstElementChild;
 
-        // copy pc layers from live preview into export clone
         const live = document.querySelector('#out svg');
         if (live) {
             ['Bottom','Lid','Front','Back','Left','Right'].forEach(name => {
-                const srcHost = live.querySelector(`[id$="${name}"]`);
-                const dstHost = svgNode.querySelector(`[id$="${name}"]`);
-                if (srcHost && dstHost) {
-                    const srcLayer = srcHost.querySelector(`#pcLayer_${name}`);
-                    if (srcLayer) {
-                        const old = dstHost.querySelector(`#pcLayer_${name}`);
-                        if (old) old.remove();
-                        dstHost.appendChild(srcLayer.cloneNode(true));
-                    }
-                }
+                const srcLayer = findPanelLayer(live, name);
+                const dstHost  = findPanelHost(svgNode, name);
+                if (!srcLayer || !dstHost) return;
+
+                const clone = srcLayer.cloneNode(true);
+                const old = dstHost.querySelector(`#pcLayer_${name}`); if (old) old.remove();
+
+                // PREPEND, not append → keep under face fills
+                prependLayer(dstHost, clone);
             });
         }
 
-        // filter overlays etc.
+        // make sure layers are visible
+        unhideAllLayers(svgNode);
+
+        // inline text colors so black text doesn’t vanish
+        if (live) inlineTextPaintFromLive(live, svgNode);
+
+        // scrub only overlays / UI
         pi_beforeDownload(svgNode);
+
+        // ensure size attributes
+        const vb = svgNode.getAttribute('viewBox');
+        if (vb) {
+            const m = vb.match(/^\s*0\s+0\s+([\d.]+)\s+([\d.]+)/);
+            if (m) {
+                if (!svgNode.getAttribute('width'))  svgNode.setAttribute('width',  `${m[1]}mm`);
+                if (!svgNode.getAttribute('height')) svgNode.setAttribute('height', `${m[2]}mm`);
+            }
+        }
 
         const cleaned = new XMLSerializer().serializeToString(svgNode);
         const blob = new Blob([cleaned], {type: 'image/svg+xml;charset=utf-8'});
@@ -462,6 +476,7 @@ function bindLeftSidebarOnce() {
         a.click();
         URL.revokeObjectURL(a.href);
     });
+
 
     els.resetBtn?.addEventListener('click', () => {
         const m = bootstrap?.Modal?.getInstance(document.getElementById('confirmResetModal'));
