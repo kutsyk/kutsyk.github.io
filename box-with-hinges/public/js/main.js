@@ -218,6 +218,7 @@ export function bindProjectHeaderButtons() {
 
             _proxyOr('proj-delete', async () => {
                 deleteProject(prevId);
+                renderProjectsList();
                 document.dispatchEvent(new CustomEvent('projects:activeChanged'));
             });
         });
