@@ -27,8 +27,10 @@ function _saveOpen(m) {
     localStorage.setItem(LS_OPEN, JSON.stringify(m));
 }
 
+export function getPreviewProjectId() { return localStorage.getItem(LS_ACTIVE_PREVIEW) || null; }
 function _getPreviewId() { return localStorage.getItem(LS_ACTIVE_PREVIEW) || null; }
 function _setPreviewId(id) { if (id) localStorage.setItem(LS_ACTIVE_PREVIEW, id); else localStorage.removeItem(LS_ACTIVE_PREVIEW); }
+export function getEditProjectId() { return localStorage.getItem(LS_ACTIVE_EDIT) || null; }
 function _getEditId() { return localStorage.getItem(LS_ACTIVE_EDIT) || null; }
 function _setEditId(id) { if (id) localStorage.setItem(LS_ACTIVE_EDIT, id); else localStorage.removeItem(LS_ACTIVE_EDIT); }
 
@@ -53,6 +55,10 @@ function _defaultState() {
 }
 
 // -------------------- utils ---------------------------
+function _emitActiveChanged() {
+    document.dispatchEvent(new CustomEvent('projects:activeChanged'));
+}
+
 function _applyParamsToForm(p){
     const set = (id,v)=>{ const el=document.getElementById(id); if(el) el.value=String(v); };
     set('width',p.width); set('widthNum',p.width);
@@ -220,6 +226,7 @@ export async function previewProject(id) {
     const p = getProject(id); if (!p) return;
     _setPreviewId(id);
     await _applyProjectToUI(p);
+    _emitActiveChanged();
     document.dispatchEvent(new CustomEvent('pc:modeChanged', { detail: { mode: (_getEditId() === id ? 'edit' : 'preview'), projectId: id } }));
 }
 
@@ -229,6 +236,7 @@ export async function editProject(id) {
     _setPreviewId(id);
     _setEditId(id);
     await _applyProjectToUI(p);
+    _emitActiveChanged();
     document.dispatchEvent(new CustomEvent('pc:modeChanged', { detail: { mode: 'edit', projectId: id } }));
 }
 
@@ -239,8 +247,62 @@ function _panelCounts(state) {
     ['Bottom','Lid','Front','Back','Left','Right'].forEach(n => { out[n] = (P[n]?.items || []).length; });
     return out;
 }
-function _formatDate(iso) {
-    try { return new Date(iso).toLocaleDateString(); } catch { return iso || ''; }
+function _clone(obj){ return JSON.parse(JSON.stringify(obj ?? {})); }
+
+// Duplicate → creates a new project with copied params/state, previews it
+export async function duplicateProject(srcId) {
+    const list = _loadStore();
+    const src  = list.find(p => p.id === srcId);
+    if (!src) return null;
+
+    const now = new Date().toISOString();
+    const dup = {
+        id: _uuid(),
+        name: (src.name ? `${src.name} (copy)` : 'Untitled (copy)'),
+        createdAt: now,
+        updatedAt: now,
+        params: _clone(src.params),
+        state:  _clone(src.state)
+    };
+
+    list.push(dup); _saveStore(list);
+    _setEditId(null);
+    _setPreviewId(dup.id);
+
+    await _applyProjectToUI(dup);
+    _emitActiveChanged?.();
+    return dup.id;
+}
+
+export async function saveProjectAs(srcId, newName) {
+    const list = _loadStore();
+    const src  = list.find(p => p.id === srcId);
+    if (!src) return null;
+
+    const now = new Date().toISOString();
+    const dup = {
+        id: _uuid(),
+        name: (newName && newName.trim()) || (src.name ? `${src.name} (copy)` : 'Untitled'),
+        createdAt: now,
+        updatedAt: now,
+        params: _clone(src.params),
+        state:  _clone(src.state)
+    };
+
+    list.push(dup);
+    _saveStore(list);
+
+    // make the “Save As” result the active, editable project
+    _setPreviewId(dup.id);
+    _setEditId(dup.id);
+
+    await _applyProjectToUI(dup);
+    _emitActiveChanged?.();
+    return dup.id;
+}
+
+export function renderProjectsList() {
+    _renderList();
 }
 
 function _renderList() {
@@ -315,7 +377,13 @@ function _renderList() {
         const btnDel = document.createElement('button');
         btnDel.type='button'; btnDel.className='btn btn-xs btn-ghost text-danger'; btnDel.title='Delete';
         btnDel.innerHTML='<i class="bi bi-trash"></i>';
-        btnDel.addEventListener('click',(e)=>{ e.stopPropagation(); if (deleteProject(p.id)) _renderList(); });
+        btnDel.addEventListener('click',(e)=>{
+            e.stopPropagation();
+            if (deleteProject(p.id)) {
+                _renderList();
+                _emitActiveChanged();
+            }
+        });
         actions.appendChild(btnDel);
 
         row.appendChild(actions);
@@ -351,66 +419,12 @@ function _renderList() {
 // -------------------- wiring --------------------------
 export function wireProjectsUI() {
     const btnNew    = document.getElementById('proj-new');
-    const btnSave   = document.getElementById('proj-save');
-    const btnSaveAs = document.getElementById('proj-saveas');
-    const btnDup    = document.getElementById('proj-duplicate');
-    const btnDel    = document.getElementById('proj-delete');
 
     btnNew?.addEventListener('click', () => {
         const nm = prompt('Project name', 'Untitled');
         if (!nm) return;
         createProject(nm);
         previewProject(_getPreviewId()).then(_renderList);
-    });
-
-    btnSave?.addEventListener('click', () => {
-        saveEditedProject();
-        _renderList();
-    });
-
-    btnSaveAs?.addEventListener('click', () => {
-        const baseId = _getEditId() || _getPreviewId();
-        const nm = prompt('Save As', 'Copy of current');
-        if (!nm) return;
-
-        if (!baseId) {
-            const np = createProject(nm);
-            previewProject(np.id).then(_renderList);
-            return;
-        }
-
-        const base = getProject(baseId); if (!base) return;
-        const now = new Date().toISOString();
-        const clone = {
-            id: _uuid(),
-            name: nm,
-            createdAt: now, updatedAt: now,
-            params: JSON.parse(JSON.stringify(base.params)),
-            state:  JSON.parse(JSON.stringify(base.state))
-        };
-        const list = _loadStore(); list.push(clone); _saveStore(list);
-        previewProject(clone.id).then(() => { _setEditId(clone.id); _renderList(); });
-    });
-
-    btnDup?.addEventListener('click', () => {
-        const baseId = _getEditId() || _getPreviewId(); if (!baseId) return;
-        const base = getProject(baseId); if (!base) return;
-        const now = new Date().toISOString();
-        const dup = {
-            id: _uuid(),
-            name: `${base.name} (copy)`,
-            createdAt: now, updatedAt: now,
-            params: JSON.parse(JSON.stringify(base.params)),
-            state:  JSON.parse(JSON.stringify(base.state))
-        };
-        const list = _loadStore(); list.push(dup); _saveStore(list);
-        previewProject(dup.id).then(_renderList);
-    });
-
-    btnDel?.addEventListener('click', () => {
-        const id = _getEditId() || _getPreviewId();
-        if (!id) return;
-        if (deleteProject(id)) _renderList();
     });
 
     // keep list fresh on notable app events

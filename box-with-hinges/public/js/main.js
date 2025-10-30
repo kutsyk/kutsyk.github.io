@@ -7,7 +7,13 @@ import {initRulers} from "./ruler.js";
 import {pc_onGeometryChanged, pc_resetAll} from './panel-content.js';
 import {pi_onGeometryChanged, pi_beforeDownload} from './panel-interaction.js';
 import {findPanelHost, findPanelLayer, inlineTextPaintFromLive, prependLayer, unhideAllLayers} from "./units.js";
-import {wireProjectsUI} from "./projects.js";
+import {
+    deleteProject, duplicateProject,
+    getEditProjectId,
+    getPreviewProjectId,
+    listProjects, previewProject, renderProjectsList, saveEditedProject, saveProjectAs,
+    wireProjectsUI
+} from "./projects.js";
 
 const $ = (s) => document.querySelector(s);
 
@@ -123,6 +129,130 @@ const PARAM_DEFAULTS = {
     showLabels: true,
     addRightHole: true
 };
+
+function _projects_storageList() {
+    try { return listProjects(); } catch {                    // fallback if not imported
+        const raw = localStorage.getItem('pc_projects');
+        return raw ? JSON.parse(raw) : [];
+    }
+}
+function _projects_find(id) {
+    return _projects_storageList().find(p => p.id === id) || null;
+}
+
+function _findProj(id) {
+    try { return (listProjects() || []).find(p => p.id === id) || null; } catch { return null; }
+}
+function _proxyOr(fnId, fallback) {
+    const btn = document.getElementById(fnId);
+    if (btn) { btn.click(); return; }
+    if (typeof fallback === 'function') fallback();
+}
+
+export function bindProjectHeaderButtons() {
+    const btnSave   = document.getElementById('hdrProjSave');
+    const btnSaveAs = document.getElementById('hdrProjSaveAs');
+    const btnDup    = document.getElementById('hdrProjDuplicate');
+    const btnDel    = document.getElementById('hdrProjDelete');
+
+    if (btnSave && !btnSave._pcBound) {
+        btnSave._pcBound = true;
+        btnSave.addEventListener('click', async () => {
+            const prevId = getPreviewProjectId();
+            const editId = getEditProjectId();
+            if (!prevId || !editId || editId !== prevId) return;
+
+            // proxy to left sidebar if present; else call API directly
+            _proxyOr('proj-save', async () => {
+                await saveEditedProject();
+                renderProjectsList();
+                document.dispatchEvent(new CustomEvent('projects:activeChanged'));
+            });
+        });
+    }
+
+    if (btnSaveAs && !btnSaveAs._pcBound) {
+        btnSaveAs._pcBound = true;
+        btnSaveAs.addEventListener('click', async () => {
+            const prevId = getPreviewProjectId();
+            if (!prevId) return;
+            const cur = _findProj(prevId);
+            const nn = prompt('Save project as…', cur?.name ? `${cur.name} (copy)` : 'Untitled');
+            if (!nn || !nn.trim()) return;
+
+            if (typeof saveProjectAs === 'function') {
+                const newId = await saveProjectAs(prevId, nn.trim());
+                renderProjectsList();
+                document.dispatchEvent(new CustomEvent('projects:activeChanged'));
+            } else {
+                // fallback: proxy to left-sidebar button if you still keep it
+                document.getElementById('proj-saveas')?.click();
+            }
+        });
+    }
+
+    if (btnDup && !btnDup._pcBound) {
+        btnDup._pcBound = true;
+        btnDup.addEventListener('click', async () => {
+            const prevId = getPreviewProjectId();
+            if (!prevId) return;
+
+            // prefer direct API; fallback to proxy button if you keep it in the left sidebar
+            if (typeof duplicateProject === 'function') {
+                const newId = await duplicateProject(prevId);
+                if (newId && typeof previewProject === 'function') await previewProject(newId);
+                document.dispatchEvent(new CustomEvent('projects:activeChanged'));
+            } else {
+                document.getElementById('proj-duplicate')?.click();
+            }
+        });
+    }
+
+    if (btnDel && !btnDel._pcBound) {
+        btnDel._pcBound = true;
+        btnDel.addEventListener('click', async () => {
+            const prevId = getPreviewProjectId();
+            if (!prevId) return;
+            const cur = _findProj(prevId);
+            if (!confirm(`Delete project "${cur?.name || 'current project'}"?`)) return;
+
+            _proxyOr('proj-delete', async () => {
+                deleteProject(prevId);
+                document.dispatchEvent(new CustomEvent('projects:activeChanged'));
+            });
+        });
+    }
+}
+
+function updateProjectHeaderUI() {
+    const nameEl = document.getElementById('projHdrName');
+    const modeEl = document.getElementById('projHdrMode');
+    const btnSave = document.getElementById('hdrProjSave');
+    const btnSaveAs = document.getElementById('hdrProjSaveAs');
+    const btnDup = document.getElementById('hdrProjDuplicate');
+    const btnDel = document.getElementById('hdrProjDelete');
+
+    const previewId = getPreviewProjectId();
+    const editId = getEditProjectId();
+    const proj = previewId ? _projects_find(previewId) : null;
+
+    const name = proj ? proj.name : '—';
+    const mode = editId && editId === previewId ? 'Editing' : 'Preview';
+
+    if (nameEl) nameEl.textContent = name;
+    if (modeEl) {
+        modeEl.textContent = mode;
+        modeEl.className = 'badge ' + (mode === 'Editing' ? 'text-bg-primary' : 'text-bg-secondary');
+    }
+
+    // enable/disable actions
+    const onAny = !!proj;
+    const onEdit = (mode === 'Editing');
+    if (btnSave) btnSave.disabled = !onEdit; // save only in editing
+    if (btnSaveAs) btnSaveAs.disabled = !onAny;
+    if (btnDup) btnDup.disabled = !onAny;
+    if (btnDel) btnDel.disabled = !onAny;
+}
 
 function readParams() {
     const form = document.getElementById('form');
@@ -404,12 +534,16 @@ function bindLeftSidebarOnce() {
     // ensure redraw hook exists even before first generate (idempotent)
     bindPcRedrawHook();
     bindLeftSidebarOnce();
+    bindProjectHeaderButtons();
     wireProjectsUI();
 
     els.showLabels?.addEventListener('change', () => {
         // trigger full rebuild (labels layer added/removed inside generate())
         document.dispatchEvent(new Event('pc:requestRedraw'));
     });
+
+    ['projects:activeChanged','pc:stateRestored','pc:panelChanged','pc:itemSelectionChanged']
+        .forEach(ev => document.addEventListener(ev, updateProjectHeaderUI));
 
     // Pair sliders with number inputs + live preview
     // syncPair(els.widthRange, els.widthNum, debouncedGenerate);
