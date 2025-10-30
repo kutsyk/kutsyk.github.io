@@ -8,11 +8,27 @@
 
                 <!-- unified zoom row -->
                 <span id="gridInfo" class="badge text-bg-secondary ms-2">grid: —</span>
-                <div class="btn-group btn-group-sm" role="group" aria-label="Zoom">
-                    <button id="zoomOut"   type="button" class="btn btn-outline-secondary">−</button>
-                    <button id="zoomReset" type="button" class="btn btn-outline-secondary">100%</button>
-                    <button id="zoomIn"    type="button" class="btn btn-outline-secondary">+</button>
-                    <button id="fitBtn"    type="button" class="btn btn-outline-secondary">Fit</button>
+<!--                <div class="btn-group btn-group-sm" role="group" aria-label="Zoom">-->
+<!--                    <button id="zoomOut"   type="button" class="btn btn-outline-secondary">−</button>-->
+<!--                    <button id="zoomReset" type="button" class="btn btn-outline-secondary">100%</button>-->
+<!--                    <button id="zoomIn"    type="button" class="btn btn-outline-secondary">+</button>-->
+<!--                    <button id="fitBtn"    type="button" class="btn btn-outline-secondary">Fit</button>-->
+<!--                </div>-->
+                <!-- optional separators / extras -->
+<!--                <button id="fitBtn"    type="button" class="btn btn-outline-secondary">Fit</button>-->
+                <div class="btn-group btn-group-sm d-none d-md-flex" role="group" aria-label="Zoom">
+                    <span class="vr d-none d-md-inline mx-1 text-secondary opacity-50"></span>
+                </div>
+                <div class="btn-group btn-group-sm d-none d-md-flex" role="group" aria-label="Zoom">
+                    <button id="zoomOut" type="button" class="btn btn-outline-light" title="Zoom out">
+                        <i class="bi bi-zoom-out"></i>
+                    </button>
+                    <button id="zoomReset" type="button" class="btn btn-outline-light" title="Reset zoom">
+                        <i class="bi bi-aspect-ratio"></i>
+                    </button>
+                    <button id="zoomIn" type="button" class="btn btn-outline-light" title="Zoom in">
+                        <i class="bi bi-zoom-in"></i>
+                    </button>
                 </div>
             </div>
         </div>
@@ -24,3 +40,119 @@
         </div>
     </div>
 </main>
+<!-- Help / Keyboard Shortcuts -->
+<div class="modal fade" id="helpModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header py-2">
+                <h5 class="modal-title d-flex align-items-center gap-2">
+                    <i class="bi bi-question-circle"></i>
+                    Help & Shortcuts
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" title="Close (Esc)"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="row g-3">
+                    <div class="col-12 col-lg-6">
+                        <div class="card h-100">
+                            <div class="card-header py-2"><strong>Workspace</strong></div>
+                            <div class="card-body small">
+                                <ol class="mb-2">
+                                    <li><strong>Left sidebar</strong>: size, tabs, material, kerf. Generate and Download are always visible at the bottom.</li>
+                                    <li><strong>Main canvas</strong>: panels (Bottom, Lid, Front, Back, Left, Right). Grid borders are clickable to activate a cell.</li>
+                                    <li><strong>Right sidebar</strong>: layout and object editor. Disabled when no object is selected.</li>
+                                </ol>
+                                <ul class="mb-0">
+                                    <li><strong>Hover object</strong>: dotted outline appears.</li>
+                                    <li><strong>Click object</strong>: becomes active, solid outline + corner delete button.</li>
+                                    <li><strong>Click cell border</strong>: activates cell (no object selection).</li>
+                                    <li><strong>Background click</strong>: deselects object and cell.</li>
+                                    <li><strong>Drag & drop</strong> text/SVG onto a cell to add it.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-6">
+                        <div class="card h-100">
+                            <div class="card-header py-2"><strong>Keyboard & Mouse</strong></div>
+                            <div class="card-body small">
+                                <table class="table table-sm align-middle mb-0">
+                                    <tbody>
+                                    <tr><td><kbd>?</kbd></td><td>Open this Help</td></tr>
+                                    <tr><td><kbd>Esc</kbd></td><td>Deselect object and cell</td></tr>
+                                    <tr><td><kbd>Ctrl</kbd> + <kbd>+</kbd> / <kbd>-</kbd></td><td>Zoom in / out</td></tr>
+                                    <tr><td><kbd>Ctrl</kbd> + <kbd>0</kbd></td><td>Reset zoom</td></tr>
+                                    <tr><td>Mouse wheel</td><td>Scroll; with <kbd>Ctrl</kbd> → zoom</td></tr>
+                                    <tr><td>Drag from palette</td><td>Drop onto a cell to create object</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-6">
+                        <div class="card h-100">
+                            <div class="card-header py-2"><strong>Panel Content & Editing</strong></div>
+                            <div class="card-body small">
+                                <ul class="mb-2">
+                                    <li><strong>Structure tree</strong> (left → Panel Content): shows panels → rows → cells → items.</li>
+                                    <li><strong>Select in tree</strong>: focuses panel/cell; edit icon opens Object editor.</li>
+                                    <li><strong>Object outline button</strong>: deletes selected object.</li>
+                                </ul>
+                                <p class="mb-1"><strong>Text tools:</strong></p>
+                                <ul class="mb-0">
+                                    <li>Alignment (H/V) repositions inside cell.</li>
+                                    <li>Case transform: Sentence, lower, UPPER, Capitalized (Apply button highlights when pending).</li>
+                                    <li>Font, size, stroke/fill, opacity, mirroring, rotate.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-6">
+                        <div class="card h-100">
+                            <div class="card-header py-2"><strong>Export & Reset</strong></div>
+                            <div class="card-body small">
+                                <ul class="mb-2">
+                                    <li><strong>Download SVG</strong>: exports generated geometry plus current panel content layers.</li>
+                                    <li><strong>Generate</strong>: rebuilds geometry with current parameters.</li>
+                                    <li><strong>Reset all</strong>: restores defaults, clears panel content (confirmation required).</li>
+                                </ul>
+                                <p class="mb-1"><strong>Troubleshooting:</strong></p>
+                                <ul class="mb-0">
+                                    <li>If objects don’t export from Left/Right, verify IDs: <code>#pcLayer_Left</code> / <code>#pcLayer_Right</code> and host IDs end with <code>Left</code>/<code>Right</code>.</li>
+                                    <li>If delete button doesn’t respond, ensure the button and children carry <code>data-pc-ui="1"</code>.</li>
+                                    <li>If text is missing in export, ensure the live <code>#pcLayer_*</code> is cloned into the export SVG and UI overlays are stripped.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header py-2"><strong>Color legend</strong></div>
+                            <div class="card-body small">
+                                <div class="d-flex flex-wrap gap-3">
+                                    <span><span class="legend-dot" style="--c:#22c55e"></span>Bottom</span>
+                                    <span><span class="legend-dot" style="--c:#ec4899"></span>Lid</span>
+                                    <span><span class="legend-dot" style="--c:#6366f1"></span>Front</span>
+                                    <span><span class="legend-dot" style="--c:#06b6d4"></span>Back</span>
+                                    <span><span class="legend-dot" style="--c:#84cc16"></span>Left</span>
+                                    <span><span class="legend-dot" style="--c:#f59e0b"></span>Right</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="modal-footer py-2">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+

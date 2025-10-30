@@ -2,6 +2,7 @@
 :root {
     --sidebar-width: 320px;
     --bs-border-color: rgba(222, 226, 230, 0.3);
+    --bs-light: #495057;
     --bs-secondary-color: rgba(222, 226, 230);
     --bs-body-color: rgb(222, 226, 230);
     --bs-secondary-border-subtle: #3a3a3a;
@@ -737,3 +738,12 @@ g.pc-item > rect.pc-outline { fill: none; vector-effect: non-scaling-stroke; poi
 #objectEditor.pc-form-disabled textarea,
 #objectEditor.pc-form-disabled .form-check-input,
 #objectEditor.pc-form-disabled .btn { pointer-events: none; }
+
+/* app.css additions */
+.legend-dot {
+    display:inline-block; width:.75rem; height:.75rem; border-radius:999px; background:var(--c,#888);
+    margin-right:.35rem; vertical-align:middle; border:1px solid rgba(0,0,0,.1);
+}
+#helpModal .card { border-color: var(--bs-border-color, #dee2e6); }
+#helpModal .card-header { background: var(--bs-light, #f8f9fa); }
+#helpModal kbd { padding:.15rem .35rem; border-radius:.25rem; border:1px solid rgba(0,0,0,.2); background:#f8f9fa; }
