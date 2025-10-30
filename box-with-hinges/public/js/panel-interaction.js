@@ -10,7 +10,7 @@ import {
     setSelectedItemId,
     getSelectedItemId,
     pc_getLayout,
-    pc_clearSelection
+    pc_clearSelection, isReadonly
 } from './panel/state.js';
 
 import {
@@ -38,7 +38,15 @@ const PANEL_COLORS = Object.freeze({
 });
 const panelColor = (n) => PANEL_COLORS[n] || '#60a5fa';
 
-function _locked() { return window.PC_EDITABLE === false; }
+function _locked() { return isReadonly(); }
+
+function _hitsRoot(svg) { return svg.querySelector('#pcHitsRoot'); }
+function _setHitsInteractive(svg, on) {
+    const hr = _hitsRoot(svg);
+    if (hr) hr.style.pointerEvents = on ? 'all' : 'none';
+}
+
+
 
 // Global hint about palette drag kind
 let _lastDragKind = null;
@@ -87,6 +95,14 @@ let _lastDragKind = null;
     });
 
     // item → highlight in external tree (if present)
+    document.addEventListener('pc:readonlyChanged', () => {
+        const svg = document.querySelector('#out svg');
+        if (!svg) return;
+        // do NOT remount; just rebuild overlays and toggle hits
+        pi_onGeometryChanged(svg);
+        _setHitsInteractive(svg, !isReadonly());
+    });
+
     document.addEventListener('pc:itemSelectionChanged', (e) => {
         const d = e.detail || {};
         const tree = document.getElementById('pc-structure');
@@ -706,6 +722,8 @@ export function pi_onGeometryChanged(svg) {
         pc_leftnav_activate('content');
     }
     else if (ac && ac.panel) pc_activateEditorTab('layout');
+
+    _setHitsInteractive(svg, !isReadonly());
 }
 
 export function pi_beforeDownload(svgClone) {

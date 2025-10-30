@@ -9,6 +9,8 @@ import {pc_getStateRef} from './panel-content.js';
 import {pc_renderAll} from './panel-state-bridge.js';
 import {pi_onGeometryChanged} from './panel-interaction.js';
 import {generateSvg} from "./geometry.js";
+import {mountSvg} from "./renderer.js";
+import {setReadonly} from "./panel/state.js";
 
 const K_STORE = 'pc_projects';
 const K_PREVIEW = 'pc_projects_preview_id';
@@ -100,61 +102,76 @@ function _defaultState() {
     };
 }
 
-async function _ensureBaseSvgForParams(params) {
-    const set = (id, v) => {
-        const el = document.getElementById(id);
-        if (el) el.value = String(v);
-    };
-    set('width', params.width);
-    set('widthNum', params.width);
-    set('depth', params.depth);
-    set('depthNum', params.depth);
-    set('height', params.height);
-    set('heightNum', params.height);
-    set('tabWidth', params.tabWidth);
-    set('tabWidthNum', params.tabWidth);
-    const t = document.querySelector('input[name="thickness"]');
-    if (t) t.value = String(params.thickness);
-    const k = document.querySelector('input[name="kerf"]');
-    if (k) k.value = String(params.kerf);
-    const m = document.querySelector('input[name="margin"]');
-    if (m) m.value = String(params.margin);
-    const chk = document.getElementById('addRightHole');
-    if (chk) chk.checked = !!params.addRightHole;
-
-    const svgText = generateSvg(params);
-    const out = document.getElementById('out');
-    if (out) out.innerHTML = svgText;
-}
-
 function _applySnapshotToRuntime(proj) {
     const S = pc_getStateRef();
-    const snap = proj && proj.state ? proj.state : {};
+    const snap = proj?.state || {};
 
-    // in-place update, keep object identity
-    // panels
-    if (!S.panels) S.panels = {};
-    S.panels = JSON.parse(JSON.stringify(snap.panels || _defaultState().panels));
-
-    // UI
-    const ui = snap._ui || {};
+    // update only model parts; do NOT nuke the object identity used by other modules
+    S.panels = JSON.parse(JSON.stringify(snap.panels || {}));
     S._ui = {
-        activePanel: ui.activePanel || 'Front',
+        activePanel: (snap._ui && snap._ui.activePanel) || 'Front',
         selectedItemId: null,
         editItemId: null
     };
 
-    // repaint + overlays
     const svg = document.querySelector('#out svg');
     if (svg) {
-        pc_renderAll(svg);
-        pi_onGeometryChanged(svg);
+        pc_renderAll(svg);        // redraw item layers only
+        pi_onGeometryChanged(svg);// redraw overlays (frame, grid, hits)
     }
 
-    // notify listeners in consistent order
     document.dispatchEvent(new CustomEvent('pc:panelChanged', { detail: { panel: S._ui.activePanel } }));
     document.dispatchEvent(new CustomEvent('pc:activeCellChanged', { detail: { panel: null, row: null, col: null } }));
     document.dispatchEvent(new CustomEvent('pc:stateRestored'));
+}
+
+// tiny helper
+function _loadProjectById(id) {
+    const all = listProjects();           // your existing export
+    return all.find(p => p.id === id) || null;
+}
+
+// PREVIEW → read-only; no DOM remount
+export async function previewProject(id) {
+    const p = _loadProjectById(id); if (!p) return;
+    _setPreviewId(id);
+    _setEditId(null);
+    _applySnapshotToRuntime(p);
+    setReadonly(true);                    // one bit; listeners handle interactivity
+}
+
+// EDIT → editable; no DOM remount
+export async function editProject(id) {
+    const p = _loadProjectById(id); if (!p) return;
+    _setPreviewId(null);
+    _setEditId(id);
+    _applySnapshotToRuntime(p);
+    setReadonly(false);
+}
+
+async function _ensureBaseSvgForParams(params) {
+    const outEl = document.getElementById('out');
+    if (!outEl) return;
+    // sync form controls so UI reflects the project’s params
+    const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = String(v); };
+    set('width', params.width);       set('widthNum', params.width);
+    set('depth', params.depth);       set('depthNum', params.depth);
+    set('height', params.height);     set('heightNum', params.height);
+    set('tabWidth', params.tabWidth); set('tabWidthNum', params.tabWidth);
+    const t = document.querySelector('input[name="thickness"]'); if (t) t.value = String(params.thickness);
+    const k = document.querySelector('input[name="kerf"]');       if (k) k.value = String(params.kerf);
+    const m = document.querySelector('input[name="margin"]');     if (m) m.value = String(params.margin);
+    const chk = document.getElementById('addRightHole');          if (chk) chk.checked = !!params.addRightHole;
+
+    // build base SVG and mount via renderer so pan/zoom, rulers, and base layers are wired
+    const svgText = generateSvg(params);
+    const svg = mountSvg(svgText, outEl);           // <-- critical: do NOT use innerHTML
+
+    // if your mountSvg returns the <svg>, refresh overlays right away
+    if (svg) {
+        pc_renderAll(svg);                     // draw panel item layers
+        pi_onGeometryChanged(svg);             // draw overlays (frame, grid, hit rects)
+    }
 }
 
 // ---------- public CRUD ----------
@@ -344,39 +361,7 @@ export function duplicateProject(srcId, newName) { // kept old name
     return clone.id;
 }
 
-export async function previewProject(id) { // kept old name
-    const list = _loadStore();
-    const p = list.find(x => x.id === id);
-    if (!p) return;
-    _setPreviewId(id);
-    _setEditId(null);
-    await _ensureBaseSvgForParams(p.params);
-    _applySnapshotToRuntime(p);
-    _emitActiveChanged();
-    setEditable(false);
-}
-
-export async function editProject(id) { // new, but harmless to export
-    const list = _loadStore();
-    const p = list.find(x => x.id === id);
-    if (!p) return;
-    _setPreviewId(id);
-    _setEditId(id);
-    await _ensureBaseSvgForParams(p.params);
-    _applySnapshotToRuntime(p);
-    _emitActiveChanged();
-    setEditable(true);
-}
-
 // ---------- list UI (kept renderProjectsList, wireProjectsUI) ----------
-function _formatDate(iso) {
-    if (!iso) return '';
-    try {
-        return new Date(iso).toLocaleString();
-    } catch {
-        return iso;
-    }
-}
 
 function _panelCounts(state) {
     const out = {Bottom: 0, Lid: 0, Front: 0, Back: 0, Left: 0, Right: 0};
