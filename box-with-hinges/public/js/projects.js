@@ -143,7 +143,7 @@ export async function previewProject(id) {
 // EDIT → editable; no DOM remount
 export async function editProject(id) {
     const p = _loadProjectById(id); if (!p) return;
-    _setPreviewId(null);
+    _setPreviewId(id);
     _setEditId(id);
     _applySnapshotToRuntime(p);
     setReadonly(false);
