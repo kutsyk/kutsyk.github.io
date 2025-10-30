@@ -7,6 +7,7 @@ import {initRulers} from "./ruler.js";
 import {pc_onGeometryChanged, pc_resetAll} from './panel-content.js';
 import {pi_onGeometryChanged, pi_beforeDownload} from './panel-interaction.js';
 import {findPanelHost, findPanelLayer, inlineTextPaintFromLive, prependLayer, unhideAllLayers} from "./units.js";
+import {wireProjectsUI} from "./projects.js";
 
 const $ = (s) => document.querySelector(s);
 
@@ -284,6 +285,7 @@ function updateZoomLabel() {
 // -------- core generate --------
 const debouncedGenerate = debounce(generate, 120);
 
+// small helper to wait until #out svg is mounted
 async function generate() {
     const params = readParams();
     saveParams(params);
@@ -402,6 +404,7 @@ function bindLeftSidebarOnce() {
     // ensure redraw hook exists even before first generate (idempotent)
     bindPcRedrawHook();
     bindLeftSidebarOnce();
+    wireProjectsUI();
 
     els.showLabels?.addEventListener('change', () => {
         // trigger full rebuild (labels layer added/removed inside generate())
