@@ -6,7 +6,6 @@ import {initInfiniteGrid} from "./grid.js";
 import {initRulers} from "./ruler.js";
 import {pc_onGeometryChanged, pc_resetAll} from './panel-content.js';
 import {pi_onGeometryChanged, pi_beforeDownload} from './panel-interaction.js';
-import {findPanelHost, findPanelLayer, inlineTextPaintFromLive, prependLayer, unhideAllLayers} from "./units.js";
 import {
     deleteProject, duplicateProject,
     getEditProjectId,
@@ -14,6 +13,7 @@ import {
     listProjects, previewProject, renderProjectsList, saveEditedProject, saveProjectAs,
     wireProjectsUI
 } from "./projects.js";
+import {findPanelHost, findPanelLayer, inlineTextPaintFromLive, prependLayer, unhideAllLayers} from "./units.js";
 
 const $ = (s) => document.querySelector(s);
 

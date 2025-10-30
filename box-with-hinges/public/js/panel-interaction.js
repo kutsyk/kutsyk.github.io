@@ -38,6 +38,8 @@ const PANEL_COLORS = Object.freeze({
 });
 const panelColor = (n) => PANEL_COLORS[n] || '#60a5fa';
 
+function _locked() { return window.PC_EDITABLE === false; }
+
 // Global hint about palette drag kind
 let _lastDragKind = null;
 
@@ -402,17 +404,28 @@ function renderPanelOverlay(svg, panelName, host, showGrid) {
             inner.setAttribute('data-pc-cell-col', String(c));
 
             // DnD on inner
-            inner.addEventListener('dragenter', () =>  inner.setAttribute('stroke', hexToRgba(color, .7)));
-            inner.addEventListener('dragleave', () =>  inner.setAttribute('stroke', 'none'));
+            inner.addEventListener('dragenter', () => {
+                if (_locked()) return;
+                inner.setAttribute('stroke', hexToRgba(color, .7))
+            });
+            inner.addEventListener('dragleave', () =>{
+                if (_locked()) return;
+                inner.setAttribute('stroke', 'none')
+            });
             inner.addEventListener('dragover', (e) => {
+                if (_locked()) return;
                 const t = e.dataTransfer?.getData('text/plain');
                 const hasFiles = !!(e.dataTransfer?.files && e.dataTransfer.files.length);
                 if (t === 'text' || t === 'svg' || !t || hasFiles) { e.preventDefault(); e.dataTransfer && (e.dataTransfer.dropEffect = 'copy'); }
             });
-            inner.addEventListener('drop', onDropToCell(panelName, r, c, svg));
+            inner.addEventListener('drop', () => {
+                if (_locked()) return;
+                onDropToCell(panelName, r, c, svg);
+            });
 
             // Hover → hit test → cursor + hover outline
             inner.addEventListener('mousemove', (e) => {
+                if (_locked()) return;
                 const g = hitTestItemAtClient(svg, panelName, e.clientX, e.clientY);
                 inner.style.cursor = g ? 'pointer' : 'default';
 
@@ -433,6 +446,7 @@ function renderPanelOverlay(svg, panelName, host, showGrid) {
             });
 
             inner.addEventListener('mouseleave', () => {
+                if (_locked()) return;
                 inner.style.cursor = 'default';
                 const prevId = svg.getAttribute('data-pc-hover-id') || '';
                 if (prevId) {
@@ -444,6 +458,7 @@ function renderPanelOverlay(svg, panelName, host, showGrid) {
 
             // Click inside → select topmost item (if any)
             inner.addEventListener('click', (e) => {
+                if (_locked()) return;
                 e.preventDefault();
                 const g = hitTestItemAtClient(svg, panelName, e.clientX, e.clientY);
                 if (!g) return;
@@ -478,10 +493,18 @@ function renderPanelOverlay(svg, panelName, host, showGrid) {
             border.setAttribute('data-pc-cell-row', String(r));
             border.setAttribute('data-pc-cell-col', String(c));
 
-            border.addEventListener('mouseenter', () => border.setAttribute('stroke', hexToRgba(color, .5)));
-            border.addEventListener('mouseleave', () => border.setAttribute('stroke', 'transparent'));
+            border.addEventListener('mouseenter', () => {
+                if (_locked()) return;
+                border.setAttribute('stroke', hexToRgba(color, .5))
+            });
+            border.addEventListener('mouseleave', () => {
+                if (_locked()) return;
+                border.setAttribute('stroke', 'transparent')
+            });
 
             border.addEventListener('click', (e) => {
+                if (_locked()) return;
+
                 e.preventDefault();
                 pc_clearSelection();
                 setCurrentPanel(panelName);
