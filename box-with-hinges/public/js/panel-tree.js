@@ -17,6 +17,7 @@ import {
     pc_setItemSvg,         // NEW: attach SVG content if a file was dropped
     pc_setItemType         // NEW: force item type when needed
 } from './panel-state-bridge.js';
+import {el, I, makeBranch} from "./ui-helpers.js";
 
 const mount = document.getElementById('pc-tree');
 if (!mount) throw new Error('#pc-tree not found');
@@ -25,47 +26,6 @@ document.addEventListener('pc:activeCellChanged', () => render());
 document.addEventListener('pc:panelChanged', () => render());
 
 // ---------- UI helpers ----------
-function el(tag, attrs = {}, ...children) {
-    const n = document.createElement(tag);
-    for (const [k, v] of Object.entries(attrs)) {
-        if (v === null || v === undefined) continue;
-        if (k === 'class') n.className = v;
-        else if (k === 'dataset') Object.assign(n.dataset, v);
-        else if (k.startsWith('on') && typeof v === 'function') n.addEventListener(k.slice(2), v);
-        else n.setAttribute(k, v);
-    }
-    for (const c of children) n.append(c && typeof c === 'object' ? c : document.createTextNode(String(c)));
-    return n;
-}
-
-const I = {
-    caretR: 'bi bi-caret-right-fill',
-    caretD: 'bi bi-caret-down-fill',
-    svg: 'bi bi-filetype-svg',
-    text: 'bi bi-type',
-    panel: 'bi bi-layout-wtf'
-};
-
-function makeBranch(summaryNode, bodyUl, open = false) {
-    const li = el('li');
-    const toggle = el('i', {class: `toggle ${open ? I.caretD : I.caretR}`});
-    const wrap = el('span', {class: 'label d-inline-flex align-items-center w-100'});
-    wrap.appendChild(toggle);
-    wrap.appendChild(summaryNode);
-    li.appendChild(wrap);
-    if (bodyUl) {
-        bodyUl.style.display = open ? '' : 'none';
-        li.appendChild(bodyUl);
-        wrap.addEventListener('click', (e) => {
-            e.preventDefault();
-            const opened = bodyUl.style.display !== 'none';
-            bodyUl.style.display = opened ? 'none' : '';
-            toggle.className = `toggle ${opened ? I.caretR : I.caretD}`;
-        });
-    }
-    return li;
-}
-
 function trimPreview(s, n) {
     const t = (s || '').replace(/\s+/g, ' ').trim();
     return t.length > n ? t.slice(0, n - 1) + '…' : t;

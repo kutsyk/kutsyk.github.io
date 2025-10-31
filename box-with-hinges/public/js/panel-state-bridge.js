@@ -6,13 +6,22 @@ import { pc_createItemInCell, pc_setItemType as _setItemType } from './panel/edi
 import {panelState, pc_getLayout} from "./panel/state.js";
 
 
-export function pc_getPanelState(name){
-    return panelState(name);
-}
+// export function pc_getPanelState(name){
+//     return panelState(name);
+// }
 
 export function pc_addItemAtGridCell(panelName, kind, cell) {
     return pc_createItemInCell(panelName, kind, cell);
 }
+
+export function pc_ensurePanel(name){
+    const S = pc_getStateRef();
+    S.panels = S.panels || {};
+    if(!S.panels[name]) S.panels[name] = { layout:{mode:'grid',rows:2,cols:2,padding:4,gutter:2}, items:[] };
+    if(!S.panels[name].layout) S.panels[name].layout = {mode:'grid',rows:2,cols:2,padding:4,gutter:2};
+    return S.panels[name];
+}
+export function pc_getPanelState(name){ return pc_ensurePanel(name); }
 
 export function pc_renderAll(svg) {
     _renderAll(svg);
