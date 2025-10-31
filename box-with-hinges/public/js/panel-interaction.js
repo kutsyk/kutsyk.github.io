@@ -19,7 +19,7 @@ import {
     pc_setItemSvg,
     pc_setItemType,
     pc_save,
-    pc_getPanelState
+    pc_getPanelState, pc_ensurePanel
 } from './panel-state-bridge.js';
 
 import { UI_ATTR, NS } from './panel/constants.js';
@@ -40,13 +40,12 @@ const panelColor = (n) => PANEL_COLORS[n] || '#60a5fa';
 
 function _locked() { return isReadonly(); }
 
-function _hitsRoot(svg) { return svg.querySelector('#pcHitsRoot'); }
-function _setHitsInteractive(svg, on) {
-    const hr = _hitsRoot(svg);
-    if (hr) hr.style.pointerEvents = on ? 'all' : 'none';
+function hitsRoot(svg) { return svg.querySelector('#pcHitsRoot'); }
+function overlaysRoot(svg) { return svg.querySelector('#pcOverlaysRoot'); }
+function ensureHitsOnTop(svg) {
+    const h = hitsRoot(svg);
+    if (h && h.parentNode) h.parentNode.appendChild(h); // move to end → top
 }
-
-
 
 // Global hint about palette drag kind
 let _lastDragKind = null;
@@ -98,9 +97,7 @@ let _lastDragKind = null;
     document.addEventListener('pc:readonlyChanged', () => {
         const svg = document.querySelector('#out svg');
         if (!svg) return;
-        // do NOT remount; just rebuild overlays and toggle hits
         pi_onGeometryChanged(svg);
-        _setHitsInteractive(svg, !isReadonly());
     });
 
     document.addEventListener('pc:itemSelectionChanged', (e) => {
@@ -142,20 +139,15 @@ let _lastDragKind = null;
 
 // ---------- utils ----------
 function ensureOverlay(svg, id) {
-    let ov = svg.querySelector(`#${id}`);
+    let ov = svg.querySelector('#' + id);
     if (!ov) {
         ov = document.createElementNS(NS, 'g');
         ov.setAttribute('id', id);
         ov.setAttribute(UI_ATTR, '1');
-        if (id === 'pcOverlaysRoot') {
-            ov.setAttribute('pointer-events', 'none');      // visuals only
-        } else if (id === 'pcHitsRoot') {
-            ov.removeAttribute('pointer-events');           // interactive
-            svg.appendChild(ov);
-            return ov;
-        }
         svg.appendChild(ov);
     }
+    if (id === 'pcOverlaysRoot') ov.setAttribute('pointer-events', 'none');
+    if (id === 'pcHitsRoot') ov.removeAttribute('pointer-events');
     return ov;
 }
 function safeLen(v, min = 0.01) { const n = Number(v); return Number.isFinite(n) ? Math.max(min, n) : min; }
@@ -295,8 +287,11 @@ function hitTestItemAtClient(svgEl, panelName, clientX, clientY) {
 
 // ---------- DnD: cell drop handler factory ----------
 function onDropToCell(panelName, row, col, svg) {
+    console.log('onDropToCell');
     return async function handleDrop(e) {
-        e.preventDefault(); e.stopPropagation();
+        console.log('handleDrop');
+        e.preventDefault();
+        e.stopPropagation();
 
         const tgt = e.currentTarget;
         if (tgt && tgt.setAttribute) tgt.setAttribute('stroke', 'none');
@@ -569,8 +564,10 @@ function attachDrops(svg) {
             const hasSvgFile = !!(files && [...files].some(f => (f.type && f.type.includes('svg')) || (f.name && /\.svg$/i.test(f.name))));
             let type = e.dataTransfer?.getData('text/plain') || (_lastDragKind || (hasSvgFile ? 'svg' : 'text'));
 
+            pc_ensurePanel(name);
             const pane = pc_getPanelState(name);
             const L = pc_getLayout(name);
+
             if (!pane || (L.mode || 'grid') !== 'grid') return;
 
             const pxy = pointInSvgUserSpace(svg, e.clientX, e.clientY);
@@ -723,7 +720,8 @@ export function pi_onGeometryChanged(svg) {
     }
     else if (ac && ac.panel) pc_activateEditorTab('layout');
 
-    _setHitsInteractive(svg, !isReadonly());
+    const hits = svg.querySelector('#pcHitsRoot');
+    if (hits && hits.parentNode) hits.parentNode.appendChild(hits);
 }
 
 export function pi_beforeDownload(svgClone) {

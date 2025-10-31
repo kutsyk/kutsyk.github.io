@@ -13,8 +13,8 @@ import {mountSvg} from "./renderer.js";
 import {setReadonly} from "./panel/state.js";
 
 const K_STORE = 'pc_projects';
-const K_PREVIEW = 'pc_projects_preview_id';
-const K_EDIT = 'pc_projects_edit_id';
+const K_PREVIEW = 'pc_proj_previewId';
+const K_EDIT = 'pc_proj_editId';
 window.PC_EDITABLE = true; // default after reload
 
 export function setEditable(on) {
@@ -27,7 +27,7 @@ export function setEditable(on) {
     document.dispatchEvent(new CustomEvent('proj:editModeChanged', { detail: { editable: !!on } }));
 
     const svg = document.querySelector('#out svg');
-    if (svg && typeof window.pi_onGeometryChanged === 'function') window.pi_onGeometryChanged(svg);
+    if (svg) pi_onGeometryChanged(svg);
 }
 
 // ---------- utils ----------
@@ -132,21 +132,87 @@ function _loadProjectById(id) {
 }
 
 // PREVIEW → read-only; no DOM remount
+export function updateProjectHeaderUI() {
+    const nameEl = document.getElementById('projHdrName');
+    const modeEl = document.getElementById('projHdrMode');
+    const btnSave   = document.getElementById('hdrProjSave');
+    const btnSaveAs = document.getElementById('hdrProjSaveAs');
+    const btnDup    = document.getElementById('hdrProjDuplicate');
+    const btnDel    = document.getElementById('hdrProjDelete');
+
+    const previewId = getPreviewProjectId();
+    const editId    = getEditProjectId();
+
+    // use editId (if set) as the source of truth for the name
+    const activeId  = editId || previewId;
+    const proj      = activeId ? _projects_find(activeId) : null;
+
+    const name = proj ? proj.name : '—';
+    const mode = editId ? 'Editing' : (previewId ? 'Preview' : '—');
+
+    if (nameEl) nameEl.textContent = name;
+    if (modeEl) {
+        modeEl.textContent = mode;
+        modeEl.className = 'badge ' + (mode === 'Editing' ? 'text-bg-primary' : 'text-bg-secondary');
+    }
+
+    const hasAny = !!proj;
+    const isEdit = !!editId;
+
+    if (btnSave)   btnSave.disabled   = !isEdit; // only in Editing
+    if (btnSaveAs) btnSaveAs.disabled = !hasAny;
+    if (btnDup)    btnDup.disabled    = !hasAny;
+    if (btnDel)    btnDel.disabled    = !hasAny;
+}
+
+
 export async function previewProject(id) {
-    const p = _loadProjectById(id); if (!p) return;
+    if (!id) return;
     _setPreviewId(id);
     _setEditId(null);
-    _applySnapshotToRuntime(p);
-    setReadonly(true);                    // one bit; listeners handle interactivity
+    setReadonly(true);
+    // load snapshot → runtime (whatever you already do)
+    await _applySnapshotToRuntimeById(id);
+
+    // notify everyone (main.js, panel-interaction.js, header, etc.)
+    document.dispatchEvent(new CustomEvent('proj:editModeChanged', { detail: { mode: 'preview', id } }));
+    document.dispatchEvent(new Event('projects:activeChanged'));
+    document.dispatchEvent(new CustomEvent('pc:readonlyChanged', { detail: { readonly: true }}));
+
+    updateProjectHeaderUI();
 }
 
 // EDIT → editable; no DOM remount
 export async function editProject(id) {
-    const p = _loadProjectById(id); if (!p) return;
-    _setPreviewId(id);
+    if (!id) return;
+    _setPreviewId(id);   // editing implies you’re also previewing that one
     _setEditId(id);
-    _applySnapshotToRuntime(p);
     setReadonly(false);
+    await _applySnapshotToRuntimeById(id);
+
+    document.dispatchEvent(new CustomEvent('proj:editModeChanged', { detail: { mode: 'edit', id } }));
+    document.dispatchEvent(new Event('projects:activeChanged'));
+    document.dispatchEvent(new CustomEvent('pc:readonlyChanged', { detail: { readonly: false }}));
+    updateProjectHeaderUI();
+}
+function _projects_find(id) {
+    if (!id) return null;
+    const raw  = localStorage.getItem(K_STORE);
+    const list = raw ? JSON.parse(raw) : [];
+    return list.find(p => p.id === id) || null;
+}
+async function _applySnapshotToRuntimeById(id) {
+    const p = _projects_find(id);
+    if (!p) return;
+
+    // Your existing routine to push project.state into the live S
+    _applySnapshotToRuntime(p);
+
+    // If you already re-render + redraw here, keep it.
+    // Otherwise ensure at least:
+    //  - pc_renderAll(svg)
+    //  - pi_onGeometryChanged(svg)
+    //  - rebind rulers/grid if you wipe the SVG, etc.
 }
 
 async function _ensureBaseSvgForParams(params) {
@@ -182,6 +248,7 @@ export function listProjects() {
 export function ensureDefaultProject() {
     const list = _loadStore();
     if (list.length) return;
+
     const def = {
         id: 'def_project',
         name: 'Default',
@@ -196,7 +263,11 @@ export function ensureDefaultProject() {
     _emitListChanged();
     _emitActiveChanged();
     setEditable(false);
+
+    // mount once so preview panel is alive on first load
+    _ensureBaseSvgForParams(def.params).then(() => _applySnapshotToRuntime(def));
 }
+
 
 export function createProject(name) {
     const list = _loadStore();
@@ -241,13 +312,7 @@ export function deleteProject(id) {
     _saveStore(list);
     if (prevId === id) _setPreviewId(null);
     if (editId === id) _setEditId(null);
-    const rest = _loadStore();
-    if (!getPreviewProjectId() && rest.length) _setPreviewId(rest[0].id);
-    const curPrev = getPreviewProjectId();
-    if (curPrev) {
-        const p = rest.find(x => x.id === curPrev);
-        if (p) _ensureBaseSvgForParams(p.params).then(() => _applySnapshotToRuntime(p));
-    }
+
     _emitListChanged();
     _emitActiveChanged();
     _emitEditability();
@@ -533,15 +598,23 @@ export function renderProjectsList() { // kept old name
 // wire top buttons (kept old name)
 export function wireProjectsUI() {
     ensureDefaultProject();
-    setEditable(!!getEditProjectId());
+
+    // initial flags from persisted ids
+    const editable = !!getEditProjectId();
+    setEditable(editable);
+    setReadonly(!editable && !!getPreviewProjectId());
+
+    if (!document.querySelector('#out svg')) {
+        const cur = listProjects().find(p => p.id === (getPreviewProjectId() || getEditProjectId()));
+        if (cur) _ensureBaseSvgForParams(cur.params).then(() => _applySnapshotToRuntime(cur));
+    }
+
     _wireButtonsOnce();
     renderProjectsList();
+
+    // // list refreshers
     document.addEventListener('projects:listChanged', renderProjectsList);
     document.addEventListener('projects:activeChanged', renderProjectsList);
-    document.addEventListener('proj:editModeChanged', () => {
-        const svg = document.querySelector('#out svg');
-        if (svg && typeof window.pi_onGeometryChanged === 'function') window.pi_onGeometryChanged(svg);
-    });
 }
 
 // ---------- internal button wiring ----------

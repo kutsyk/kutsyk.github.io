@@ -10,7 +10,7 @@ import {
     deleteProject, duplicateProject,
     getEditProjectId,
     getPreviewProjectId,
-    listProjects, previewProject, renderProjectsList, saveEditedProject, saveProjectAs,
+    listProjects, previewProject, renderProjectsList, saveEditedProject, saveProjectAs, updateProjectHeaderUI,
     wireProjectsUI
 } from "./projects.js";
 import {findPanelHost, findPanelLayer, inlineTextPaintFromLive, prependLayer, unhideAllLayers} from "./units.js";
@@ -199,8 +199,9 @@ export function bindProjectHeaderButtons() {
 
             // prefer direct API; fallback to proxy button if you keep it in the left sidebar
             if (typeof duplicateProject === 'function') {
-                const newId = await duplicateProject(prevId);
+                const newId = duplicateProject(prevId);
                 if (newId && typeof previewProject === 'function') await previewProject(newId);
+
                 document.dispatchEvent(new CustomEvent('projects:activeChanged'));
             } else {
                 document.getElementById('proj-duplicate')?.click();
@@ -223,36 +224,6 @@ export function bindProjectHeaderButtons() {
             });
         });
     }
-}
-
-function updateProjectHeaderUI() {
-    const nameEl = document.getElementById('projHdrName');
-    const modeEl = document.getElementById('projHdrMode');
-    const btnSave = document.getElementById('hdrProjSave');
-    const btnSaveAs = document.getElementById('hdrProjSaveAs');
-    const btnDup = document.getElementById('hdrProjDuplicate');
-    const btnDel = document.getElementById('hdrProjDelete');
-
-    const previewId = getPreviewProjectId();
-    const editId = getEditProjectId();
-    const proj = previewId ? _projects_find(previewId) : null;
-
-    const name = proj ? proj.name : '—';
-    const mode = editId && editId === previewId ? 'Editing' : 'Preview';
-
-    if (nameEl) nameEl.textContent = name;
-    if (modeEl) {
-        modeEl.textContent = mode;
-        modeEl.className = 'badge ' + (mode === 'Editing' ? 'text-bg-primary' : 'text-bg-secondary');
-    }
-
-    // enable/disable actions
-    const onAny = !!proj;
-    const onEdit = (mode === 'Editing');
-    if (btnSave) btnSave.disabled = !onEdit; // save only in editing
-    if (btnSaveAs) btnSaveAs.disabled = !onAny;
-    if (btnDup) btnDup.disabled = !onAny;
-    if (btnDel) btnDel.disabled = !onAny;
 }
 
 function readParams() {
@@ -529,6 +500,17 @@ function bindLeftSidebarOnce() {
     mo.observe(document.body, { childList: true, subtree: true });
 }
 
+function _eventPathHasOut(e) {
+    const path = e.composedPath ? e.composedPath() : [];
+    for (const n of path) {
+        if (n && n.nodeType === 1) { // Element
+            if (n.id === 'out') return true;
+            if (n.closest && n.closest('#out')) return true;
+        }
+    }
+    return false;
+}
+
 (function wire() {
     loadParams();
 
@@ -543,8 +525,20 @@ function bindLeftSidebarOnce() {
         document.dispatchEvent(new Event('pc:requestRedraw'));
     });
 
-    ['projects:activeChanged','pc:stateRestored','pc:panelChanged','pc:itemSelectionChanged']
+    ['projects:activeChanged', 'proj:editModeChanged',
+        'pc:stateRestored','pc:panelChanged','pc:itemSelectionChanged']
         .forEach(ev => document.addEventListener(ev, updateProjectHeaderUI));
+
+    document.addEventListener('dragover', (e) => {
+        if (_eventPathHasOut(e)) return;           // let the canvas handlers own it
+        e.preventDefault();
+    }, { capture: true, passive: false });
+
+    document.addEventListener('drop', (e) => {
+        console.log('here in drop');
+        if (_eventPathHasOut(e)) return;           // do not interfere with canvas drops
+        e.preventDefault();
+    }, { capture: true, passive: false });
 
     // Pair sliders with number inputs + live preview
     // syncPair(els.widthRange, els.widthNum, debouncedGenerate);
