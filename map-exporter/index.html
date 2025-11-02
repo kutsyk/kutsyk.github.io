@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>MapLibre • Layered SVG Export • Material Design + Filters + Frame</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+  <!-- Materialize CSS (Material Design) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/materialize-css@1.0.0/dist/css/materialize.min.css">
+  <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
+
+  <style>
+    html, body { height:100%; margin:0; }
+    body { display:grid; grid-template-rows:auto 1fr; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; }
+    .navbar-fixed { z-index: 1000; }
+    #map { position:relative; }
+    #mapCanvas { position:absolute; inset:0; }
+    .floating-panel {
+      position:absolute; top:82px; left:16px; z-index:900;
+      width:360px; max-height:75vh; overflow:auto;
+      background:#fff; border-radius:8px; box-shadow:0 6px 20px rgba(0,0,0,.18);
+    }
+    .floating-panel .card-content { padding:14px; }
+    .row.compact { margin-bottom:8px; }
+    .btn-small { line-height:32px; height:32px; }
+    .chip-note { margin-top:6px; display:inline-block; }
+    .attribution {
+      position:absolute; bottom:.5rem; right:.75rem; background:rgba(255,255,255,.9);
+      padding:.2rem .5rem; border-radius:.4rem; font-size:.8rem;
+    }
+    /* Search suggestions */
+    .autocomplete-wrap { position:relative; }
+    #suggest { position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #ddd; border-top:none;
+      display:none; max-height:300px; overflow:auto; z-index:1001; }
+    #suggest .item { padding:10px 12px; cursor:pointer; }
+    #suggest .item:hover, #suggest .item.active { background:#eee; }
+
+    /* Frame handles */
+    .handle {
+      width:12px; height:12px; background:#111; border:2px solid #fff; border-radius:2px; cursor:nwse-resize;
+    }
+    .handle.se { cursor:se-resize; }
+    .handle.nw { cursor:nw-resize; }
+    .handle.ne { cursor:ne-resize; }
+    .handle.sw { cursor:sw-resize; }
+    .handle.mid { width:10px; height:10px; background:#fff; border:2px solid #111; border-radius:50%; cursor:move; }
+  </style>
+</head>
+<body>
+
+<!-- Top App Bar -->
+<div class="navbar-fixed">
+  <nav class="blue-grey darken-4">
+    <div class="nav-wrapper container">
+      <a class="brand-logo" style="font-size:1.2rem">Layered SVG Export</a>
+    </div>
+  </nav>
+</div>
+
+<!-- Map -->
+<div id="map">
+  <div id="mapCanvas"></div>
+  <div class="floating-panel card">
+    <div class="card-content">
+      <span class="card-title" style="font-size:1.2rem">Controls</span>
+
+      <!-- Search with proposals -->
+      <div class="row compact">
+        <div class="input-field col s12 autocomplete-wrap">
+          <input id="search" type="text" placeholder="City or location" autocomplete="off">
+          <label for="search" class="active">Search</label>
+          <div id="suggest" role="listbox" aria-label="Search proposals"></div>
+        </div>
+        <div class="col s12">
+          <a id="btnSearch" class="btn btn-small blue">Find</a>
+          <a id="btnPreview" class="btn btn-small grey darken-3">Preview layers</a>
+          <a id="btnToggleFrame" class="btn btn-small amber darken-2">Add/Remove frame</a>
+        </div>
+      </div>
+
+      <!-- Layer filters -->
+      <div class="row compact">
+        <div class="col s12"><strong>Include in export</strong></div>
+        <p class="col s6">
+          <label><input type="checkbox" id="chkRoads" class="filled-in" checked><span>Roads</span></label>
+        </p>
+        <p class="col s6">
+          <!-- <label><input type="checkbox" id="chkBuildings" class="filled-in"><span>Buildings</span></label> -->
+          <label><input id="chkHighways" type="checkbox"  class="filled-in" checked><span>Highways</span></label>
+        </p>
+        <p class="col s6">
+          <label><input type="checkbox" id="chkWater" class="filled-in" checked><span>Water</span></label>
+        </p>
+        <p class="col s6">
+          <label><input type="checkbox" id="chkParks" class="filled-in" checked><span>Parks</span></label>
+        </p>
+      </div>
+
+      <!-- Export settings -->
+      <div class="row compact">
+        <div class="input-field col s6">
+          <input id="w" type="number" min="512" step="128" value="4096">
+          <label for="w" class="active">SVG width (px)</label>
+        </div>
+        <div class="input-field col s6">
+          <input id="h" type="number" min="512" step="128" value="4096">
+          <label for="h" class="active">SVG height (px)</label>
+        </div>
+        <div class="col s12">
+          <a id="btnExport" class="btn green">Export SVG</a>
+          <span class="chip chip-note">Data: OpenStreetMap via Overpass. Preview uses OSM raster tiles.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="attribution">© OpenStreetMap contributors</div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/materialize-css@1.0.0/dist/js/materialize.min.js"></script>
+<script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+<script>
+/* MapLibre base map */
+const map = new maplibregl.Map({
+  container: 'mapCanvas',
+  style: {
+    "version": 8,
+    "name": "OSM Raster",
+    "sources": {
+      "osm": { "type": "raster", "tiles": ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"], "tileSize": 256,
+        "attribution": "© OpenStreetMap contributors" }
+    },
+    "layers": [{ "id": "osm-tiles", "type": "raster", "source": "osm" }]
+  },
+  center: [0, 20],
+  zoom: 2
+});
+
+/* Materialize init */
+document.addEventListener('DOMContentLoaded', () => M.updateTextFields());
+
+/* Search with proposals (Nominatim) */
+const searchEl = document.getElementById('search');
+const suggestEl = document.getElementById('suggest');
+let suggestItems = []; let activeIndex = -1; let debounceId = null;
+
+function clearSuggest() {
+  suggestEl.innerHTML = ''; suggestEl.style.display = 'none'; suggestItems = []; activeIndex = -1;
+}
+function renderSuggest(results) {
+  suggestEl.innerHTML = '';
+  results.forEach((r, i) => {
+    const div = document.createElement('div');
+    div.className = 'item'; div.setAttribute('role','option'); div.dataset.index = String(i);
+    div.textContent = r.display_name;
+    div.addEventListener('mousedown', (e) => { e.preventDefault(); selectResult(i); });
+    suggestEl.appendChild(div);
+  });
+  suggestItems = results; suggestEl.style.display = results.length ? 'block' : 'none';
+}
+async function fetchSuggest(q) {
+  const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(q)}&limit=8&addressdetails=0`;
+  const res = await fetch(url, { headers: { 'Accept':'application/json' } });
+  if (!res.ok) return [];
+  return res.json();
+}
+function highlight(index) {
+  const nodes = [...suggestEl.querySelectorAll('.item')];
+  nodes.forEach(n => n.classList.remove('active'));
+  if (index >= 0 && nodes[index]) nodes[index].classList.add('active');
+  activeIndex = index;
+}
+function selectResult(i) {
+  const d = suggestItems[i]; if (!d) return;
+  searchEl.value = d.display_name; clearSuggest();
+  if (d.boundingbox) {
+    const south = parseFloat(d.boundingbox[0]);
+    const north = parseFloat(d.boundingbox[1]);
+    const west  = parseFloat(d.boundingbox[2]);
+    const east  = parseFloat(d.boundingbox[3]);
+    map.fitBounds([[west, south],[east, north]], { padding: 60, duration: 600 });
+  } else if (d.lat && d.lon) {
+    map.flyTo({ center: [parseFloat(d.lon), parseFloat(d.lat)], zoom: 11, speed: 0.6 });
+  }
+}
+searchEl.addEventListener('input', () => {
+  const q = searchEl.value.trim();
+  if (!q) { clearSuggest(); return; }
+  clearTimeout(debounceId);
+  debounceId = setTimeout(async () => renderSuggest(await fetchSuggest(q)), 250);
+});
+searchEl.addEventListener('keydown', (e) => {
+  const count = suggestItems.length; if (!count) return;
+  if (e.key === 'ArrowDown') { e.preventDefault(); highlight((activeIndex + 1) % count); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); highlight((activeIndex - 1 + count) % count); }
+  else if (e.key === 'Enter') { e.preventDefault(); if (activeIndex >= 0) selectResult(activeIndex); }
+  else if (e.key === 'Escape') { clearSuggest(); }
+});
+document.addEventListener('click', (e) => { if (!e.target.closest('.autocomplete-wrap')) clearSuggest(); });
+document.getElementById('btnSearch').addEventListener('click', async () => {
+  const q = searchEl.value.trim(); if (!q) return;
+  const data = await fetchSuggest(q); if (data && data.length) selectResult(0);
+});
+
+/* Overpass query builder: roads, buildings, water, parks */
+function buildOverpassBBox(b, want) {
+  const west=b.getWest(), south=b.getSouth(), east=b.getEast(), north=b.getNorth();
+  const parts = [];
+  if (want.parks)
+    parts.push(
+      `way["leisure"="park"](${south},${west},${north},${east});`,
+      `relation["leisure"="park"](${south},${west},${north},${east});`,
+      `way["landuse"="grass"](${south},${west},${north},${east});`,
+      `relation["landuse"="grass"](${south},${west},${north},${east});`,
+      `way["landuse"="recreation_ground"](${south},${west},${north},${east});`,
+      `relation["landuse"="recreation_ground"](${south},${west},${north},${east});`
+    );
+  if (want.water)
+    parts.push(
+      `way["natural"="water"](${south},${west},${north},${east});`,
+      `relation["natural"="water"](${south},${west},${north},${east});`,
+      `way["waterway"="riverbank"](${south},${west},${north},${east});`,
+      `relation["waterway"="riverbank"](${south},${west},${north},${east});`,
+      `way["waterway"~"^(river|stream|canal)$"](${south},${west},${north},${east});`
+    );
+  if (want.buildings)
+    parts.push(
+      `way["building"](${south},${west},${north},${east});`,
+      `relation["building"](${south},${west},${north},${east});`
+    );
+  if (want.roads || want.highways) {
+    parts.push(`way["highway"](${south},${west},${north},${east});`);
+    }
+  const body = parts.join('\n  ');
+  return `
+[out:json][timeout:180];
+(
+  ${body}
+);
+out body geom;`;
+}
+
+/* Layer predicates */
+const isPark     = t => t && (t.leisure==='park' || t.landuse==='grass' || t.landuse==='recreation_ground');
+const isWaterPlg = t => t && (t.natural==='water' || t.waterway==='riverbank');
+const isWaterLin = t => t && /^(river|stream|canal)$/.test(t.waterway||'');
+const isBuilding = t => t && t.building;
+const isRoad     = t => t && t.highway;
+
+/* GeoJSON preview */
+async function loadPreview() {
+  const want = {
+    roads: document.getElementById('chkRoads').checked,
+    buildings: document.getElementById('chkBuildings').checked,
+    water: document.getElementById('chkWater').checked,
+    parks: document.getElementById('chkParks').checked
+  };
+  const bbox = getActiveBBox(); // frame bbox if present, else map bounds
+  const ovp = buildOverpassBBox(bbox, want);
+  const resp = await fetch('https://overpass-api.de/api/interpreter', {
+    method: 'POST', headers: { 'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8' },
+    body: 'data=' + encodeURIComponent(ovp)
+  });
+  if (!resp.ok) return;
+  const elements = (await resp.json()).elements || [];
+
+  const toFC = (pred, type) => ({
+    type:'FeatureCollection',
+    features: elements.filter(e => pred(e.tags)).map(e => {
+      if (e.type==='way' && e.geometry && e.geometry.length >= (type==='Polygon'?3:2)) {
+        if (type==='Polygon') return { type:'Feature', properties:e.tags||{}, geometry:{ type:'Polygon', coordinates:[ e.geometry.map(g=>[g.lon,g.lat]) ]}};
+        return { type:'Feature', properties:e.tags||{}, geometry:{ type:'LineString', coordinates: e.geometry.map(g=>[g.lon,g.lat]) }};
+      }
+      if (e.type==='relation' && e.members) {
+        const rings = e.members.filter(m=>m.geometry && m.geometry.length>=3).map(m=>m.geometry.map(g=>[g.lon,g.lat]));
+        if (type==='Polygon' && rings.length) return { type:'Feature', properties:e.tags||{}, geometry:{ type:'Polygon', coordinates:[ rings.flat() ]}};
+      }
+      return null;
+    }).filter(Boolean)
+  });
+
+  const parksFC    = want.parks    ? toFC(isPark, 'Polygon') : {type:'FeatureCollection',features:[]};
+  const waterPoly  = want.water    ? toFC(isWaterPlg, 'Polygon') : {type:'FeatureCollection',features:[]};
+  const waterLine  = want.water    ? toFC(isWaterLin, 'LineString') : {type:'FeatureCollection',features:[]};
+  const buildingsFC= want.buildings? toFC(isBuilding, 'Polygon') : {type:'FeatureCollection',features:[]};
+  const roadsFC    = want.roads    ? toFC(isRoad, 'LineString') : {type:'FeatureCollection',features:[]};
+
+  const addOrUpd = (id, data, addFill=false, color='#000') => {
+    if (map.getSource(id)) map.getSource(id).setData(data);
+    else {
+      map.addSource(id,{ type:'geojson', data });
+      if (addFill) {
+        map.addLayer({ id:id+'-fill', type:'fill', source:id, paint:{ 'fill-color': color, 'fill-opacity': 0.55 }});
+        map.addLayer({ id:id+'-outline', type:'line', source:id, paint:{ 'line-color': color, 'line-width': 0.8 }});
+      } else {
+        map.addLayer({ id:id+'-line', type:'line', source:id, paint:{
+          'line-color': color, 'line-width': 1.6, 'line-cap':'round','line-join':'round'
+        }});
+      }
+    }
+  };
+
+  map.once('idle', () => {
+    if (want.parks)    addOrUpd('preview-parks',     parksFC,     true,  '#00ff32'); else removePreview('preview-parks');
+    if (want.water)    addOrUpd('preview-waterpoly', waterPoly,   true,  '#4b64e1'); else removePreview('preview-waterpoly');
+    if (want.water)    addOrUpd('preview-waterline', waterLine,   false, '#4b64e1'); else removePreview('preview-waterline');
+    if (want.buildings)addOrUpd('preview-buildings', buildingsFC, true,  '#9e9e9e'); else removePreview('preview-buildings');
+    if (want.roads)    addOrUpd('preview-roads',     roadsFC,     false, '#000000'); else removePreview('preview-roads');
+  });
+}
+function removePreview(id) {
+  const src = map.getSource(id); if (!src) return;
+  const layerFill   = id+'-fill';
+  const layerLine   = id+'-line';
+  const layerOutline= id+'-outline';
+  [layerFill, layerLine, layerOutline].forEach(l=>{ if (map.getLayer(l)) map.removeLayer(l); });
+  map.removeSource(id);
+}
+document.getElementById('btnPreview').addEventListener('click', loadPreview);
+
+/* Frame/rectangle: draggable + resizable via 2 corner handles + center handle */
+let frame = null; // {nw:[lng,lat], se:[lng,lat]}
+let handleNW=null, handleSE=null, handleMID=null;
+const elNW = document.createElement('div'); elNW.className='handle nw';
+const elSE = document.createElement('div'); elSE.className='handle se';
+const elMID= document.createElement('div'); elMID.className='handle mid';
+
+function addFrame() {
+  const b = map.getBounds();
+  const padLng = (b.getEast()-b.getWest())*0.15;
+  const padLat = (b.getNorth()-b.getSouth())*0.15;
+  frame = {
+    nw: [b.getWest()+padLng, b.getNorth()-padLat],
+    se: [b.getEast()-padLng, b.getSouth()+padLat]
+  };
+  drawFrame();
+}
+function removeFrame() {
+  frame=null;
+  if (map.getLayer('frame-line')) map.removeLayer('frame-line');
+  if (map.getSource('frame-src')) map.removeSource('frame-src');
+  if (handleNW) { handleNW.remove(); handleNW=null; }
+  if (handleSE) { handleSE.remove(); handleSE=null; }
+  if (handleMID){ handleMID.remove(); handleMID=null; }
+}
+function drawFrame() {
+  if (!frame) return;
+  const coords = [
+    frame.nw,
+    [frame.se[0], frame.nw[1]],
+    frame.se,
+    [frame.nw[0], frame.se[1]],
+    frame.nw
+  ];
+  const data = { type:'FeatureCollection', features:[{ type:'Feature', geometry:{ type:'LineString', coordinates: coords }}]};
+  if (!map.getSource('frame-src')) {
+    map.addSource('frame-src', { type:'geojson', data });
+    map.addLayer({ id:'frame-line', type:'line', source:'frame-src',
+      paint:{ 'line-color':'#ff6d00', 'line-width':2.5, 'line-dasharray':[2,2] }});
+  } else {
+    map.getSource('frame-src').setData(data);
+  }
+  // Handles
+  if (!handleNW) {
+    handleNW = new maplibregl.Marker({ element: elNW, draggable:true }).setLngLat(frame.nw).addTo(map);
+    handleSE = new maplibregl.Marker({ element: elSE, draggable:true }).setLngLat(frame.se).addTo(map);
+    handleMID= new maplibregl.Marker({ element: elMID,draggable:true }).setLngLat(midOf(frame.nw, frame.se)).addTo(map);
+
+    handleNW.on('drag', () => { frame.nw = clampToMap(handleNW.getLngLat()); drawFrame(); });
+    handleSE.on('drag', () => { frame.se = clampToMap(handleSE.getLngLat()); drawFrame(); });
+    handleMID.on('drag', () => {
+      const mid = clampToMap(handleMID.getLngLat());
+      const dx = mid.lng - (frame.nw[0] + frame.se[0])/2;
+      const dy = mid.lat - (frame.nw[1] + frame.se[1])/2;
+      frame.nw = [frame.nw[0]+dx, frame.nw[1]+dy];
+      frame.se = [frame.se[0]+dx, frame.se[1]+dy];
+      handleNW.setLngLat(frame.nw); handleSE.setLngLat(frame.se);
+      drawFrame();
+    });
+  } else {
+    handleNW.setLngLat(frame.nw); handleSE.setLngLat(frame.se); handleMID.setLngLat(midOf(frame.nw, frame.se));
+  }
+}
+function midOf(a,b){ return {lng:(a[0]+b[0])/2, lat:(a[1]+b[1])/2}; }
+function clampToMap(ll) { return [ll.lng, ll.lat]; }
+document.getElementById('btnToggleFrame').addEventListener('click', () => {
+  if (frame) removeFrame(); else addFrame();
+});
+map.on('move', () => { if (frame) drawFrame(); });
+
+function getActiveBBox() {
+  if (!frame) return map.getBounds();
+  // Normalize NW/SE in case user inverted corners
+  const west  = Math.min(frame.nw[0], frame.se[0]);
+  const east  = Math.max(frame.nw[0], frame.se[0]);
+  const south = Math.min(frame.se[1], frame.nw[1]);
+  const north = Math.max(frame.se[1], frame.nw[1]);
+  return {
+    getWest:  () => west,
+    getEast:  () => east,
+    getSouth: () => south,
+    getNorth: () => north
+  };
+}
+
+/* Export SVG (selected layers, clipped to frame if present) */
+document.getElementById('btnExport').addEventListener('click', async () => {
+  const width = Math.max(512, (+document.getElementById('w').value|0) || 4096);
+  const height= Math.max(512, (+document.getElementById('h').value|0) || 4096);
+  const pad = 24;
+
+  const want = {
+    roads: document.getElementById('chkRoads').checked,
+    buildings: document.getElementById('chkBuildings').checked,
+    water: document.getElementById('chkWater').checked,
+    parks: document.getElementById('chkParks').checked
+  };
+
+  const bbox = getActiveBBox();
+  const ovp = buildOverpassBBox(bbox, want);
+  const resp = await fetch('https://overpass-api.de/api/interpreter', {
+    method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8'},
+    body:'data='+encodeURIComponent(ovp)
+  });
+  if (!resp.ok) return;
+  const elements = (await resp.json()).elements || [];
+
+  const parks   = want.parks    ? elements.filter(e => isPark(e.tags))      : [];
+  const watersP = want.water    ? elements.filter(e => isWaterPlg(e.tags))  : [];
+  const watersL = want.water    ? elements.filter(e => isWaterLin(e.tags))  : [];
+  const builds  = want.buildings? elements.filter(e => isBuilding(e.tags))  : [];
+  const roads   = want.roads    ? elements.filter(e => isRoad(e.tags))      : [];
+
+  const R=6378137;
+  const lon2x = lon => R * lon * Math.PI/180;
+  const lat2y = lat => { const r = lat * Math.PI/180; return R * Math.log(Math.tan(Math.PI/4 + r/2)); };
+
+  const west=bbox.getWest(), south=bbox.getSouth(), east=bbox.getEast(), north=bbox.getNorth();
+  const minX = Math.min(lon2x(west), lon2x(east)), maxX=Math.max(lon2x(west), lon2x(east));
+  const minY = Math.min(lat2y(south),lat2y(north)),maxY=Math.max(lat2y(south),lat2y(north));
+  const innerW = width - pad*2, innerH = height - pad*2;
+  const scale = Math.min(innerW/(maxX-minX), innerH/(maxY-minY));
+  const tx = X => pad + (X - minX) * scale;
+  const ty = Y => pad + (maxY - Y) * scale;
+
+  const lineString = (coords) => {
+    if (!coords || !coords.length) return '';
+    let d = '';
+    for (let i=0;i<coords.length;i++){
+      const c = coords[i];
+      const X = tx(lon2x(c.lon)), Y = ty(lat2y(c.lat));
+      d += (i===0 ? `M${X.toFixed(2)},${Y.toFixed(2)}` : `L${X.toFixed(2)},${Y.toFixed(2)}`);
+    }
+    return d;
+  };
+  const polygonPath = (geom) => {
+    if (!geom || !geom.length) return '';
+    const first = geom[0], last = geom[geom.length-1];
+    let d = lineString(geom);
+    if (first && last && first.lat===last.lat && first.lon===last.lon) d+='Z';
+    return d;
+  };
+
+  const SVG_NS='http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(SVG_NS,'svg');
+  svg.setAttribute('xmlns', SVG_NS);
+  svg.setAttribute('width', width);
+  svg.setAttribute('height', height);
+  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+
+  // Optional white background
+  const bg = document.createElementNS(SVG_NS,'rect');
+  bg.setAttribute('x','0'); bg.setAttribute('y','0'); bg.setAttribute('width', width); bg.setAttribute('height', height);
+  bg.setAttribute('fill','#ffffff'); svg.appendChild(bg);
+
+  // ClipPath to the frame rectangle if present
+  if (frame) {
+    const clip = document.createElementNS(SVG_NS,'clipPath'); clip.setAttribute('id','clip');
+    const rect = document.createElementNS(SVG_NS,'rect');
+    rect.setAttribute('x', pad); rect.setAttribute('y', pad);
+    rect.setAttribute('width', innerW); rect.setAttribute('height', innerH);
+    clip.appendChild(rect);
+    const defs = document.createElementNS(SVG_NS,'defs'); defs.appendChild(clip); svg.appendChild(defs);
+  }
+  const groupWithClip = () => {
+    const g = document.createElementNS(SVG_NS,'g');
+    if (frame) g.setAttribute('clip-path','url(#clip)');
+    return g;
+  };
+
+  const gParks = groupWithClip(); gParks.setAttribute('id','parks');
+  const gWater = groupWithClip(); gWater.setAttribute('id','water');
+  const gBuild = groupWithClip(); gBuild.setAttribute('id','buildings');
+  const gRoads = groupWithClip(); gRoads.setAttribute('id','roads');
+
+  // Parks
+  for (const feat of parks) {
+    if (feat.type==='way' && feat.geometry) {
+      const p = document.createElementNS(SVG_NS,'path');
+      p.setAttribute('d', polygonPath(feat.geometry));
+      p.setAttribute('fill','#00ff32'); p.setAttribute('stroke','none');
+      gParks.appendChild(p);
+    } else if (feat.type==='relation' && feat.members) {
+      for (const mem of feat.members) {
+        if (!mem.geometry) continue;
+        const p = document.createElementNS(SVG_NS,'path');
+        p.setAttribute('d', polygonPath(mem.geometry));
+        p.setAttribute('fill','#00ff32'); p.setAttribute('stroke','none');
+        gParks.appendChild(p);
+      }
+    }
+  }
+  // Water polygons
+  for (const feat of watersP) {
+    if (feat.type==='way' && feat.geometry) {
+      const p = document.createElementNS(SVG_NS,'path');
+      p.setAttribute('d', polygonPath(feat.geometry));
+      p.setAttribute('fill','#4b64e1'); p.setAttribute('stroke','#4b64e1'); p.setAttribute('stroke-width','0.8');
+      gWater.appendChild(p);
+    } else if (feat.type==='relation' && feat.members) {
+      for (const mem of feat.members) {
+        if (!mem.geometry) continue;
+        const p = document.createElementNS(SVG_NS,'path');
+        p.setAttribute('d', polygonPath(mem.geometry));
+        p.setAttribute('fill','#4b64e1'); p.setAttribute('stroke','#4b64e1'); p.setAttribute('stroke-width','0.8');
+        gWater.appendChild(p);
+      }
+    }
+  }
+  // Water lines
+  for (const feat of watersL) {
+    if (feat.type==='way' && feat.geometry) {
+      const d = lineString(feat.geometry); if (!d) continue;
+      const p = document.createElementNS(SVG_NS,'path');
+      p.setAttribute('d', d); p.setAttribute('fill','none'); p.setAttribute('stroke','#4b64e1'); p.setAttribute('stroke-width','1.2');
+      p.setAttribute('stroke-linecap','round'); p.setAttribute('stroke-linejoin','round');
+      gWater.appendChild(p);
+    }
+  }
+  // Buildings
+  for (const feat of builds) {
+    if (feat.type==='way' && feat.geometry) {
+      const p = document.createElementNS(SVG_NS,'path');
+      p.setAttribute('d', polygonPath(feat.geometry));
+      p.setAttribute('fill','#9e9e9e'); p.setAttribute('stroke','#9e9e9e'); p.setAttribute('stroke-width','0.6');
+      gBuild.appendChild(p);
+    } else if (feat.type==='relation' && feat.members) {
+      for (const mem of feat.members) {
+        if (!mem.geometry) continue;
+        const p = document.createElementNS(SVG_NS,'path');
+        p.setAttribute('d', polygonPath(mem.geometry));
+        p.setAttribute('fill','#9e9e9e'); p.setAttribute('stroke','#9e9e9e'); p.setAttribute('stroke-width','0.6');
+        gBuild.appendChild(p);
+      }
+    }
+  }
+  // Roads
+  const roadStroke = (tags) => {
+    const h = tags && tags.highway;
+    if (!h) return 1.5;
+    if (h==='motorway'||h==='trunk') return 3.0;
+    if (h==='primary') return 2.4;
+    if (h==='secondary') return 2.0;
+    if (h==='tertiary') return 1.8;
+    if (h==='residential'||h==='unclassified') return 1.4;
+    if (h==='service'||h==='living_street') return 1.2;
+    if (h==='footway'||h==='path'||h==='cycleway') return 0.9;
+    return 1.3;
+  };
+  for (const feat of roads) {
+    if (feat.type==='way' && feat.geometry) {
+      const d = lineString(feat.geometry); if (!d) continue;
+      const p = document.createElementNS(SVG_NS,'path');
+      p.setAttribute('d', d);
+      p.setAttribute('fill','none'); p.setAttribute('stroke','#000000');
+      p.setAttribute('stroke-linecap','round'); p.setAttribute('stroke-linejoin','round');
+      p.setAttribute('stroke-width', roadStroke(feat.tags));
+      gRoads.appendChild(p);
+    }
+  }
+
+  if (want.parks)     svg.appendChild(gParks);
+  if (want.water)     svg.appendChild(gWater);
+  if (want.buildings) svg.appendChild(gBuild);
+  if (want.roads)     svg.appendChild(gRoads);
+
+  const serializer = new XMLSerializer();
+  const svgStr = serializer.serializeToString(svg);
+  const blob = new Blob([svgStr], { type:'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const name = `map_export_${west.toFixed(4)}_${south.toFixed(4)}_${east.toFixed(4)}_${north.toFixed(4)}_${width}x${height}.svg`.replace(/[^\w\.\-]+/g,'_');
+  a.href = url; a.download = name; document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 1000);
+});
+
+/* Helpers */
+document.getElementById('btnPreview').classList.add('waves-effect');
+document.getElementById('btnSearch').classList.add('waves-effect');
+document.getElementById('btnExport').classList.add('waves-effect');
+document.getElementById('btnToggleFrame').classList.add('waves-effect');
+</script>
+</body>
+</html>
