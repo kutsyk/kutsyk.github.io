@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8"/>
-  <title>Layered SVG Export • Bootstrap UI</title>
+  <title>Layered SVG Export • Bootstrap UI (Road classes)</title>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
 
   <!-- Bootstrap 5 -->
@@ -16,7 +16,7 @@
     #map { position:relative; height:calc(100% - 56px - 40px) } /* nav + footer heights */
     #mapCanvas { position:absolute; inset:0 }
     .control-card {
-      position:absolute; top:1rem; left:1rem; z-index:1000; width:420px; max-height:calc(88vh - 40px); overflow:auto
+      position:absolute; top:1rem; left:1rem; z-index:1000; width:460px; max-height:calc(88vh - 40px); overflow:auto
     }
     .suggest-wrap { position:relative }
     .suggest-menu { position:absolute; top:100%; left:0; right:0; z-index:1100; display:none; max-height:280px; overflow:auto }
@@ -88,30 +88,85 @@
       <div class="mb-3">
         <div class="form-text mb-2">Include and color</div>
 
-        <div class="row g-2 align-items-center mb-2">
-          <div class="col-7">
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" id="chkHighways" checked>
-              <label class="form-check-label" for="chkHighways">Highways (motorway/trunk/primary)</label>
+        <!-- Highways, split by class -->
+        <div class="border rounded p-2 mb-2">
+          <div class="small text-muted mb-2">Road classes</div>
+
+          <div class="row g-2 align-items-center mb-2">
+            <div class="col-7">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="chkMotorway" checked>
+                <label class="form-check-label" for="chkMotorway">motorway</label>
+              </div>
+            </div>
+            <div class="col-5 text-end">
+              <!-- default red -->
+              <input id="colMotorway" class="form-control form-control-color color" type="color" value="#ff0000" title="Motorway color">
             </div>
           </div>
-          <div class="col-5 text-end">
-            <input id="colHighways" class="form-control form-control-color color" type="color" value="#000000" title="Highways color">
+
+          <div class="row g-2 align-items-center mb-2">
+            <div class="col-7">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="chkTrunk" checked>
+                <label class="form-check-label" for="chkTrunk">trunk</label>
+              </div>
+            </div>
+            <div class="col-5 text-end">
+              <input id="colTrunk" class="form-control form-control-color color" type="color" value="#ff7f00" title="Trunk color">
+            </div>
+          </div>
+
+          <div class="row g-2 align-items-center mb-2">
+            <div class="col-7">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="chkPrimary" checked>
+                <label class="form-check-label" for="chkPrimary">primary</label>
+              </div>
+            </div>
+            <div class="col-5 text-end">
+              <input id="colPrimary" class="form-control form-control-color color" type="color" value="#ffd000" title="Primary color">
+            </div>
+          </div>
+
+          <div class="row g-2 align-items-center mb-2">
+            <div class="col-7">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="chkSecondary" checked>
+                <label class="form-check-label" for="chkSecondary">secondary</label>
+              </div>
+            </div>
+            <div class="col-5 text-end">
+              <input id="colSecondary" class="form-control form-control-color color" type="color" value="#999999" title="Secondary color">
+            </div>
+          </div>
+
+          <div class="row g-2 align-items-center mb-2">
+            <div class="col-7">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="chkTertiary" checked>
+                <label class="form-check-label" for="chkTertiary">tertiary</label>
+              </div>
+            </div>
+            <div class="col-5 text-end">
+              <input id="colTertiary" class="form-control form-control-color color" type="color" value="#bbbbbb" title="Tertiary color">
+            </div>
+          </div>
+
+          <div class="row g-2 align-items-center">
+            <div class="col-7">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="chkLocal" checked>
+                <label class="form-check-label" for="chkLocal">local (residential, unclassified, service, living_street)</label>
+              </div>
+            </div>
+            <div class="col-5 text-end">
+              <input id="colLocal" class="form-control form-control-color color" type="color" value="#333333" title="Local roads color">
+            </div>
           </div>
         </div>
 
-        <div class="row g-2 align-items-center mb-2">
-          <div class="col-7">
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" id="chkRoads" checked>
-              <label class="form-check-label" for="chkRoads">Local roads (others)</label>
-            </div>
-          </div>
-          <div class="col-5 text-end">
-            <input id="colRoads" class="form-control form-control-color color" type="color" value="#222222" title="Roads color">
-          </div>
-        </div>
-
+        <!-- Non-road layers -->
         <div class="row g-2 align-items-center mb-2">
           <div class="col-7">
             <div class="form-check">
@@ -333,17 +388,27 @@ function getSelections(){
   return {
     width: Math.max(512, (+document.getElementById('w').value|0) || 4096),
     height: Math.max(512, (+document.getElementById('h').value|0) || 4096),
+
+    // road classes
     want: {
-      highways: document.getElementById('chkHighways').checked,
-      roads: document.getElementById('chkRoads').checked,
-      water: document.getElementById('chkWater').checked,
-      parks: document.getElementById('chkParks').checked
+      motorway:  document.getElementById('chkMotorway').checked,
+      trunk:     document.getElementById('chkTrunk').checked,
+      primary:   document.getElementById('chkPrimary').checked,
+      secondary: document.getElementById('chkSecondary').checked,
+      tertiary:  document.getElementById('chkTertiary').checked,
+      local:     document.getElementById('chkLocal').checked,
+      water:     document.getElementById('chkWater').checked,
+      parks:     document.getElementById('chkParks').checked
     },
     colors: {
-      highways: document.getElementById('colHighways').value || '#000000',
-      roads: document.getElementById('colRoads').value || '#222222',
-      water: document.getElementById('colWater').value || '#4b64e1',
-      parks: document.getElementById('colParks').value || '#00ff32'
+      motorway:  document.getElementById('colMotorway').value || '#ff0000',  // default red
+      trunk:     document.getElementById('colTrunk').value    || '#ff7f00',
+      primary:   document.getElementById('colPrimary').value  || '#ffd000',
+      secondary: document.getElementById('colSecondary').value|| '#999999',
+      tertiary:  document.getElementById('colTertiary').value || '#bbbbbb',
+      local:     document.getElementById('colLocal').value    || '#333333',
+      water:     document.getElementById('colWater').value    || '#4b64e1',
+      parks:     document.getElementById('colParks').value    || '#00ff32'
     }
   };
 }
@@ -367,7 +432,10 @@ function buildOverpassBBox(b, want){
     `relation["waterway"="riverbank"](${south},${west},${north},${east});`,
     `way["waterway"~"^(river|stream|canal)$"](${south},${west},${north},${east});`
   );
-  if(want.roads || want.highways) parts.push(`way["highway"](${south},${west},${north},${east});`);
+  // One catch-all for roads; classification is done client-side
+  if(want.motorway || want.trunk || want.primary || want.secondary || want.tertiary || want.local)
+    parts.push(`way["highway"](${south},${west},${north},${east});`);
+
   const body=parts.join('\n  ');
   return `
 [out:json][timeout:180];
@@ -376,12 +444,12 @@ function buildOverpassBBox(b, want){
 );
 out body geom;`;
 }
-const isPark     = t => t && (t.leisure==='park' || t.landuse==='grass' || t.landuse==='recreation_ground');
-const isWaterPlg = t => t && (t.natural==='water' || t.waterway==='riverbank');
-const isWaterLin = t => t && /^(river|stream|canal)$/.test(t.waterway||'');
-const isRoadAny  = t => !!(t && t.highway);
-const isHighwayMajor = t => !!(t && /^(motorway|trunk|primary)$/.test(t.highway||''));
-const isRoadLocal = t => isRoadAny(t) && !isHighwayMajor(t);
+
+const isPark      = t => t && (t.leisure==='park' || t.landuse==='grass' || t.landuse==='recreation_ground');
+const isWaterPlg  = t => t && (t.natural==='water' || t.waterway==='riverbank');
+const isWaterLin  = t => t && /^(river|stream|canal)$/.test(t.waterway||'');
+const hwyEq       = (t,val) => t && t.highway===val;
+const isLocalRoad = t => t && /^(residential|unclassified|service|living_street)$/.test(t.highway||'');
 
 async function fetchElementsForBBox(bbox, want){
   const ovp=buildOverpassBBox(bbox, want);
@@ -443,16 +511,28 @@ function buildSVG({width,height,bbox,elements,want,colors}){
   }
   const group=()=>{ const g=document.createElementNS(SVG_NS,'g'); if(frame) g.setAttribute('clip-path','url(#clip)'); return g; };
 
-  const gParks=group(); gParks.setAttribute('id','parks');
-  const gWater=group(); gWater.setAttribute('id','water');
-  const gHigh =group(); gHigh .setAttribute('id','highways');
-  const gRoads=group(); gRoads.setAttribute('id','roads');
+  const gParks=group();   gParks.setAttribute('id','parks');
+  const gWater=group();   gWater.setAttribute('id','water');
 
+  const gMotor=group();   gMotor.setAttribute('id','motorway');
+  const gTrunk=group();   gTrunk.setAttribute('id','trunk');
+  const gPrim =group();   gPrim .setAttribute('id','primary');
+  const gSec  =group();   gSec  .setAttribute('id','secondary');
+  const gTert =group();   gTert .setAttribute('id','tertiary');
+  const gLocal=group();   gLocal.setAttribute('id','local');
+
+  // Prepare feature buckets
   const parks   = want.parks    ? elements.filter(e=>isPark(e.tags))         : [];
   const watersP = want.water    ? elements.filter(e=>isWaterPlg(e.tags))     : [];
   const watersL = want.water    ? elements.filter(e=>isWaterLin(e.tags))     : [];
-  const highs   = want.highways ? elements.filter(e=>isHighwayMajor(e.tags)) : [];
-  const locals  = want.roads    ? elements.filter(e=>isRoadLocal(e.tags))    : [];
+
+  const ways = elements.filter(e=>e.type==='way' && e.geometry && e.geometry.length>=2);
+  const mtr  = want.motorway  ? ways.filter(e=>hwyEq(e.tags,'motorway'))  : [];
+  const trk  = want.trunk     ? ways.filter(e=>hwyEq(e.tags,'trunk'))     : [];
+  const pry  = want.primary   ? ways.filter(e=>hwyEq(e.tags,'primary'))   : [];
+  const sec  = want.secondary ? ways.filter(e=>hwyEq(e.tags,'secondary')) : [];
+  const ter  = want.tertiary  ? ways.filter(e=>hwyEq(e.tags,'tertiary'))  : [];
+  const loc  = want.local     ? ways.filter(e=>isLocalRoad(e.tags))       : [];
 
   // Parks polygons
   for(const feat of parks){
@@ -489,28 +569,34 @@ function buildSVG({width,height,bbox,elements,want,colors}){
   }
 
   // Lines helper
-  const addLine=(collection,g,color,widthFunc)=>{
+  const addLine=(collection,g,color,strokeWidth)=>{
     for(const feat of collection){
-      if(feat.type==='way' && feat.geometry){
-        const d=lineString(feat.geometry,tx,ty); if(!d) continue;
-        const p=document.createElementNS(SVG_NS,'path'); p.setAttribute('d', d);
-        p.setAttribute('fill','none'); p.setAttribute('stroke', color);
-        p.setAttribute('stroke-linecap','round'); p.setAttribute('stroke-linejoin','round');
-        p.setAttribute('stroke-width', widthFunc ? widthFunc(feat.tags) : 2.0);
-        g.appendChild(p);
-      }
+      const d=lineString(feat.geometry,tx,ty); if(!d) continue;
+      const p=document.createElementNS(SVG_NS,'path'); p.setAttribute('d', d);
+      p.setAttribute('fill','none'); p.setAttribute('stroke', color);
+      p.setAttribute('stroke-linecap','round'); p.setAttribute('stroke-linejoin','round');
+      p.setAttribute('stroke-width', strokeWidth);
+      g.appendChild(p);
     }
   };
-  const localWidth=(tags)=>{ const h=tags&&tags.highway; if(!h) return 1.6;
-    if(h==='tertiary') return 1.8; if(h==='secondary') return 2.0; if(h==='primary') return 2.2; return 1.4; };
 
-  if(want.highways) addLine(highs,  gHigh,  colors.highways, ()=>3.0);
-  if(want.roads)    addLine(locals, gRoads, colors.roads, localWidth);
+  // Draw roads by class (thicker → thinner)
+  if(want.motorway)  addLine(mtr, gMotor, colors.motorway, 3.2);
+  if(want.trunk)     addLine(trk, gTrunk, colors.trunk,    3.0);
+  if(want.primary)   addLine(pry, gPrim,  colors.primary,  2.6);
+  if(want.secondary) addLine(sec, gSec,   colors.secondary,2.2);
+  if(want.tertiary)  addLine(ter, gTert,  colors.tertiary, 2.0);
+  if(want.local)     addLine(loc, gLocal, colors.local,    1.6);
 
+  // Layer order: polygons → water lines → big → small
   if(want.parks)    svg.appendChild(gParks);
   if(want.water)    svg.appendChild(gWater);
-  if(want.highways) svg.appendChild(gHigh);
-  if(want.roads)    svg.appendChild(gRoads);
+  if(want.motorway) svg.appendChild(gMotor);
+  if(want.trunk)    svg.appendChild(gTrunk);
+  if(want.primary)  svg.appendChild(gPrim);
+  if(want.secondary)svg.appendChild(gSec);
+  if(want.tertiary) svg.appendChild(gTert);
+  if(want.local)    svg.appendChild(gLocal);
 
   const serializer=new XMLSerializer();
   const svgStr=serializer.serializeToString(svg);
@@ -561,7 +647,7 @@ document.getElementById('btnPreview').addEventListener('click', async ()=>{
 });
 
 document.getElementById('btnExport').addEventListener('click', async ()=>{
-  // NEW behavior: no preview; show page loader until vector builds, then download
+  // Export: no preview; show page loader until vector builds, then download
   pageBusy.classList.remove('d-none');
   const btn = document.getElementById('btnExport');
   const oldHTML = btn.innerHTML;
