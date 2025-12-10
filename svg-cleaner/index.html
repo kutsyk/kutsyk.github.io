@@ -1,0 +1,759 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>SVG Cleaner by Area</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #f5f5f5;
+        }
+        .page {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px;
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 16px;
+            box-sizing: border-box;
+        }
+        @media (max-width: 900px) {
+            .page {
+                grid-template-columns: 1fr;
+            }
+        }
+        .card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 16px;
+            box-sizing: border-box;
+        }
+        h1 {
+            font-size: 1.3rem;
+            margin: 0 0 12px;
+        }
+        h2 {
+            font-size: 1rem;
+            margin: 0 0 8px;
+        }
+        label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: block;
+            margin-bottom: 4px;
+        }
+        input[type="number"],
+        input[type="file"] {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 6px 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            font-size: 0.9rem;
+        }
+        input[type="number"]:focus,
+        input[type="file"]:focus {
+            outline: none;
+            border-color: #0077ff;
+            box-shadow: 0 0 0 2px rgba(0,119,255,0.2);
+        }
+        .row {
+            display: flex;
+            gap: 8px;
+        }
+        .row > div {
+            flex: 1;
+        }
+        .small {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 12px;
+            border-radius: 4px;
+            border: none;
+            font-size: 0.9rem;
+            cursor: pointer;
+            background: #0077ff;
+            color: #fff;
+            min-height: 32px;
+        }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: default;
+        }
+        .btn-secondary {
+            background: #555;
+        }
+        .section {
+            margin-bottom: 12px;
+        }
+        .status {
+            font-size: 0.8rem;
+            margin-top: 6px;
+            min-height: 1.1em;
+        }
+        .status-processing {
+            color: #c27c00;
+        }
+        .status-done {
+            color: #007700;
+        }
+        .status-error {
+            color: #b00020;
+        }
+        progress {
+            width: 100%;
+            margin-top: 4px;
+            height: 12px;
+        }
+        .info-line {
+            font-size: 0.8rem;
+            margin-top: 4px;
+            min-height: 1.1em;
+        }
+        .preview-wrap {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 8px;
+            height: calc(100vh - 64px);
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+        #preview {
+            flex: 1 1 auto;
+            min-height: 200px;
+            margin-top: 4px;
+        }
+        .preview-viewport {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #fafafa;
+            border: 1px solid #eee;
+            position: relative;
+            cursor: grab;
+            box-sizing: border-box;
+        }
+        .preview-viewport svg {
+            display: block;
+            transform-origin: 0 0;
+            background: #fafafa;
+        }
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            border-radius: 999px;
+            background: #f0f0f0;
+            padding: 2px 8px;
+            font-size: 0.75rem;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+<div class="page">
+    <div class="card">
+        <h1>SVG Cleaner by Area</h1>
+
+        <div class="section">
+            <label for="fileInput">Upload SVG file</label>
+            <input type="file" id="fileInput" accept="image/svg+xml">
+            <div class="small">The SVG will be parsed and shown on the right.</div>
+        </div>
+
+        <div class="section">
+            <h2>Physical size (mm)</h2>
+            <div class="row">
+                <div>
+                    <label for="svgWidthMm">Output width (mm)</label>
+                    <input type="number" id="svgWidthMm" min="0.01" step="0.01" value="300">
+                </div>
+                <div>
+                    <label for="svgHeightMm">Output height (mm)</label>
+                    <input type="number" id="svgHeightMm" min="0.01" step="0.01" value="300">
+                </div>
+            </div>
+            <div class="small">
+                These are the physical dimensions you intend to use for the full SVG
+                (e.g. engraving size).
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Minimum feature size</h2>
+            <label for="minSizeMm">Minimum linear size (mm)</label>
+            <input type="number" id="minSizeMm" min="0.001" step="0.001" value="0.05">
+            <div class="small">
+                Any closed shape whose area is smaller than this size squared (mm²) will be removed.
+            </div>
+            <div class="info-line" id="infoThreshold"></div>
+        </div>
+
+        <div class="section">
+            <button class="btn" id="btnProcess" disabled>
+                Process SVG and update preview
+            </button>
+        </div>
+
+        <div class="section">
+            <button class="btn btn-secondary" id="btnDownload" disabled>
+                Download processed SVG
+            </button>
+        </div>
+
+        <div class="section">
+            <div class="pill">
+                <span id="fileInfo">No file loaded</span>
+            </div>
+        </div>
+
+        <div class="section">
+            <progress id="progress" value="0" max="100" style="display:none;"></progress>
+            <div id="status" class="status"></div>
+            <div id="summary" class="status"></div>
+        </div>
+    </div>
+
+    <div class="preview-wrap">
+        <h2>Preview</h2>
+        <div class="small">
+            Use mouse wheel to zoom, left mouse button to pan.
+        </div>
+        <div id="preview"></div>
+    </div>
+</div>
+
+<script type="module">
+    (() => {
+        'use strict';
+
+        /* ---------- DOM refs ---------- */
+        const fileInput     = document.getElementById('fileInput');
+        const btnProcess    = document.getElementById('btnProcess');
+        const btnDownload   = document.getElementById('btnDownload');
+        const preview       = document.getElementById('preview');
+        const infoThreshold = document.getElementById('infoThreshold');
+        const statusEl      = document.getElementById('status');
+        const summaryEl     = document.getElementById('summary');
+        const progressEl    = document.getElementById('progress');
+        const fileInfoEl    = document.getElementById('fileInfo');
+
+        const svgWidthMmEl  = document.getElementById('svgWidthMm');
+        const svgHeightMmEl = document.getElementById('svgHeightMm');
+        const minSizeMmEl   = document.getElementById('minSizeMm');
+
+        let originalSvgText     = null;
+        let originalFileName    = null;
+        let lastCleanedSvgText  = null;
+
+        /* ---------- Helpers ---------- */
+
+        function setStatus(msg, cls) {
+            statusEl.textContent = msg || '';
+            statusEl.className = 'status' + (cls ? ' ' + cls : '');
+        }
+
+        function setSummary(msg) {
+            summaryEl.textContent = msg || '';
+        }
+
+        function showProgress(show, max, value) {
+            if (!show) {
+                progressEl.style.display = 'none';
+                progressEl.value = 0;
+                return;
+            }
+            if (typeof max === 'number') progressEl.max = max;
+            if (typeof value === 'number') progressEl.value = value;
+            progressEl.style.display = 'block';
+        }
+
+        function parseNumber(el) {
+            const v = parseFloat(el.value);
+            return Number.isFinite(v) ? v : NaN;
+        }
+
+        function downloadTextAsSvg(text, suggestedName) {
+            const blob = new Blob([text], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = suggestedName || 'cleaned.svg';
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {
+                URL.revokeObjectURL(url);
+                a.remove();
+            }, 1000);
+        }
+
+        function parseSvg(svgText) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(svgText, 'image/svg+xml');
+            const svgEl = doc.documentElement;
+
+            if (!svgEl || svgEl.tagName.toLowerCase() !== 'svg') {
+                throw new Error('Uploaded file does not contain a root <svg> element.');
+            }
+
+            let vb = svgEl.getAttribute('viewBox');
+            let vbX = 0, vbY = 0, vbW = 0, vbH = 0;
+
+            if (vb) {
+                const parts = vb.trim().split(/\s+|,/).map(Number).filter(v => Number.isFinite(v));
+                if (parts.length === 4) {
+                    [vbX, vbY, vbW, vbH] = parts;
+                }
+            }
+
+            if (!vb || vbW <= 0 || vbH <= 0) {
+                const wAttr = svgEl.getAttribute('width');
+                const hAttr = svgEl.getAttribute('height');
+                const w = wAttr ? parseFloat(wAttr) : NaN;
+                const h = hAttr ? parseFloat(hAttr) : NaN;
+                vbX = 0;
+                vbY = 0;
+                vbW = Number.isFinite(w) && w > 0 ? w : 100;
+                vbH = Number.isFinite(h) && h > 0 ? h : 100;
+                svgEl.setAttribute('viewBox', `${vbX} ${vbY} ${vbW} ${vbH}`);
+            }
+
+            return { doc, svgEl, viewBoxX: vbX, viewBoxY: vbY, viewBoxWidth: vbW, viewBoxHeight: vbH };
+        }
+
+        function serializeSvg(doc) {
+            const serializer = new XMLSerializer();
+            return serializer.serializeToString(doc.documentElement);
+        }
+
+        function updateThresholdInfo(svgInfo) {
+            const widthMm   = parseNumber(svgWidthMmEl);
+            const heightMm  = parseNumber(svgHeightMmEl);
+            const minSizeMm = parseNumber(minSizeMmEl);
+
+            if (!Number.isFinite(widthMm) || widthMm <= 0 ||
+                !Number.isFinite(heightMm) || heightMm <= 0 ||
+                !Number.isFinite(minSizeMm) || minSizeMm <= 0) {
+                infoThreshold.textContent = '';
+                return;
+            }
+
+            const areaMm2 = minSizeMm * minSizeMm;
+            if (!svgInfo) {
+                infoThreshold.textContent =
+                    `Minimum feature area: ${areaMm2.toFixed(6)} mm² (SVG not parsed yet).`;
+                return;
+            }
+
+            const { viewBoxWidth, viewBoxHeight } = svgInfo;
+            const scaleX = viewBoxWidth  / widthMm;
+            const scaleY = viewBoxHeight / heightMm;
+            const areaUnits = areaMm2 * scaleX * scaleY;
+
+            infoThreshold.textContent =
+                `Minimum feature area: ${areaMm2.toFixed(6)} mm² ≈ ${areaUnits.toFixed(3)} SVG units².`;
+        }
+
+        /* ---------- Geometry helpers ---------- */
+
+        function polygonArea(points) {
+            const n = points.length;
+            if (n < 3) return 0;
+            let sum = 0;
+            for (let i = 0; i < n; i++) {
+                const j = (i + 1) % n;
+                sum += points[i].x * points[j].y - points[j].x * points[i].y;
+            }
+            return Math.abs(sum) / 2;
+        }
+
+        function parsePointsAttr(pointsStr) {
+            if (!pointsStr) return [];
+            const raw = pointsStr.trim().split(/[\s,]+/).map(Number);
+            const pts = [];
+            for (let i = 0; i + 1 < raw.length; i += 2) {
+                const x = raw[i];
+                const y = raw[i + 1];
+                if (Number.isFinite(x) && Number.isFinite(y)) {
+                    pts.push({ x, y });
+                }
+            }
+            return pts;
+        }
+
+        function rectArea(rectEl) {
+            const w = parseFloat(rectEl.getAttribute('width') || '0');
+            const h = parseFloat(rectEl.getAttribute('height') || '0');
+            if (!Number.isFinite(w) || !Number.isFinite(h) || w <= 0 || h <= 0) return 0;
+            return w * h;
+        }
+
+        function circleArea(circleEl) {
+            const r = parseFloat(circleEl.getAttribute('r') || '0');
+            if (!Number.isFinite(r) || r <= 0) return 0;
+            return Math.PI * r * r;
+        }
+
+        function ellipseArea(ellipseEl) {
+            const rx = parseFloat(ellipseEl.getAttribute('rx') || '0');
+            const ry = parseFloat(ellipseEl.getAttribute('ry') || '0');
+            if (!Number.isFinite(rx) || !Number.isFinite(ry) || rx <= 0 || ry <= 0) return 0;
+            return Math.PI * rx * ry;
+        }
+
+        function pathArea(pathEl) {
+            const d = pathEl.getAttribute('d') || '';
+            if (!/[zZ]/.test(d)) {
+                return 0; // open path → no area
+            }
+
+            let len;
+            try {
+                len = pathEl.getTotalLength();
+            } catch (e) {
+                return 0;
+            }
+            if (!Number.isFinite(len) || len <= 0) return 0;
+
+            const samples = Math.min(400, Math.max(80, Math.round(len / 3)));
+            const points = [];
+            for (let i = 0; i < samples; i++) {
+                const t = (i / (samples - 1)) * len;
+                const pt = pathEl.getPointAtLength(t);
+                points.push({ x: pt.x, y: pt.y });
+            }
+            return polygonArea(points);
+        }
+
+        function computeElementArea(el) {
+            const tag = el.tagName.toLowerCase();
+            if (tag === 'rect')    return rectArea(el);
+            if (tag === 'circle')  return circleArea(el);
+            if (tag === 'ellipse') return ellipseArea(el);
+            if (tag === 'polygon') {
+                const pts = parsePointsAttr(el.getAttribute('points'));
+                return polygonArea(pts);
+            }
+            if (tag === 'path')    return pathArea(el);
+            return 0;
+        }
+
+        /* ---------- Core processing ---------- */
+
+        function processSvg(svgText) {
+            const svgInfo = parseSvg(svgText);
+            const { doc, svgEl, viewBoxWidth, viewBoxHeight } = svgInfo;
+
+            updateThresholdInfo(svgInfo);
+
+            const widthMm   = parseNumber(svgWidthMmEl);
+            const heightMm  = parseNumber(svgHeightMmEl);
+            const minSizeMm = parseNumber(minSizeMmEl);
+
+            if (!Number.isFinite(widthMm) || widthMm <= 0) {
+                throw new Error('Output width (mm) must be > 0.');
+            }
+            if (!Number.isFinite(heightMm) || heightMm <= 0) {
+                throw new Error('Output height (mm) must be > 0.');
+            }
+            if (!Number.isFinite(minSizeMm) || minSizeMm <= 0) {
+                throw new Error('Minimum size (mm) must be > 0.');
+            }
+
+            const minAreaMm2 = minSizeMm * minSizeMm;
+
+            const scaleX = viewBoxWidth  / widthMm;
+            const scaleY = viewBoxHeight / heightMm;
+            const minAreaUnits = minAreaMm2 * scaleX * scaleY;
+
+            setStatus(
+                `Processing… min area ${minAreaMm2.toFixed(6)} mm² ≈ ${minAreaUnits.toFixed(3)} units².`,
+                'status-processing'
+            );
+
+            const candidates = [];
+            const tags = ['path', 'polygon', 'rect', 'circle', 'ellipse'];
+            for (const tag of tags) {
+                svgEl.querySelectorAll(tag).forEach(el => {
+                    candidates.push(el);
+                });
+            }
+
+            const total = candidates.length;
+            let removed = 0;
+
+            showProgress(true, total || 1, 0);
+
+            const helperSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            helperSvg.setAttribute('width', '0');
+            helperSvg.setAttribute('height', '0');
+            helperSvg.style.position = 'absolute';
+            helperSvg.style.left = '-9999px';
+            helperSvg.style.top = '-9999px';
+            document.body.appendChild(helperSvg);
+
+            for (let i = 0; i < candidates.length; i++) {
+                const el = candidates[i];
+                let area = 0;
+
+                if (el.tagName.toLowerCase() === 'path') {
+                    const clone = el.cloneNode(true);
+                    helperSvg.appendChild(clone);
+                    area = computeElementArea(clone);
+                    helperSvg.removeChild(clone);
+                } else {
+                    area = computeElementArea(el);
+                }
+
+                if (area > 0 && area < minAreaUnits) {
+                    if (el.parentNode) {
+                        el.parentNode.removeChild(el);
+                        removed++;
+                    }
+                }
+
+                if (i % 10 === 0 || i === candidates.length - 1) {
+                    showProgress(true, total || 1, i + 1);
+                }
+            }
+
+            document.body.removeChild(helperSvg);
+
+            setStatus('Processing completed.', 'status-done');
+            setSummary(
+                `Analysed ${total} elements (path/polygon/rect/circle/ellipse). ` +
+                `Removed ${removed} elements smaller than ${minAreaMm2.toFixed(6)} mm².`
+            );
+
+            const cleanedSvgText = serializeSvg(doc);
+            return { cleanedSvgText, svgInfo, removed, total, minAreaMm2, minAreaUnits };
+        }
+
+        /* ---------- Preview with zoom & pan ---------- */
+
+        function setupPanZoom(viewport, svg) {
+            if (!svg) {
+                viewport.textContent = 'No <svg> element found in file.';
+                return;
+            }
+
+            let scale = 1;
+            let translateX = 0;
+            let translateY = 0;
+
+            function applyTransform() {
+                svg.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+            }
+
+            applyTransform();
+
+            viewport.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const rect = viewport.getBoundingClientRect();
+                const cx = e.clientX - rect.left;
+                const cy = e.clientY - rect.top;
+
+                const delta = -e.deltaY;
+                const factor = delta > 0 ? 1.1 : 0.9;
+                const newScale = Math.min(40, Math.max(0.1, scale * factor));
+                if (newScale === scale) return;
+
+                const s = newScale / scale;
+                translateX = cx - (cx - translateX) * s;
+                translateY = cy - (cy - translateY) * s;
+
+                scale = newScale;
+                applyTransform();
+            }, { passive: false });
+
+            let isPanning = false;
+            let startX = 0;
+            let startY = 0;
+            let startTX = 0;
+            let startTY = 0;
+
+            viewport.addEventListener('mousedown', (e) => {
+                if (e.button !== 0) return;
+                isPanning = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                startTX = translateX;
+                startTY = translateY;
+                viewport.style.cursor = 'grabbing';
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isPanning) return;
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                translateX = startTX + dx;
+                translateY = startTY + dy;
+                applyTransform();
+            });
+
+            window.addEventListener('mouseup', () => {
+                if (!isPanning) return;
+                isPanning = false;
+                viewport.style.cursor = 'grab';
+            });
+
+            viewport.addEventListener('mouseleave', (e) => {
+                if (e.buttons === 0) {
+                    isPanning = false;
+                    viewport.style.cursor = 'grab';
+                }
+            });
+        }
+
+        function updatePreview(svgText) {
+            preview.innerHTML = '';
+            if (!svgText) return;
+
+            const viewport = document.createElement('div');
+            viewport.id = 'previewViewport';
+            viewport.className = 'preview-viewport';
+
+            const inner = document.createElement('div');
+            inner.className = 'preview-inner';
+            inner.innerHTML = svgText;
+
+            viewport.appendChild(inner);
+            preview.appendChild(viewport);
+
+            const svg = viewport.querySelector('svg');
+            setupPanZoom(viewport, svg);
+        }
+
+        /* ---------- Event handlers ---------- */
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files && e.target.files[0];
+            if (!file) {
+                originalSvgText = null;
+                originalFileName = null;
+                lastCleanedSvgText = null;
+                preview.innerHTML = '';
+                fileInfoEl.textContent = 'No file loaded';
+                btnProcess.disabled = true;
+                btnDownload.disabled = true;
+                setStatus('', '');
+                setSummary('');
+                showProgress(false);
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = () => {
+                originalSvgText    = String(reader.result);
+                originalFileName   = file.name || null;
+                lastCleanedSvgText = null;
+
+                updatePreview(originalSvgText);
+                fileInfoEl.textContent =
+                    `Loaded: ${file.name} (${Math.round(file.size / 1024)} kB)`;
+                btnProcess.disabled  = false;
+                btnDownload.disabled = true;
+
+                setStatus('SVG loaded. Set parameters and click “Process”.', '');
+                setSummary('');
+                showProgress(false);
+                updateThresholdInfo(null);
+            };
+            reader.onerror = () => {
+                originalSvgText    = null;
+                originalFileName   = null;
+                lastCleanedSvgText = null;
+                preview.innerHTML  = '';
+                btnProcess.disabled  = true;
+                btnDownload.disabled = true;
+                fileInfoEl.textContent = 'Error reading file';
+                setStatus('Failed to read the file.', 'status-error');
+                setSummary('');
+                showProgress(false);
+            };
+            reader.readAsText(file);
+        });
+
+        [svgWidthMmEl, svgHeightMmEl, minSizeMmEl].forEach(el => {
+            el.addEventListener('input', () => {
+                if (!originalSvgText) {
+                    updateThresholdInfo(null);
+                    return;
+                }
+                try {
+                    const svgInfo = parseSvg(originalSvgText);
+                    updateThresholdInfo(svgInfo);
+                } catch (_) {
+                    updateThresholdInfo(null);
+                }
+            });
+        });
+
+        btnProcess.addEventListener('click', () => {
+            if (!originalSvgText) {
+                setStatus('No SVG loaded.', 'status-error');
+                return;
+            }
+            btnProcess.disabled = true;
+            showProgress(true, 100, 0);
+            setStatus('Starting processing…', 'status-processing');
+            setSummary('');
+
+            setTimeout(() => {
+                try {
+                    const {
+                        cleanedSvgText,
+                        svgInfo,
+                        minAreaMm2,
+                        minAreaUnits
+                    } = processSvg(originalSvgText);
+
+                    lastCleanedSvgText = cleanedSvgText;
+                    updatePreview(cleanedSvgText);
+                    btnDownload.disabled = false;
+
+                    infoThreshold.textContent =
+                        `Minimum feature area: ${minAreaMm2.toFixed(6)} mm² ≈ ${minAreaUnits.toFixed(3)} SVG units².`;
+                } catch (err) {
+                    lastCleanedSvgText   = null;
+                    btnDownload.disabled = true;
+                    setStatus('Error: ' + (err && err.message ? err.message : String(err)), 'status-error');
+                    setSummary('');
+                } finally {
+                    btnProcess.disabled = false;
+                    showProgress(false);
+                }
+            }, 30);
+        });
+
+        btnDownload.addEventListener('click', () => {
+            if (!lastCleanedSvgText) {
+                setStatus('No processed SVG available. Process first.', 'status-error');
+                return;
+            }
+            const baseName = originalFileName
+                ? originalFileName.replace(/\.svg$/i, '')
+                : 'cleaned';
+            const fileName = `${baseName}-cleaned.svg`;
+            downloadTextAsSvg(lastCleanedSvgText, fileName);
+        });
+
+        setStatus('Upload an SVG file to begin.', '');
+        setSummary('');
+    })();
+</script>
+
+</body>
+</html>
