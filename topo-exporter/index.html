@@ -1,0 +1,160 @@
+<!-- index.html -->
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Contour SVG Exporter (1-page)</title>
+
+    <link rel="stylesheet" href="./styles.css" />
+
+    <!-- MapLibre -->
+    <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
+</head>
+<body>
+<div id="app">
+    <aside id="panel">
+        <div class="section">
+            <div class="h1">Contour SVG Exporter</div>
+            <div class="muted">Rectangle AOI is supported. Polygon AOI is accepted but export uses its bbox.</div>
+        </div>
+
+        <div class="section">
+            <div class="h2">Area of interest</div>
+            <div class="row">
+                <button id="draw-rect" class="btn">Draw rectangle</button>
+                <button id="draw-poly" class="btn">Draw polygon</button>
+                <button id="clear-aoi" class="btn btn-secondary">Clear</button>
+            </div>
+            <div class="kv">
+                <div class="k">AOI bbox</div>
+                <div class="v mono" id="aoi-bbox">—</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="h2">Contours</div>
+            <div class="grid2">
+                <label class="field">
+                    <span>Units</span>
+                    <select id="units">
+                        <option value="m" selected>meters</option>
+                        <option value="ft">feet</option>
+                    </select>
+                </label>
+                <label class="field">
+                    <span>Interval</span>
+                    <input id="interval" type="number" min="0.1" step="0.1" value="10" />
+                </label>
+            </div>
+
+            <div class="grid2">
+                <label class="field">
+                    <span>Bold every Nth</span>
+                    <select id="bold-every">
+                        <option value="0">none</option>
+                        <option value="2">2</option>
+                        <option value="5" selected>5</option>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                    </select>
+                </label>
+                <label class="field">
+                    <span>Labels</span>
+                    <select id="labels">
+                        <option value="none" selected>none</option>
+                        <option value="bold">bold only</option>
+                        <option value="all">all</option>
+                    </select>
+                </label>
+            </div>
+
+            <div class="grid2">
+                <label class="field">
+                    <span>Palette</span>
+                    <select id="palette">
+                        <option value="mono" selected>mono</option>
+                        <option value="terrain">terrain</option>
+                        <option value="ocean">ocean</option>
+                        <option value="heat">heat</option>
+                    </select>
+                </label>
+                <label class="field">
+                    <span>Reverse</span>
+                    <select id="reverse">
+                        <option value="0" selected>no</option>
+                        <option value="1">yes</option>
+                    </select>
+                </label>
+            </div>
+
+            <div class="grid2">
+                <label class="field">
+                    <span>Single color</span>
+                    <select id="single-color-on">
+                        <option value="0" selected>off</option>
+                        <option value="1">on</option>
+                    </select>
+                </label>
+                <label class="field">
+                    <span>Color</span>
+                    <input id="single-color" type="color" value="#111111" />
+                </label>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="h2">Overlays</div>
+            <div class="row">
+                <label class="check"><input id="roads" type="checkbox" checked /> Roads (OSM)</label>
+                <label class="check"><input id="buildings" type="checkbox" /> Buildings (OSM)</label>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="h2">Export</div>
+            <div class="grid2">
+                <label class="field">
+                    <span>Size (mm)</span>
+                    <input id="size-mm" type="number" min="10" step="1" value="300" />
+                </label>
+                <label class="field">
+                    <span>Margin (mm)</span>
+                    <input id="margin-mm" type="number" min="0" step="1" value="10" />
+                </label>
+            </div>
+            <div class="row">
+                <button id="generate" class="btn btn-primary">Generate preview</button>
+                <button id="export-svg" class="btn" disabled>Export SVG</button>
+            </div>
+            <div class="log mono" id="log"></div>
+        </div>
+
+        <div class="section small muted">
+            Attribution: © OpenStreetMap contributors. Elevation tiles: AWS elevation-tiles-prod (Terrarium).
+        </div>
+    </aside>
+
+    <main id="main">
+        <div id="map"></div>
+        <div id="overlay">
+            <svg id="preview" xmlns="http://www.w3.org/2000/svg"></svg>
+        </div>
+    </main>
+</div>
+
+<!-- Dependencies (global UMD) -->
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/@mapbox/mapbox-gl-draw@1.4.3/dist/mapbox-gl-draw.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/@mapbox/mapbox-gl-draw@1.4.3/dist/mapbox-gl-draw.css" />
+<script type="module">
+    import DrawRectangle from 'https://cdn.skypack.dev/mapbox-gl-draw-rectangle-mode@1.0.4';
+    window.DrawRectangle = DrawRectangle;
+</script>
+
+<script src="https://unpkg.com/@turf/turf@6.5.0/turf.min.js"></script>
+<script src="https://unpkg.com/d3-contour@4.0.2/dist/d3-contour.min.js"></script>
+
+<script src="./app.js"></script>
+</body>
+</html>
