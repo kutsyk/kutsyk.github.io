@@ -16,7 +16,24 @@
     <aside id="panel">
         <div class="section">
             <div class="h1">Contour SVG Exporter</div>
-            <div class="muted">Rectangle AOI is supported. Polygon AOI is accepted but export uses its bbox.</div>
+            <div class="muted">Draw an area, generate contours, then export as SVG.</div>
+        </div>
+
+        <div class="section">
+            <div class="h2">Search</div>
+            <div class="grid2">
+                <label class="field">
+                    <span class="label">Location <span class="info" title="Geocoding via OpenStreetMap Nominatim.">i</span></span>
+                    <input id="loc-query" type="text" placeholder="e.g. Matterhorn, Zurich" autocomplete="off" />
+                </label>
+                <label class="field">
+                    <span class="label">Result</span>
+                    <select id="loc-results"></select>
+                </label>
+            </div>
+            <div class="row">
+                <button id="loc-go" class="btn">Zoom</button>
+            </div>
         </div>
 
         <div class="section">
@@ -26,31 +43,47 @@
                 <button id="draw-poly" class="btn">Draw polygon</button>
                 <button id="clear-aoi" class="btn btn-secondary">Clear</button>
             </div>
+
             <div class="kv">
                 <div class="k">AOI bbox</div>
                 <div class="v mono" id="aoi-bbox">—</div>
+            </div>
+
+            <div class="grid2" style="margin-top:10px;">
+                <label class="field">
+                    <span class="label">Rect width (m) <span class="info" title="Applies only to a rectangle AOI. Updates rectangle around its center.">i</span></span>
+                    <input id="rect-w" type="number" min="1" step="1" />
+                </label>
+                <label class="field">
+                    <span class="label">Rect height (m) <span class="info" title="Applies only to a rectangle AOI. Updates rectangle around its center.">i</span></span>
+                    <input id="rect-h" type="number" min="1" step="1" />
+                </label>
+            </div>
+            <div class="row" style="margin-top:8px;">
+                <button id="rect-apply" class="btn" disabled>Apply rectangle size</button>
             </div>
         </div>
 
         <div class="section">
             <div class="h2">Contours</div>
+
             <div class="grid2">
                 <label class="field">
-                    <span>Units</span>
+                    <span class="label">Units <span class="info" title="Affects interval and labels. Elevation source stays meters.">i</span></span>
                     <select id="units">
                         <option value="m" selected>meters</option>
                         <option value="ft">feet</option>
                     </select>
                 </label>
                 <label class="field">
-                    <span>Interval</span>
+                    <span class="label">Interval <span class="info" title="Contour spacing. Smaller = more lines + slower.">i</span></span>
                     <input id="interval" type="number" min="0.1" step="0.1" value="10" />
                 </label>
             </div>
 
             <div class="grid2">
                 <label class="field">
-                    <span>Bold every Nth</span>
+                    <span class="label">Bold every Nth <span class="info" title="Thicker lines for every Nth contour. Improves readability.">i</span></span>
                     <select id="bold-every">
                         <option value="0">none</option>
                         <option value="2">2</option>
@@ -60,7 +93,7 @@
                     </select>
                 </label>
                 <label class="field">
-                    <span>Labels</span>
+                    <span class="label">Labels <span class="info" title="Places elevation text on contours. Costs rendering time and clutter.">i</span></span>
                     <select id="labels">
                         <option value="none" selected>none</option>
                         <option value="bold">bold only</option>
@@ -71,7 +104,7 @@
 
             <div class="grid2">
                 <label class="field">
-                    <span>Palette</span>
+                    <span class="label">Palette <span class="info" title="Stroke color mapping based on elevation.">i</span></span>
                     <select id="palette">
                         <option value="mono" selected>mono</option>
                         <option value="terrain">terrain</option>
@@ -80,7 +113,7 @@
                     </select>
                 </label>
                 <label class="field">
-                    <span>Reverse</span>
+                    <span class="label">Reverse <span class="info" title="Reverse palette mapping.">i</span></span>
                     <select id="reverse">
                         <option value="0" selected>no</option>
                         <option value="1">yes</option>
@@ -90,14 +123,14 @@
 
             <div class="grid2">
                 <label class="field">
-                    <span>Single color</span>
+                    <span class="label">Single color <span class="info" title="For laser/plotter workflows, forces all contours to one stroke color.">i</span></span>
                     <select id="single-color-on">
                         <option value="0" selected>off</option>
                         <option value="1">on</option>
                     </select>
                 </label>
                 <label class="field">
-                    <span>Color</span>
+                    <span class="label">Color</span>
                     <input id="single-color" type="color" value="#111111" />
                 </label>
             </div>
@@ -109,22 +142,40 @@
                 <label class="check"><input id="roads" type="checkbox" checked /> Roads (OSM)</label>
                 <label class="check"><input id="buildings" type="checkbox" /> Buildings (OSM)</label>
             </div>
+            <div class="muted small">Large areas can trigger Overpass timeouts. Disable overlays for speed.</div>
+        </div>
+
+        <div class="section">
+            <div class="h2">Performance</div>
+            <div class="kv">
+                <div class="k">Estimated DEM tiles</div>
+                <div class="v mono" id="est-tiles">—</div>
+            </div>
+            <div class="kv">
+                <div class="k">Estimated grid</div>
+                <div class="v mono" id="est-grid">—</div>
+            </div>
+            <div class="muted small" id="perf-hint"></div>
+            <div class="row" style="margin-top:8px;">
+                <button id="apply-fast" class="btn">Apply fast settings</button>
+            </div>
         </div>
 
         <div class="section">
             <div class="h2">Export</div>
             <div class="grid2">
                 <label class="field">
-                    <span>Size (mm)</span>
+                    <span class="label">Size (mm) <span class="info" title="Output SVG canvas size (square).">i</span></span>
                     <input id="size-mm" type="number" min="10" step="1" value="300" />
                 </label>
                 <label class="field">
-                    <span>Margin (mm)</span>
+                    <span class="label">Margin (mm) <span class="info" title="Padding around content inside the SVG.">i</span></span>
                     <input id="margin-mm" type="number" min="0" step="1" value="10" />
                 </label>
             </div>
             <div class="row">
-                <button id="generate" class="btn btn-primary">Generate preview</button>
+                <button id="generate" class="btn btn-primary" disabled>Generate preview</button>
+                <button id="cancel" class="btn btn-secondary" disabled>Cancel</button>
                 <button id="export-svg" class="btn" disabled>Export SVG</button>
             </div>
             <div class="log mono" id="log"></div>
@@ -147,10 +198,6 @@
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script src="https://unpkg.com/@mapbox/mapbox-gl-draw@1.4.3/dist/mapbox-gl-draw.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/@mapbox/mapbox-gl-draw@1.4.3/dist/mapbox-gl-draw.css" />
-<script type="module">
-    import DrawRectangle from 'https://cdn.skypack.dev/mapbox-gl-draw-rectangle-mode@1.0.4';
-    window.DrawRectangle = DrawRectangle;
-</script>
 
 <script src="https://unpkg.com/@turf/turf@6.5.0/turf.min.js"></script>
 <script src="https://unpkg.com/d3-contour@4.0.2/dist/d3-contour.min.js"></script>
