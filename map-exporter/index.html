@@ -32,12 +32,19 @@
 
         .control-card {
             position: absolute;
-            top: 1rem;
+            top: 4.25rem;
             left: 1rem;
             z-index: 1000;
             width: 460px;
             max-height: calc(88vh - 40px);
             overflow: auto
+        }
+
+        .controls-toggle {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1100;
         }
 
         .suggest-wrap {
@@ -154,173 +161,184 @@
 <div id="map">
     <div id="mapCanvas"></div>
 
-    <div class="card control-card shadow">
-        <div class="card-header py-2">
-            <div class="h6 mb-0">Controls</div>
-        </div>
-        <div class="card-body">
+    <button class="btn btn-dark btn-sm controls-toggle"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#controlSidenav"
+            aria-expanded="true"
+            aria-controls="controlSidenav">
+        Toggle controls
+    </button>
 
-            <!-- Search -->
-            <div class="mb-3">
-                <label class="form-label mb-1">Search city/location</label>
-                <div class="input-group suggest-wrap">
-                    <input id="search" class="form-control" type="text" placeholder="Start typing…" autocomplete="off">
-                    <button id="btnSearch" class="btn btn-primary">Find</button>
-                    <div id="suggest" class="dropdown-menu suggest-menu"></div>
+    <div class="collapse show" id="controlSidenav">
+        <div class="card control-card shadow">
+            <div class="card-header py-2">
+                <div class="h6 mb-0">Controls</div>
+            </div>
+            <div class="card-body">
+
+                <!-- Search -->
+                <div class="mb-3">
+                    <label class="form-label mb-1">Search city/location</label>
+                    <div class="input-group suggest-wrap">
+                        <input id="search" class="form-control" type="text" placeholder="Start typing…" autocomplete="off">
+                        <button id="btnSearch" class="btn btn-primary">Find</button>
+                        <div id="suggest" class="dropdown-menu suggest-menu"></div>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Actions -->
-            <div class="d-flex gap-2 mb-3">
-                <button id="btnToggleFrame" class="btn btn-warning">Add/Remove frame</button>
-                <span class="text-muted small ms-auto">Data: OSM via Overpass</span>
-            </div>
+                <!-- Actions -->
+                <div class="d-flex gap-2 mb-3">
+                    <button id="btnToggleFrame" class="btn btn-warning">Add/Remove frame</button>
+                    <span class="text-muted small ms-auto">Data: OSM via Overpass</span>
+                </div>
 
-            <!-- Options -->
-            <div class="mb-3">
-                <div class="form-text mb-2">Include and color</div>
+                <!-- Options -->
+                <div class="mb-3">
+                    <div class="form-text mb-2">Include and color</div>
 
-                <!-- Highways, split by class -->
-                <div class="border rounded p-2 mb-2">
-                    <div class="small text-muted mb-2">Road classes</div>
+                    <!-- Highways, split by class -->
+                    <div class="border rounded p-2 mb-2">
+                        <div class="small text-muted mb-2">Road classes</div>
 
-                    <div class="row g-2 align-items-center mb-2">
+                        <div class="row g-2 align-items-center mb-2">
+                            <div class="col-7">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="chkMotorway" checked>
+                                    <label class="form-check-label" for="chkMotorway">motorway</label>
+                                </div>
+                            </div>
+                            <div class="col-5 text-end">
+                                <!-- default red -->
+                                <input id="colMotorway" class="form-control form-control-color color" type="color"
+                                       value="#ff0000" title="Motorway color">
+                            </div>
+                        </div>
+
+                        <div class="row g-2 align-items-center mb-2">
+                            <div class="col-7">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="chkTrunk" checked>
+                                    <label class="form-check-label" for="chkTrunk">trunk</label>
+                                </div>
+                            </div>
+                            <div class="col-5 text-end">
+                                <input id="colTrunk" class="form-control form-control-color color" type="color"
+                                       value="#ff7f00" title="Trunk color">
+                            </div>
+                        </div>
+
+                        <div class="row g-2 align-items-center mb-2">
+                            <div class="col-7">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="chkPrimary" checked>
+                                    <label class="form-check-label" for="chkPrimary">primary</label>
+                                </div>
+                            </div>
+                            <div class="col-5 text-end">
+                                <input id="colPrimary" class="form-control form-control-color color" type="color"
+                                       value="#ffd000" title="Primary color">
+                            </div>
+                        </div>
+
+                        <div class="row g-2 align-items-center mb-2">
+                            <div class="col-7">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="chkSecondary" checked>
+                                    <label class="form-check-label" for="chkSecondary">secondary</label>
+                                </div>
+                            </div>
+                            <div class="col-5 text-end">
+                                <input id="colSecondary" class="form-control form-control-color color" type="color"
+                                       value="#999999" title="Secondary color">
+                            </div>
+                        </div>
+
+                        <div class="row g-2 align-items-center mb-2">
+                            <div class="col-7">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="chkTertiary" checked>
+                                    <label class="form-check-label" for="chkTertiary">tertiary</label>
+                                </div>
+                            </div>
+                            <div class="col-5 text-end">
+                                <input id="colTertiary" class="form-control form-control-color color" type="color"
+                                       value="#bbbbbb" title="Tertiary color">
+                            </div>
+                        </div>
+
+                        <div class="row g-2 align-items-center">
+                            <div class="col-7">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="chkLocal" checked>
+                                    <label class="form-check-label" for="chkLocal">local (residential, unclassified,
+                                        service, living_street)</label>
+                                </div>
+                            </div>
+                            <div class="col-5 text-end">
+                                <input id="colLocal" class="form-control form-control-color color" type="color"
+                                       value="#333333" title="Local roads color">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Non-road layers -->
+                    <div class="row g-2 align-items-center mt-2">
                         <div class="col-7">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="chkMotorway" checked>
-                                <label class="form-check-label" for="chkMotorway">motorway</label>
+                                <input class="form-check-input" type="checkbox" id="chkBuildings" checked>
+                                <label class="form-check-label" for="chkBuildings">Buildings</label>
                             </div>
                         </div>
                         <div class="col-5 text-end">
-                            <!-- default red -->
-                            <input id="colMotorway" class="form-control form-control-color color" type="color"
-                                   value="#ff0000" title="Motorway color">
+                            <input id="colBuildings"
+                                   class="form-control form-control-color color"
+                                   type="color"
+                                   value="#bbbbbb"
+                                   title="Buildings color">
                         </div>
                     </div>
 
                     <div class="row g-2 align-items-center mb-2">
                         <div class="col-7">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="chkTrunk" checked>
-                                <label class="form-check-label" for="chkTrunk">trunk</label>
+                                <input class="form-check-input" type="checkbox" id="chkWater" checked>
+                                <label class="form-check-label" for="chkWater">Water</label>
                             </div>
                         </div>
                         <div class="col-5 text-end">
-                            <input id="colTrunk" class="form-control form-control-color color" type="color"
-                                   value="#ff7f00" title="Trunk color">
-                        </div>
-                    </div>
-
-                    <div class="row g-2 align-items-center mb-2">
-                        <div class="col-7">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="chkPrimary" checked>
-                                <label class="form-check-label" for="chkPrimary">primary</label>
-                            </div>
-                        </div>
-                        <div class="col-5 text-end">
-                            <input id="colPrimary" class="form-control form-control-color color" type="color"
-                                   value="#ffd000" title="Primary color">
-                        </div>
-                    </div>
-
-                    <div class="row g-2 align-items-center mb-2">
-                        <div class="col-7">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="chkSecondary" checked>
-                                <label class="form-check-label" for="chkSecondary">secondary</label>
-                            </div>
-                        </div>
-                        <div class="col-5 text-end">
-                            <input id="colSecondary" class="form-control form-control-color color" type="color"
-                                   value="#999999" title="Secondary color">
-                        </div>
-                    </div>
-
-                    <div class="row g-2 align-items-center mb-2">
-                        <div class="col-7">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="chkTertiary" checked>
-                                <label class="form-check-label" for="chkTertiary">tertiary</label>
-                            </div>
-                        </div>
-                        <div class="col-5 text-end">
-                            <input id="colTertiary" class="form-control form-control-color color" type="color"
-                                   value="#bbbbbb" title="Tertiary color">
+                            <input id="colWater" class="form-control form-control-color color" type="color" value="#4b64e1"
+                                   title="Water color">
                         </div>
                     </div>
 
                     <div class="row g-2 align-items-center">
                         <div class="col-7">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="chkLocal" checked>
-                                <label class="form-check-label" for="chkLocal">local (residential, unclassified,
-                                    service, living_street)</label>
+                                <input class="form-check-input" type="checkbox" id="chkParks" checked>
+                                <label class="form-check-label" for="chkParks">Parks/grass</label>
                             </div>
                         </div>
                         <div class="col-5 text-end">
-                            <input id="colLocal" class="form-control form-control-color color" type="color"
-                                   value="#333333" title="Local roads color">
+                            <input id="colParks" class="form-control form-control-color color" type="color" value="#00ff32"
+                                   title="Parks color">
                         </div>
                     </div>
                 </div>
 
-                <!-- Non-road layers -->
-                <div class="row g-2 align-items-center mt-2">
-                    <div class="col-7">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="chkBuildings" checked>
-                            <label class="form-check-label" for="chkBuildings">Buildings</label>
-                        </div>
+                <!-- Export size -->
+                <div class="row g-2">
+                    <div class="col-6">
+                        <label for="w" class="form-label mb-1">SVG width (px)</label>
+                        <input id="w" type="number" min="512" step="128" value="4096" class="form-control">
                     </div>
-                    <div class="col-5 text-end">
-                        <input id="colBuildings"
-                               class="form-control form-control-color color"
-                               type="color"
-                               value="#bbbbbb"
-                               title="Buildings color">
+                    <div class="col-6">
+                        <label for="h" class="form-label mb-1">SVG height (px)</label>
+                        <input id="h" type="number" min="512" step="128" value="4096" class="form-control">
                     </div>
                 </div>
 
-                <div class="row g-2 align-items-center mb-2">
-                    <div class="col-7">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="chkWater" checked>
-                            <label class="form-check-label" for="chkWater">Water</label>
-                        </div>
-                    </div>
-                    <div class="col-5 text-end">
-                        <input id="colWater" class="form-control form-control-color color" type="color" value="#4b64e1"
-                               title="Water color">
-                    </div>
-                </div>
-
-                <div class="row g-2 align-items-center">
-                    <div class="col-7">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="chkParks" checked>
-                            <label class="form-check-label" for="chkParks">Parks/grass</label>
-                        </div>
-                    </div>
-                    <div class="col-5 text-end">
-                        <input id="colParks" class="form-control form-control-color color" type="color" value="#00ff32"
-                               title="Parks color">
-                    </div>
-                </div>
             </div>
-
-            <!-- Export size -->
-            <div class="row g-2">
-                <div class="col-6">
-                    <label for="w" class="form-label mb-1">SVG width (px)</label>
-                    <input id="w" type="number" min="512" step="128" value="4096" class="form-control">
-                </div>
-                <div class="col-6">
-                    <label for="h" class="form-label mb-1">SVG height (px)</label>
-                    <input id="h" type="number" min="512" step="128" value="4096" class="form-control">
-                </div>
-            </div>
-
         </div>
     </div>
 
