@@ -197,87 +197,33 @@
                 <div class="mb-3">
                     <div class="form-text mb-2">Include and color</div>
 
-                    <!-- Highways, split by class -->
+                    <!-- Roads, grouped into major/minor export layers -->
                     <div class="border rounded p-2 mb-2">
-                        <div class="small text-muted mb-2">Road classes</div>
+                        <div class="small text-muted mb-2">Road export layers</div>
 
                         <div class="row g-2 align-items-center mb-2">
                             <div class="col-7">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="chkMotorway" checked>
-                                    <label class="form-check-label" for="chkMotorway">motorway</label>
+                                    <input class="form-check-input" type="checkbox" id="chkMajorRoads" checked>
+                                    <label class="form-check-label" for="chkMajorRoads">major roads (motorway, trunk, primary)</label>
                                 </div>
                             </div>
                             <div class="col-5 text-end">
-                                <!-- default red -->
-                                <input id="colMotorway" class="form-control form-control-color color" type="color"
-                                       value="#ff0000" title="Motorway color">
+                                <input id="colMajorRoads" class="form-control form-control-color color" type="color"
+                                       value="#ff8c00" title="Major roads color">
                             </div>
                         </div>
 
                         <div class="row g-2 align-items-center mb-2">
                             <div class="col-7">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="chkTrunk" checked>
-                                    <label class="form-check-label" for="chkTrunk">trunk</label>
+                                    <input class="form-check-input" type="checkbox" id="chkMinorRoads" checked>
+                                    <label class="form-check-label" for="chkMinorRoads">minor roads (secondary, tertiary, local)</label>
                                 </div>
                             </div>
                             <div class="col-5 text-end">
-                                <input id="colTrunk" class="form-control form-control-color color" type="color"
-                                       value="#ff7f00" title="Trunk color">
-                            </div>
-                        </div>
-
-                        <div class="row g-2 align-items-center mb-2">
-                            <div class="col-7">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="chkPrimary" checked>
-                                    <label class="form-check-label" for="chkPrimary">primary</label>
-                                </div>
-                            </div>
-                            <div class="col-5 text-end">
-                                <input id="colPrimary" class="form-control form-control-color color" type="color"
-                                       value="#ffd000" title="Primary color">
-                            </div>
-                        </div>
-
-                        <div class="row g-2 align-items-center mb-2">
-                            <div class="col-7">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="chkSecondary" checked>
-                                    <label class="form-check-label" for="chkSecondary">secondary</label>
-                                </div>
-                            </div>
-                            <div class="col-5 text-end">
-                                <input id="colSecondary" class="form-control form-control-color color" type="color"
-                                       value="#999999" title="Secondary color">
-                            </div>
-                        </div>
-
-                        <div class="row g-2 align-items-center mb-2">
-                            <div class="col-7">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="chkTertiary" checked>
-                                    <label class="form-check-label" for="chkTertiary">tertiary</label>
-                                </div>
-                            </div>
-                            <div class="col-5 text-end">
-                                <input id="colTertiary" class="form-control form-control-color color" type="color"
-                                       value="#bbbbbb" title="Tertiary color">
-                            </div>
-                        </div>
-
-                        <div class="row g-2 align-items-center">
-                            <div class="col-7">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="chkLocal" checked>
-                                    <label class="form-check-label" for="chkLocal">local (residential, unclassified,
-                                        service, living_street)</label>
-                                </div>
-                            </div>
-                            <div class="col-5 text-end">
-                                <input id="colLocal" class="form-control form-control-color color" type="color"
-                                       value="#333333" title="Local roads color">
+                                <input id="colMinorRoads" class="form-control form-control-color color" type="color"
+                                       value="#000000" title="Minor roads color">
                             </div>
                         </div>
                     </div>
@@ -294,7 +240,7 @@
                             <input id="colBuildings"
                                    class="form-control form-control-color color"
                                    type="color"
-                                   value="#bbbbbb"
+                                   value="#ff2d2d"
                                    title="Buildings color">
                         </div>
                     </div>
