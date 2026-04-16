@@ -107,12 +107,8 @@ export function buildSVG({ width, height, bbox, elements, want, colors, clipToFr
   const gParks = group(); gParks.setAttribute('id', 'parks');
   const gWater = group(); gWater.setAttribute('id', 'water');
   const gBldg = group(); gBldg.setAttribute('id', 'buildings');
-  const gMotor = group(); gMotor.setAttribute('id', 'motorway');
-  const gTrunk = group(); gTrunk.setAttribute('id', 'trunk');
-  const gPrim = group(); gPrim.setAttribute('id', 'primary');
-  const gSec = group(); gSec.setAttribute('id', 'secondary');
-  const gTert = group(); gTert.setAttribute('id', 'tertiary');
-  const gLocal = group(); gLocal.setAttribute('id', 'local');
+  const gMajorRoads = group(); gMajorRoads.setAttribute('id', 'major_roads');
+  const gMinorRoads = group(); gMinorRoads.setAttribute('id', 'minor_roads');
 
   const parks = want.parks ? elements.filter((e) => predicates.isPark(e.tags)) : [];
   const watersP = want.water ? elements.filter((e) => predicates.isWaterPolygon(e.tags)) : [];
@@ -120,12 +116,20 @@ export function buildSVG({ width, height, bbox, elements, want, colors, clipToFr
   const buildings = want.buildings ? elements.filter((e) => predicates.isBuilding(e.tags)) : [];
 
   const ways = elements.filter((e) => e.type === 'way' && e.geometry && e.geometry.length >= 2);
-  const mtr = want.motorway ? ways.filter((e) => predicates.highwayEq(e.tags, 'motorway')) : [];
-  const trk = want.trunk ? ways.filter((e) => predicates.highwayEq(e.tags, 'trunk')) : [];
-  const pry = want.primary ? ways.filter((e) => predicates.highwayEq(e.tags, 'primary')) : [];
-  const sec = want.secondary ? ways.filter((e) => predicates.highwayEq(e.tags, 'secondary')) : [];
-  const ter = want.tertiary ? ways.filter((e) => predicates.highwayEq(e.tags, 'tertiary')) : [];
-  const loc = want.local ? ways.filter((e) => predicates.isLocalRoad(e.tags)) : [];
+  const majorRoads = want.majorRoads
+    ? ways.filter((e) => (
+      predicates.highwayEq(e.tags, 'motorway')
+      || predicates.highwayEq(e.tags, 'trunk')
+      || predicates.highwayEq(e.tags, 'primary')
+    ))
+    : [];
+  const minorRoads = want.minorRoads
+    ? ways.filter((e) => (
+      predicates.highwayEq(e.tags, 'secondary')
+      || predicates.highwayEq(e.tags, 'tertiary')
+      || predicates.isLocalRoad(e.tags)
+    ))
+    : [];
 
   for (const feat of parks) {
     const p = document.createElementNS(SVG_NS, 'path');
@@ -208,12 +212,8 @@ export function buildSVG({ width, height, bbox, elements, want, colors, clipToFr
   if (want.parks) svg.appendChild(gParks);
   if (want.water) svg.appendChild(gWater);
   if (want.buildings) svg.appendChild(gBldg);
-  if (want.motorway) addLine(mtr, gMotor, colors.motorway, 3.2), svg.appendChild(gMotor);
-  if (want.trunk) addLine(trk, gTrunk, colors.trunk, 3.0), svg.appendChild(gTrunk);
-  if (want.primary) addLine(pry, gPrim, colors.primary, 2.6), svg.appendChild(gPrim);
-  if (want.secondary) addLine(sec, gSec, colors.secondary, 2.2), svg.appendChild(gSec);
-  if (want.tertiary) addLine(ter, gTert, colors.tertiary, 2.0), svg.appendChild(gTert);
-  if (want.local) addLine(loc, gLocal, colors.local, 1.6), svg.appendChild(gLocal);
+  if (want.majorRoads) addLine(majorRoads, gMajorRoads, colors.majorRoads, 2.8), svg.appendChild(gMajorRoads);
+  if (want.minorRoads) addLine(minorRoads, gMinorRoads, colors.minorRoads, 1.9), svg.appendChild(gMinorRoads);
 
   const serializer = new XMLSerializer();
   const svgStr = serializer.serializeToString(svg);

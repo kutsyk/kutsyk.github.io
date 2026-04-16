@@ -35,26 +35,18 @@ function getSelections() {
     width: Math.max(512, (+document.getElementById('w').value | 0) || 4096),
     height: Math.max(512, (+document.getElementById('h').value | 0) || 4096),
     want: {
-      motorway: document.getElementById('chkMotorway').checked,
-      trunk: document.getElementById('chkTrunk').checked,
-      primary: document.getElementById('chkPrimary').checked,
-      secondary: document.getElementById('chkSecondary').checked,
-      tertiary: document.getElementById('chkTertiary').checked,
-      local: document.getElementById('chkLocal').checked,
+      majorRoads: document.getElementById('chkMajorRoads').checked,
+      minorRoads: document.getElementById('chkMinorRoads').checked,
       water: document.getElementById('chkWater').checked,
       parks: document.getElementById('chkParks').checked,
       buildings: document.getElementById('chkBuildings').checked
     },
     colors: {
-      motorway: document.getElementById('colMotorway').value || '#dd00ff',
-      trunk: document.getElementById('colTrunk').value || '#ff7f00',
-      primary: document.getElementById('colPrimary').value || '#ffd000',
-      secondary: document.getElementById('colSecondary').value || '#00ffcf',
-      tertiary: document.getElementById('colTertiary').value || '#bbbbbb',
-      local: document.getElementById('colLocal').value || '#333333',
+      majorRoads: document.getElementById('colMajorRoads').value || '#ff8c00',
+      minorRoads: document.getElementById('colMinorRoads').value || '#000000',
       water: document.getElementById('colWater').value || '#4b64e1',
       parks: document.getElementById('colParks').value || '#00ff32',
-      buildings: document.getElementById('colBuildings').value || '#fd0000'
+      buildings: document.getElementById('colBuildings').value || '#ff2d2d'
     }
   };
 }

@@ -43,12 +43,8 @@ export function buildOverpassBBox(b, want) {
   }
 
   const roadClasses = [];
-  if (want.motorway) roadClasses.push('motorway');
-  if (want.trunk) roadClasses.push('trunk');
-  if (want.primary) roadClasses.push('primary');
-  if (want.secondary) roadClasses.push('secondary');
-  if (want.tertiary) roadClasses.push('tertiary');
-  if (want.local) roadClasses.push('residential', 'unclassified', 'service', 'living_street');
+  if (want.majorRoads) roadClasses.push('motorway', 'trunk', 'primary');
+  if (want.minorRoads) roadClasses.push('secondary', 'tertiary', 'residential', 'unclassified', 'service', 'living_street');
 
   if (roadClasses.length) {
     const roadRegex = `^(${Array.from(new Set(roadClasses)).join('|')})$`;
