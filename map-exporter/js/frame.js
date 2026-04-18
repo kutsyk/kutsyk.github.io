@@ -89,6 +89,29 @@ export function initFrameControls(map) {
     drawFrame();
   }
 
+  function setFrameFromBounds(bounds) {
+    const padLng = (bounds.getEast() - bounds.getWest()) * 0.15;
+    const padLat = (bounds.getNorth() - bounds.getSouth()) * 0.15;
+    frame = {
+      nw: [bounds.getWest() + padLng, bounds.getNorth() - padLat],
+      se: [bounds.getEast() - padLng, bounds.getSouth() + padLat]
+    };
+    drawFrame();
+  }
+
+  function snapFrameToViewport() {
+    if (!frame) {
+      addFrame();
+      return;
+    }
+    setFrameFromBounds(map.getBounds());
+  }
+
+  function resetFrame() {
+    if (!frame) return;
+    setFrameFromBounds(map.getBounds());
+  }
+
   function removeFrame() {
     frame = null;
     if (map.getLayer('frame-line')) map.removeLayer('frame-line');
@@ -124,6 +147,22 @@ export function initFrameControls(map) {
     };
   }
 
+  function getFrameInfo() {
+    if (!frame) return null;
+    const west = Math.min(frame.nw[0], frame.se[0]);
+    const east = Math.max(frame.nw[0], frame.se[0]);
+    const south = Math.min(frame.se[1], frame.nw[1]);
+    const north = Math.max(frame.se[1], frame.nw[1]);
+    return {
+      west,
+      east,
+      south,
+      north,
+      widthDeg: east - west,
+      heightDeg: north - south
+    };
+  }
+
   document.getElementById('btnToggleFrame').addEventListener('click', () => {
     if (frame) removeFrame();
     else addFrame();
@@ -135,6 +174,9 @@ export function initFrameControls(map) {
 
   return {
     getActiveBBox,
+    getFrameInfo,
+    resetFrame,
+    snapFrameToViewport,
     isFrameActive: () => !!frame
   };
 }
