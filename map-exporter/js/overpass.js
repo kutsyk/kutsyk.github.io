@@ -108,59 +108,113 @@ export async function fetchElementsForBBox(bbox, want, opts = {}) {
   const height = Math.abs(bounds.north - bounds.south);
   const area = width * height;
   const shouldChunk = forceChunking || area > 1.8 || width > 1.8 || height > 1.8;
+  const activeChunkEndpoints = endpoints.filter((e) => !e.includes('private.coffee'));
+  const chunkEndpoints = activeChunkEndpoints.length ? activeChunkEndpoints : endpoints;
 
   if (!shouldChunk) {
     const ovp = buildOverpassBBox(bbox, want);
-    return fetchWithFallbackEndpoints(ovp, endpoints, {
-      signal: externalSignal,
-      timeoutMs: 120000,
-      onAttempt
-    });
+    try {
+      return await fetchWithFallbackEndpoints(ovp, endpoints, {
+        signal: externalSignal,
+        timeoutMs: 120000,
+        onAttempt
+      });
+    } catch (err) {
+      // If a single request fails (typically 504/429 on busy endpoints),
+      // fall back to adaptive chunking to improve reliability for larger cities.
+      return fetchByAdaptiveChunks(bounds, want, {
+        signal: externalSignal,
+        onAttempt,
+        onChunk,
+        endpoints: chunkEndpoints,
+        initialGrid: chooseChunkGrid(Math.max(width, 1.9), Math.max(height, 1.9)),
+        maxDepth: 3,
+        lastError: err
+      });
+    }
   }
 
   const chunkGrid = chooseChunkGrid(width, height);
-  const chunks = splitBBox(bounds, chunkGrid.cols, chunkGrid.rows);
-  const endpointSet = endpoints.filter((e) => !e.includes('private.coffee'));
-  const activeEndpoints = endpointSet.length ? endpointSet : endpoints;
+  return fetchByAdaptiveChunks(bounds, want, {
+    signal: externalSignal,
+    onAttempt,
+    onChunk,
+    endpoints: chunkEndpoints,
+    initialGrid: chunkGrid,
+    maxDepth: 3
+  });
+}
 
+async function fetchByAdaptiveChunks(bounds, want, opts = {}) {
+  const {
+    signal: externalSignal = null,
+    onAttempt = null,
+    onChunk = null,
+    endpoints = [],
+    initialGrid = { cols: 2, rows: 2 },
+    maxDepth = 3,
+    lastError = null
+  } = opts;
+
+  const queue = splitBBox(bounds, initialGrid.cols, initialGrid.rows)
+    .map((bbox) => ({ bbox, depth: 0, cols: initialGrid.cols, rows: initialGrid.rows }));
   const merged = new Map();
-  for (let i = 0; i < chunks.length; i++) {
+  let processed = 0;
+
+  while (queue.length) {
     if (externalSignal && externalSignal.aborted) throw new Error('Export was canceled');
-    const c = chunks[i];
-    const chunkBBox = {
-      getWest: () => c.west,
-      getSouth: () => c.south,
-      getEast: () => c.east,
-      getNorth: () => c.north
-    };
+    const current = queue.shift();
+    processed += 1;
 
     if (onChunk) {
       onChunk({
-        index: i,
-        total: chunks.length,
-        bbox: c,
-        cols: chunkGrid.cols,
-        rows: chunkGrid.rows
+        index: processed - 1,
+        total: processed - 1 + queue.length + 1,
+        bbox: current.bbox,
+        cols: current.cols,
+        rows: current.rows,
+        depth: current.depth
       });
     }
 
-    const ovp = buildOverpassBBox(chunkBBox, want);
-    const chunkElements = await fetchWithFallbackEndpoints(ovp, activeEndpoints, {
-      signal: externalSignal,
-      timeoutMs: 80000,
-      onAttempt: onAttempt
-        ? ({ endpoint }) => onAttempt({
-          endpoint,
-          index: i,
-          total: chunks.length,
-          isChunkAttempt: true
-        })
-        : null
-    });
+    const chunkBBox = {
+      getWest: () => current.bbox.west,
+      getSouth: () => current.bbox.south,
+      getEast: () => current.bbox.east,
+      getNorth: () => current.bbox.north
+    };
 
-    for (const el of chunkElements) {
-      const k = `${el.type}:${el.id}`;
-      if (!merged.has(k)) merged.set(k, el);
+    try {
+      const ovp = buildOverpassBBox(chunkBBox, want);
+      const chunkElements = await fetchWithFallbackEndpoints(ovp, endpoints, {
+        signal: externalSignal,
+        timeoutMs: 90000,
+        onAttempt: onAttempt
+          ? ({ endpoint }) => onAttempt({
+            endpoint,
+            index: processed - 1,
+            total: processed - 1 + queue.length + 1,
+            isChunkAttempt: true,
+            depth: current.depth
+          })
+          : null
+      });
+
+      for (const el of chunkElements) {
+        const k = `${el.type}:${el.id}`;
+        if (!merged.has(k)) merged.set(k, el);
+      }
+    } catch (err) {
+      if (current.depth >= maxDepth) {
+        const rootErr = lastError || err;
+        throw new Error(
+          `Failed to fetch a map chunk after ${maxDepth + 1} attempts. ${rootErr && rootErr.message ? rootErr.message : rootErr}`
+        );
+      }
+
+      const subChunks = splitBBox(current.bbox, 2, 2)
+        .map((bbox) => ({ bbox, depth: current.depth + 1, cols: 2, rows: 2 }));
+      queue.unshift(...subChunks);
     }
   }
 
