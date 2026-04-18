@@ -66,8 +66,16 @@ function relationMultipolygonPath(members, tx, ty) {
   return ordered.map((ring) => polygonPath(ring, tx, ty)).filter(Boolean).join(' ');
 }
 
-export function buildSVG({ width, height, bbox, elements, want, colors, clipToFrame = false }) {
+export function buildSVG({ width, height, bbox, elements, want, colors, clipToFrame = false, onProgress = null, cancelSignal = null }) {
+  const progress = (percent, label) => {
+    if (onProgress) onProgress({ percent, label });
+  };
+  const ensureNotCanceled = () => {
+    if (cancelSignal && cancelSignal.aborted) throw new Error('Export was canceled');
+  };
+
   const { tx, ty, pad, innerW, innerH, west, south, east, north } = buildProjectors(bbox, width, height, 24);
+  progress(30, 'Preparing SVG canvas');
 
   const SVG_NS = 'http://www.w3.org/2000/svg';
   const svg = document.createElementNS(SVG_NS, 'svg');
@@ -114,6 +122,7 @@ export function buildSVG({ width, height, bbox, elements, want, colors, clipToFr
   const watersP = want.water ? elements.filter((e) => predicates.isWaterPolygon(e.tags)) : [];
   const watersL = want.water ? elements.filter((e) => predicates.isWaterLine(e.tags)) : [];
   const buildings = want.buildings ? elements.filter((e) => predicates.isBuilding(e.tags)) : [];
+  progress(40, 'Classifying map features');
 
   const ways = elements.filter((e) => e.type === 'way' && e.geometry && e.geometry.length >= 2);
   const majorRoads = want.majorRoads
@@ -130,8 +139,10 @@ export function buildSVG({ width, height, bbox, elements, want, colors, clipToFr
       || predicates.isLocalRoad(e.tags)
     ))
     : [];
+  progress(50, 'Preparing road layers');
 
-  for (const feat of parks) {
+  for (let i = 0; i < parks.length; i++) {
+    const feat = parks[i];
     const p = document.createElementNS(SVG_NS, 'path');
     if (feat.type === 'way' && feat.geometry) {
       p.setAttribute('d', polygonPath(feat.geometry, tx, ty));
@@ -144,9 +155,12 @@ export function buildSVG({ width, height, bbox, elements, want, colors, clipToFr
     p.setAttribute('fill', colors.parks);
     p.setAttribute('stroke', 'none');
     gParks.appendChild(p);
+    if (i % 1000 === 0) ensureNotCanceled();
   }
+  if (want.parks) progress(60, `Parks layer ready (${parks.length})`);
 
-  for (const feat of watersP) {
+  for (let i = 0; i < watersP.length; i++) {
+    const feat = watersP[i];
     const p = document.createElementNS(SVG_NS, 'path');
     if (feat.type === 'way' && feat.geometry) {
       p.setAttribute('d', polygonPath(feat.geometry, tx, ty));
@@ -160,9 +174,11 @@ export function buildSVG({ width, height, bbox, elements, want, colors, clipToFr
     p.setAttribute('stroke', colors.water);
     p.setAttribute('stroke-width', '0.8');
     gWater.appendChild(p);
+    if (i % 1000 === 0) ensureNotCanceled();
   }
 
-  for (const feat of watersL) {
+  for (let i = 0; i < watersL.length; i++) {
+    const feat = watersL[i];
     if (feat.type !== 'way' || !feat.geometry) continue;
     const d = lineString(feat.geometry, tx, ty);
     if (!d) continue;
@@ -174,10 +190,13 @@ export function buildSVG({ width, height, bbox, elements, want, colors, clipToFr
     p.setAttribute('stroke-linecap', 'round');
     p.setAttribute('stroke-linejoin', 'round');
     gWater.appendChild(p);
+    if (i % 1000 === 0) ensureNotCanceled();
   }
+  if (want.water) progress(70, `Water layer ready (${watersP.length + watersL.length})`);
 
   if (want.buildings) {
-    for (const feat of buildings) {
+    for (let i = 0; i < buildings.length; i++) {
+      const feat = buildings[i];
       const p = document.createElementNS(SVG_NS, 'path');
       if (feat.type === 'way' && feat.geometry) {
         p.setAttribute('d', polygonPath(feat.geometry, tx, ty));
@@ -191,11 +210,14 @@ export function buildSVG({ width, height, bbox, elements, want, colors, clipToFr
       p.setAttribute('stroke', '#fd0000');
       p.setAttribute('stroke-width', '0.4');
       gBldg.appendChild(p);
+      if (i % 1000 === 0) ensureNotCanceled();
     }
+    progress(80, `Buildings layer ready (${buildings.length})`);
   }
 
   const addLine = (collection, g, color, strokeWidth) => {
-    for (const feat of collection) {
+    for (let i = 0; i < collection.length; i++) {
+      const feat = collection[i];
       const d = lineString(feat.geometry, tx, ty);
       if (!d) continue;
       const p = document.createElementNS(SVG_NS, 'path');
@@ -206,6 +228,7 @@ export function buildSVG({ width, height, bbox, elements, want, colors, clipToFr
       p.setAttribute('stroke-linejoin', 'round');
       p.setAttribute('stroke-width', strokeWidth);
       g.appendChild(p);
+      if (i % 1000 === 0) ensureNotCanceled();
     }
   };
 
@@ -214,11 +237,13 @@ export function buildSVG({ width, height, bbox, elements, want, colors, clipToFr
   if (want.buildings) svg.appendChild(gBldg);
   if (want.majorRoads) addLine(majorRoads, gMajorRoads, colors.majorRoads, 2.8), svg.appendChild(gMajorRoads);
   if (want.minorRoads) addLine(minorRoads, gMinorRoads, colors.minorRoads, 1.9), svg.appendChild(gMinorRoads);
+  progress(90, `Road layers ready (${majorRoads.length + minorRoads.length})`);
 
   const serializer = new XMLSerializer();
   const svgStr = serializer.serializeToString(svg);
   const fileName = `map_export_${west.toFixed(4)}_${south.toFixed(4)}_${east.toFixed(4)}_${north.toFixed(4)}_${width}x${height}.svg`
     .replace(/[^\w.\-]+/g, '_');
+  progress(100, 'SVG is ready for download');
 
   return { svgStr, fileName };
 }

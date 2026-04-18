@@ -60,13 +60,32 @@ export function buildOverpassBBox(b, want) {
 out body geom;`;
 }
 
-function timeoutSignal(ms) {
+function timeoutController(ms) {
   const c = new AbortController();
-  setTimeout(() => c.abort(), ms);
-  return c.signal;
+  const timerId = setTimeout(() => c.abort(new Error('Request timeout')), ms);
+  return { controller: c, timerId };
 }
 
-export async function fetchElementsForBBox(bbox, want) {
+function linkAbortSignals(primarySignal, secondarySignal) {
+  if (!primarySignal && !secondarySignal) return { signal: null, cleanup: () => {} };
+  if (!primarySignal) return { signal: secondarySignal, cleanup: () => {} };
+  if (!secondarySignal) return { signal: primarySignal, cleanup: () => {} };
+
+  const c = new AbortController();
+  const onAbort = () => c.abort();
+  primarySignal.addEventListener('abort', onAbort);
+  secondarySignal.addEventListener('abort', onAbort);
+  return {
+    signal: c.signal,
+    cleanup: () => {
+      primarySignal.removeEventListener('abort', onAbort);
+      secondarySignal.removeEventListener('abort', onAbort);
+    }
+  };
+}
+
+export async function fetchElementsForBBox(bbox, want, opts = {}) {
+  const { signal: externalSignal = null, onAttempt = null } = opts;
   const ovp = buildOverpassBBox(bbox, want);
   const endpoints = [
     'https://overpass-api.de/api/interpreter',
@@ -77,13 +96,24 @@ export async function fetchElementsForBBox(bbox, want) {
   let lastErr = null;
   for (let i = 0; i < endpoints.length; i++) {
     const endpoint = endpoints[i];
+    if (externalSignal && externalSignal.aborted) {
+      throw new Error('Export was canceled');
+    }
+    let timerId = null;
+    let cleanup = () => {};
     try {
+      if (onAttempt) onAttempt({ endpoint, index: i, total: endpoints.length });
+      const timeout = timeoutController(120000);
+      timerId = timeout.timerId;
+      const linked = linkAbortSignals(externalSignal, timeout.controller.signal);
+      cleanup = linked.cleanup;
       const resp = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
         body: `data=${encodeURIComponent(ovp)}`,
-        signal: timeoutSignal(120000)
+        signal: linked.signal || undefined
       });
+      clearTimeout(timerId);
 
       if (resp.status === 429 || resp.status >= 500) throw new Error(`HTTP ${resp.status}`);
       if (!resp.ok) {
@@ -94,10 +124,16 @@ export async function fetchElementsForBBox(bbox, want) {
       const elements = (await resp.json()).elements || [];
       return elements;
     } catch (e) {
+      if (externalSignal && externalSignal.aborted) {
+        throw new Error('Export was canceled');
+      }
       lastErr = `${endpoint} failed: ${e && e.message ? e.message : e}`;
       if (i < endpoints.length - 1) {
         await new Promise((r) => setTimeout(r, 800 * (i + 1)));
       }
+    } finally {
+      if (timerId) clearTimeout(timerId);
+      cleanup();
     }
   }
 

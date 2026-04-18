@@ -40,6 +40,64 @@
             overflow: auto
         }
 
+        .progress-card {
+            position: absolute;
+            top: 4.25rem;
+            right: 1rem;
+            z-index: 1000;
+            width: min(380px, calc(100vw - 2rem));
+            max-height: calc(88vh - 40px);
+            overflow: auto;
+        }
+
+        .progress-log {
+            font-size: .88rem;
+            max-height: 220px;
+            overflow: auto;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: .35rem;
+            padding: .5rem .65rem;
+            margin-top: .6rem;
+        }
+
+        .progress-log .log-item {
+            display: flex;
+            align-items: flex-start;
+            gap: .5rem;
+            margin-bottom: .4rem;
+            line-height: 1.2;
+        }
+
+        .progress-log .log-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .progress-log .dot {
+            width: .5rem;
+            height: .5rem;
+            margin-top: .25rem;
+            border-radius: 50%;
+            background: #6c757d;
+            flex: 0 0 auto;
+        }
+
+        .progress-log .log-item.done .dot {
+            background: #198754;
+        }
+
+        .progress-log .log-item.error .dot {
+            background: #dc3545;
+        }
+
+        .hint-card {
+            border: 1px solid #e9ecef;
+            border-radius: .35rem;
+            padding: .55rem .65rem;
+            background: #f8f9fa;
+            font-size: .86rem;
+        }
+
         .controls-toggle {
             position: absolute;
             top: 1rem;
@@ -193,6 +251,15 @@
                     <span class="text-muted small ms-auto">Data: OSM via Overpass</span>
                 </div>
 
+                <div class="hint-card mb-3">
+                    <div class="fw-semibold mb-1">Frame details</div>
+                    <div id="frameInfo" class="text-muted mb-2">Frame inactive (using current viewport)</div>
+                    <div class="d-flex gap-2">
+                        <button id="btnSnapFrame" class="btn btn-outline-secondary btn-sm">Snap frame to view</button>
+                        <button id="btnResetFrame" class="btn btn-outline-secondary btn-sm">Reset frame</button>
+                    </div>
+                </div>
+
                 <!-- Options -->
                 <div class="mb-3">
                     <div class="form-text mb-2">Include and color</div>
@@ -284,6 +351,37 @@
                     </div>
                 </div>
 
+                <div id="exportEstimate" class="hint-card mt-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fw-semibold">Export estimate</span>
+                        <span id="estimateBadge" class="badge text-bg-success">Fast</span>
+                    </div>
+                    <div id="estimateText" class="text-muted mt-1">Ready to export.</div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="exportProgressPanel" class="card progress-card shadow d-none">
+        <div class="card-header py-2 d-flex justify-content-between align-items-center">
+            <div class="h6 mb-0">Export progress</div>
+            <div class="d-flex align-items-center gap-2">
+                <span id="exportProgressElapsed" class="badge text-bg-light">0s</span>
+                <span id="exportProgressPercent" class="badge text-bg-secondary">0%</span>
+            </div>
+        </div>
+        <div class="card-body">
+            <div id="exportProgressStatus" class="small text-muted mb-2">Waiting to export…</div>
+            <div id="exportProgressStage" class="small text-muted mb-2">Stage 0/0</div>
+            <div class="progress" role="progressbar" aria-label="Export progress" aria-valuemin="0" aria-valuemax="100">
+                <div id="exportProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%">0%</div>
+            </div>
+            <div id="exportProgressLog" class="progress-log"></div>
+            <div id="exportErrorBox" class="alert alert-danger mt-2 py-2 px-3 d-none mb-0" role="alert"></div>
+            <div class="d-flex gap-2 mt-2">
+                <button id="btnCancelExport" class="btn btn-outline-danger btn-sm">Cancel</button>
+                <button id="btnRetryExport" class="btn btn-outline-primary btn-sm d-none">Retry last export</button>
             </div>
         </div>
     </div>
