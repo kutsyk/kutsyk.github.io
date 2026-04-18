@@ -216,6 +216,7 @@ async function fetchWithFallbackEndpoints(ovp, endpoints, opts = {}) {
         body: `data=${encodeURIComponent(ovp)}`,
         signal: linked.signal || undefined
       });
+      clearTimeout(timerId);
 
       if (resp.status === 429 || resp.status >= 500) throw new Error(`HTTP ${resp.status}`);
       if (!resp.ok) {
