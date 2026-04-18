@@ -263,8 +263,16 @@ function initPreviewExport(map, frameApi) {
         logProgress('Requesting OSM features from Overpass API');
         elements = await fetchElementsForBBox(bbox, want, {
           signal: exportAbortController.signal,
-          onAttempt: ({ endpoint, index, total }) => {
-            logProgress(`Overpass endpoint ${index + 1}/${total}: ${endpoint}`);
+          onAttempt: ({ endpoint, index, total, isChunkAttempt }) => {
+            if (isChunkAttempt) {
+              logProgress(`Chunk ${index + 1}/${total} via ${endpoint}`);
+            } else {
+              logProgress(`Overpass endpoint ${index + 1}/${total}: ${endpoint}`);
+            }
+          },
+          onChunk: ({ index, total, cols, rows }) => {
+            setProgress(24, `Fetching map chunks (${index + 1}/${total})`);
+            logProgress(`Fetching chunk ${index + 1}/${total} (${cols}x${rows} grid)`);
           }
         });
         overpassCache.set(cacheKey, elements);
