@@ -66,7 +66,18 @@ function relationMultipolygonPath(members, tx, ty) {
   return ordered.map((ring) => polygonPath(ring, tx, ty)).filter(Boolean).join(' ');
 }
 
-export function buildSVG({ width, height, bbox, elements, want, colors, clipToFrame = false, onProgress = null, cancelSignal = null }) {
+export function buildSVG({
+  width,
+  height,
+  bbox,
+  elements,
+  want,
+  colors,
+  roadSubTypeColors = {},
+  clipToFrame = false,
+  onProgress = null,
+  cancelSignal = null
+}) {
   const progress = (percent, label) => {
     if (onProgress) onProgress({ percent, label });
   };
@@ -140,6 +151,17 @@ export function buildSVG({ width, height, bbox, elements, want, colors, clipToFr
     ))
     : [];
   progress(50, 'Preparing road layers');
+
+  const roadColorForFeature = (feat) => {
+    const roadType = feat.tags?.highway || '';
+    if (roadType === 'motorway') return roadSubTypeColors.motorway || colors.majorRoads;
+    if (roadType === 'trunk') return roadSubTypeColors.trunk || colors.majorRoads;
+    if (roadType === 'primary') return roadSubTypeColors.primary || colors.majorRoads;
+    if (roadType === 'secondary') return roadSubTypeColors.secondary || colors.minorRoads;
+    if (roadType === 'tertiary') return roadSubTypeColors.tertiary || colors.minorRoads;
+    if (predicates.isLocalRoad(feat.tags)) return roadSubTypeColors.local || colors.minorRoads;
+    return colors.minorRoads;
+  };
 
   for (let i = 0; i < parks.length; i++) {
     const feat = parks[i];
@@ -215,7 +237,7 @@ export function buildSVG({ width, height, bbox, elements, want, colors, clipToFr
     progress(80, `Buildings layer ready (${buildings.length})`);
   }
 
-  const addLine = (collection, g, color, strokeWidth) => {
+  const addLine = (collection, g, strokeWidth) => {
     for (let i = 0; i < collection.length; i++) {
       const feat = collection[i];
       const d = lineString(feat.geometry, tx, ty);
@@ -223,7 +245,7 @@ export function buildSVG({ width, height, bbox, elements, want, colors, clipToFr
       const p = document.createElementNS(SVG_NS, 'path');
       p.setAttribute('d', d);
       p.setAttribute('fill', 'none');
-      p.setAttribute('stroke', color);
+      p.setAttribute('stroke', roadColorForFeature(feat));
       p.setAttribute('stroke-linecap', 'round');
       p.setAttribute('stroke-linejoin', 'round');
       p.setAttribute('stroke-width', strokeWidth);
@@ -235,8 +257,8 @@ export function buildSVG({ width, height, bbox, elements, want, colors, clipToFr
   if (want.parks) svg.appendChild(gParks);
   if (want.water) svg.appendChild(gWater);
   if (want.buildings) svg.appendChild(gBldg);
-  if (want.majorRoads) addLine(majorRoads, gMajorRoads, colors.majorRoads, 2.8), svg.appendChild(gMajorRoads);
-  if (want.minorRoads) addLine(minorRoads, gMinorRoads, colors.minorRoads, 1.9), svg.appendChild(gMinorRoads);
+  if (want.majorRoads) addLine(majorRoads, gMajorRoads, 2.8), svg.appendChild(gMajorRoads);
+  if (want.minorRoads) addLine(minorRoads, gMinorRoads, 1.9), svg.appendChild(gMinorRoads);
   progress(90, `Road layers ready (${majorRoads.length + minorRoads.length})`);
 
   const serializer = new XMLSerializer();

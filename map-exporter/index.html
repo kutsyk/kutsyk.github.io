@@ -293,6 +293,93 @@
                                        value="#000000" title="Minor roads color">
                             </div>
                         </div>
+
+                        <button class="btn btn-outline-secondary btn-sm mb-2"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#roadColorOverrides"
+                                aria-expanded="false"
+                                aria-controls="roadColorOverrides">
+                            Advanced road colors
+                        </button>
+
+                        <div class="collapse" id="roadColorOverrides">
+                            <div class="border rounded p-2 bg-light-subtle">
+                                <div class="small fw-semibold mb-1">Major sub-types</div>
+                                <div class="small text-muted mb-2">If unchecked, inherits Major roads color.</div>
+                                <div class="row g-2 align-items-center mb-2">
+                                    <div class="col-7">
+                                        <div class="form-check">
+                                            <input class="form-check-input road-override-toggle" type="checkbox" id="ovrMotorway">
+                                            <label class="form-check-label" for="ovrMotorway">Motorway</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-5 text-end">
+                                        <input id="colMotorway" class="form-control form-control-color color road-override-color" type="color" value="#ff8c00" title="Motorway color" disabled>
+                                    </div>
+                                </div>
+                                <div class="row g-2 align-items-center mb-2">
+                                    <div class="col-7">
+                                        <div class="form-check">
+                                            <input class="form-check-input road-override-toggle" type="checkbox" id="ovrTrunk">
+                                            <label class="form-check-label" for="ovrTrunk">Trunk</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-5 text-end">
+                                        <input id="colTrunk" class="form-control form-control-color color road-override-color" type="color" value="#ff8c00" title="Trunk color" disabled>
+                                    </div>
+                                </div>
+                                <div class="row g-2 align-items-center mb-2">
+                                    <div class="col-7">
+                                        <div class="form-check">
+                                            <input class="form-check-input road-override-toggle" type="checkbox" id="ovrPrimary">
+                                            <label class="form-check-label" for="ovrPrimary">Primary</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-5 text-end">
+                                        <input id="colPrimary" class="form-control form-control-color color road-override-color" type="color" value="#ff8c00" title="Primary color" disabled>
+                                    </div>
+                                </div>
+
+                                <hr class="my-2">
+
+                                <div class="small fw-semibold mb-1">Minor sub-types</div>
+                                <div class="small text-muted mb-2">If unchecked, inherits Minor roads color.</div>
+                                <div class="row g-2 align-items-center mb-2">
+                                    <div class="col-7">
+                                        <div class="form-check">
+                                            <input class="form-check-input road-override-toggle" type="checkbox" id="ovrSecondary">
+                                            <label class="form-check-label" for="ovrSecondary">Secondary</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-5 text-end">
+                                        <input id="colSecondary" class="form-control form-control-color color road-override-color" type="color" value="#000000" title="Secondary color" disabled>
+                                    </div>
+                                </div>
+                                <div class="row g-2 align-items-center mb-2">
+                                    <div class="col-7">
+                                        <div class="form-check">
+                                            <input class="form-check-input road-override-toggle" type="checkbox" id="ovrTertiary">
+                                            <label class="form-check-label" for="ovrTertiary">Tertiary</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-5 text-end">
+                                        <input id="colTertiary" class="form-control form-control-color color road-override-color" type="color" value="#000000" title="Tertiary color" disabled>
+                                    </div>
+                                </div>
+                                <div class="row g-2 align-items-center">
+                                    <div class="col-7">
+                                        <div class="form-check">
+                                            <input class="form-check-input road-override-toggle" type="checkbox" id="ovrLocal">
+                                            <label class="form-check-label" for="ovrLocal">Local (residential, unclassified, service, living street)</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-5 text-end">
+                                        <input id="colLocal" class="form-control form-control-color color road-override-color" type="color" value="#000000" title="Local roads color" disabled>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Non-road layers -->
