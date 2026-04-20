@@ -31,6 +31,14 @@ function initMap() {
 }
 
 function getSelections() {
+  const majorRoadsColor = document.getElementById('colMajorRoads').value || '#ff8c00';
+  const minorRoadsColor = document.getElementById('colMinorRoads').value || '#000000';
+  const overrideColor = (toggleId, colorId, fallback) => (
+    document.getElementById(toggleId).checked
+      ? (document.getElementById(colorId).value || fallback)
+      : fallback
+  );
+
   return {
     width: Math.max(512, (+document.getElementById('w').value | 0) || 4096),
     height: Math.max(512, (+document.getElementById('h').value | 0) || 4096),
@@ -42,11 +50,19 @@ function getSelections() {
       buildings: document.getElementById('chkBuildings').checked
     },
     colors: {
-      majorRoads: document.getElementById('colMajorRoads').value || '#ff8c00',
-      minorRoads: document.getElementById('colMinorRoads').value || '#000000',
+      majorRoads: majorRoadsColor,
+      minorRoads: minorRoadsColor,
       water: document.getElementById('colWater').value || '#4b64e1',
       parks: document.getElementById('colParks').value || '#00ff32',
       buildings: document.getElementById('colBuildings').value || '#ff2d2d'
+    },
+    roadSubTypeColors: {
+      motorway: overrideColor('ovrMotorway', 'colMotorway', majorRoadsColor),
+      trunk: overrideColor('ovrTrunk', 'colTrunk', majorRoadsColor),
+      primary: overrideColor('ovrPrimary', 'colPrimary', majorRoadsColor),
+      secondary: overrideColor('ovrSecondary', 'colSecondary', minorRoadsColor),
+      tertiary: overrideColor('ovrTertiary', 'colTertiary', minorRoadsColor),
+      local: overrideColor('ovrLocal', 'colLocal', minorRoadsColor)
     }
   };
 }
@@ -249,7 +265,7 @@ function initPreviewExport(map, frameApi) {
       stageIndex = 1;
       setProgress(8, 'Reading export options');
       logProgress('Reading export settings');
-      const { width, height, want, colors } = options.overrideSelections || getSelections();
+      const { width, height, want, colors, roadSubTypeColors } = options.overrideSelections || getSelections();
       const bbox = frameApi.getActiveBBox();
       const cacheKey = buildCacheKey({ bbox, want, width, height });
 
@@ -285,6 +301,7 @@ function initPreviewExport(map, frameApi) {
         elements,
         want,
         colors,
+        roadSubTypeColors,
         clipToFrame: frameApi.isFrameActive(),
         cancelSignal: exportAbortController.signal,
         onProgress: ({ percent, label }) => {
@@ -323,7 +340,7 @@ function initPreviewExport(map, frameApi) {
   document.getElementById('btnPreview').addEventListener('click', async () => {
     openPreviewBusy();
     try {
-      const { width, height, want, colors } = getSelections();
+      const { width, height, want, colors, roadSubTypeColors } = getSelections();
       const bbox = frameApi.getActiveBBox();
       const elements = await fetchElementsForBBox(bbox, want);
       const { svgStr, fileName } = buildSVG({
@@ -333,6 +350,7 @@ function initPreviewExport(map, frameApi) {
         elements,
         want,
         colors,
+        roadSubTypeColors,
         clipToFrame: frameApi.isFrameActive(),
         onProgress: null
       });
@@ -379,6 +397,26 @@ function initPreviewExport(map, frameApi) {
   ].forEach((id) => {
     document.getElementById(id).addEventListener('input', updateExportEstimate);
     document.getElementById(id).addEventListener('change', updateExportEstimate);
+  });
+
+  const overridePairs = [
+    ['ovrMotorway', 'colMotorway'],
+    ['ovrTrunk', 'colTrunk'],
+    ['ovrPrimary', 'colPrimary'],
+    ['ovrSecondary', 'colSecondary'],
+    ['ovrTertiary', 'colTertiary'],
+    ['ovrLocal', 'colLocal']
+  ];
+  overridePairs.forEach(([toggleId, colorId]) => {
+    const toggleEl = document.getElementById(toggleId);
+    const colorEl = document.getElementById(colorId);
+    const syncState = () => {
+      colorEl.disabled = !toggleEl.checked;
+      updateExportEstimate();
+    };
+    toggleEl.addEventListener('change', syncState);
+    colorEl.addEventListener('input', updateExportEstimate);
+    syncState();
   });
 
   document.getElementById('btnToggleFrame').addEventListener('click', () => {
