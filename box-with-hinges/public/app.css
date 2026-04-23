@@ -747,3 +747,41 @@ g.pc-item > rect.pc-outline { fill: none; vector-effect: non-scaling-stroke; poi
 #helpModal .card { border-color: var(--bs-border-color, #dee2e6); }
 #helpModal .card-header { background: var(--bs-light, #f8f9fa); }
 #helpModal kbd { padding:.15rem .35rem; border-radius:.25rem; border:1px solid rgba(0,0,0,.2); background:#f8f9fa; }
+
+#proj-list .list-group-item.active {
+    background: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+#proj-list .list-group-item .text-truncate { max-width: 60%; display:inline-block; }
+
+/* Projects tree */
+/* Slim projects tree */
+.proj-tree.slim { list-style:none; margin:0; padding:0; }
+.proj-tree.slim .proj-node { margin:0; }
+.proj-tree.slim .proj-row.slim{
+    display:flex; align-items:center; gap:.4rem;
+    padding:.25rem .5rem;
+    border-radius:.375rem;
+    transition:background-color .12s ease;
+    outline:none;
+}
+.proj-tree.slim .proj-row.slim:hover { background:rgba(0,0,0,.035); }
+.proj-tree.slim .proj-row.slim.active { background:rgba(13,110,253,.12); color:inherit; }
+.proj-tree.slim .proj-row .label { max-width:60%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.proj-tree.slim .proj-row .caret { font-size:.8rem; color:#6c757d; transition:transform .12s ease; }
+.proj-tree.slim .proj-row .caret.open { transform:rotate(90deg); color:#495057; }
+
+.proj-tree.slim .proj-children.slim { list-style:none; margin:0 0 .25rem 1.25rem; padding:.15rem 0; }
+.proj-tree.slim .proj-leaf{
+    display:flex; align-items:center; gap:.4rem;
+    padding:.15rem .25rem;
+    font-size:.875rem; color:#495057;
+}
+.proj-tree.slim .proj-leaf .badge{ font-weight:500; padding:.15rem .35rem; }
+
+.btn-xs{ --bs-btn-padding-y:.1rem; --bs-btn-padding-x:.3rem; --bs-btn-font-size:.75rem; }
+.btn-ghost{
+    --bs-btn-color:#6c757d; --bs-btn-bg:transparent; --bs-btn-border-color:transparent;
+    --bs-btn-hover-color:#495057; --bs-btn-hover-bg:rgba(0,0,0,.05); --bs-btn-hover-border-color:transparent;
+    --bs-btn-active-bg:rgba(0,0,0,.07);
+}

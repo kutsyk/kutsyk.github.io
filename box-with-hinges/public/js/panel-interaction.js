@@ -10,7 +10,7 @@ import {
     setSelectedItemId,
     getSelectedItemId,
     pc_getLayout,
-    pc_clearSelection
+    pc_clearSelection, isReadonly
 } from './panel/state.js';
 
 import {
@@ -19,7 +19,7 @@ import {
     pc_setItemSvg,
     pc_setItemType,
     pc_save,
-    pc_getPanelState
+    pc_getPanelState, pc_ensurePanel
 } from './panel-state-bridge.js';
 
 import { UI_ATTR, NS } from './panel/constants.js';
@@ -37,6 +37,15 @@ const PANEL_COLORS = Object.freeze({
     Bottom: '#22c55e'
 });
 const panelColor = (n) => PANEL_COLORS[n] || '#60a5fa';
+
+function _locked() { return isReadonly(); }
+
+function hitsRoot(svg) { return svg.querySelector('#pcHitsRoot'); }
+function overlaysRoot(svg) { return svg.querySelector('#pcOverlaysRoot'); }
+function ensureHitsOnTop(svg) {
+    const h = hitsRoot(svg);
+    if (h && h.parentNode) h.parentNode.appendChild(h); // move to end → top
+}
 
 // Global hint about palette drag kind
 let _lastDragKind = null;
@@ -85,6 +94,12 @@ let _lastDragKind = null;
     });
 
     // item → highlight in external tree (if present)
+    document.addEventListener('pc:readonlyChanged', () => {
+        const svg = document.querySelector('#out svg');
+        if (!svg) return;
+        pi_onGeometryChanged(svg);
+    });
+
     document.addEventListener('pc:itemSelectionChanged', (e) => {
         const d = e.detail || {};
         const tree = document.getElementById('pc-structure');
@@ -124,20 +139,15 @@ let _lastDragKind = null;
 
 // ---------- utils ----------
 function ensureOverlay(svg, id) {
-    let ov = svg.querySelector(`#${id}`);
+    let ov = svg.querySelector('#' + id);
     if (!ov) {
         ov = document.createElementNS(NS, 'g');
         ov.setAttribute('id', id);
         ov.setAttribute(UI_ATTR, '1');
-        if (id === 'pcOverlaysRoot') {
-            ov.setAttribute('pointer-events', 'none');      // visuals only
-        } else if (id === 'pcHitsRoot') {
-            ov.removeAttribute('pointer-events');           // interactive
-            svg.appendChild(ov);
-            return ov;
-        }
         svg.appendChild(ov);
     }
+    if (id === 'pcOverlaysRoot') ov.setAttribute('pointer-events', 'none');
+    if (id === 'pcHitsRoot') ov.removeAttribute('pointer-events');
     return ov;
 }
 function safeLen(v, min = 0.01) { const n = Number(v); return Number.isFinite(n) ? Math.max(min, n) : min; }
@@ -277,8 +287,11 @@ function hitTestItemAtClient(svgEl, panelName, clientX, clientY) {
 
 // ---------- DnD: cell drop handler factory ----------
 function onDropToCell(panelName, row, col, svg) {
+    console.log('onDropToCell');
     return async function handleDrop(e) {
-        e.preventDefault(); e.stopPropagation();
+        console.log('handleDrop');
+        e.preventDefault();
+        e.stopPropagation();
 
         const tgt = e.currentTarget;
         if (tgt && tgt.setAttribute) tgt.setAttribute('stroke', 'none');
@@ -402,17 +415,28 @@ function renderPanelOverlay(svg, panelName, host, showGrid) {
             inner.setAttribute('data-pc-cell-col', String(c));
 
             // DnD on inner
-            inner.addEventListener('dragenter', () =>  inner.setAttribute('stroke', hexToRgba(color, .7)));
-            inner.addEventListener('dragleave', () =>  inner.setAttribute('stroke', 'none'));
+            inner.addEventListener('dragenter', () => {
+                if (_locked()) return;
+                inner.setAttribute('stroke', hexToRgba(color, .7))
+            });
+            inner.addEventListener('dragleave', () =>{
+                if (_locked()) return;
+                inner.setAttribute('stroke', 'none')
+            });
             inner.addEventListener('dragover', (e) => {
+                if (_locked()) return;
                 const t = e.dataTransfer?.getData('text/plain');
                 const hasFiles = !!(e.dataTransfer?.files && e.dataTransfer.files.length);
                 if (t === 'text' || t === 'svg' || !t || hasFiles) { e.preventDefault(); e.dataTransfer && (e.dataTransfer.dropEffect = 'copy'); }
             });
-            inner.addEventListener('drop', onDropToCell(panelName, r, c, svg));
+            inner.addEventListener('drop', () => {
+                if (_locked()) return;
+                onDropToCell(panelName, r, c, svg);
+            });
 
             // Hover → hit test → cursor + hover outline
             inner.addEventListener('mousemove', (e) => {
+                if (_locked()) return;
                 const g = hitTestItemAtClient(svg, panelName, e.clientX, e.clientY);
                 inner.style.cursor = g ? 'pointer' : 'default';
 
@@ -433,6 +457,7 @@ function renderPanelOverlay(svg, panelName, host, showGrid) {
             });
 
             inner.addEventListener('mouseleave', () => {
+                if (_locked()) return;
                 inner.style.cursor = 'default';
                 const prevId = svg.getAttribute('data-pc-hover-id') || '';
                 if (prevId) {
@@ -444,6 +469,7 @@ function renderPanelOverlay(svg, panelName, host, showGrid) {
 
             // Click inside → select topmost item (if any)
             inner.addEventListener('click', (e) => {
+                if (_locked()) return;
                 e.preventDefault();
                 const g = hitTestItemAtClient(svg, panelName, e.clientX, e.clientY);
                 if (!g) return;
@@ -478,10 +504,18 @@ function renderPanelOverlay(svg, panelName, host, showGrid) {
             border.setAttribute('data-pc-cell-row', String(r));
             border.setAttribute('data-pc-cell-col', String(c));
 
-            border.addEventListener('mouseenter', () => border.setAttribute('stroke', hexToRgba(color, .5)));
-            border.addEventListener('mouseleave', () => border.setAttribute('stroke', 'transparent'));
+            border.addEventListener('mouseenter', () => {
+                if (_locked()) return;
+                border.setAttribute('stroke', hexToRgba(color, .5))
+            });
+            border.addEventListener('mouseleave', () => {
+                if (_locked()) return;
+                border.setAttribute('stroke', 'transparent')
+            });
 
             border.addEventListener('click', (e) => {
+                if (_locked()) return;
+
                 e.preventDefault();
                 pc_clearSelection();
                 setCurrentPanel(panelName);
@@ -530,8 +564,10 @@ function attachDrops(svg) {
             const hasSvgFile = !!(files && [...files].some(f => (f.type && f.type.includes('svg')) || (f.name && /\.svg$/i.test(f.name))));
             let type = e.dataTransfer?.getData('text/plain') || (_lastDragKind || (hasSvgFile ? 'svg' : 'text'));
 
+            pc_ensurePanel(name);
             const pane = pc_getPanelState(name);
             const L = pc_getLayout(name);
+
             if (!pane || (L.mode || 'grid') !== 'grid') return;
 
             const pxy = pointInSvgUserSpace(svg, e.clientX, e.clientY);
@@ -683,6 +719,9 @@ export function pi_onGeometryChanged(svg) {
         pc_leftnav_activate('content');
     }
     else if (ac && ac.panel) pc_activateEditorTab('layout');
+
+    const hits = svg.querySelector('#pcHitsRoot');
+    if (hits && hits.parentNode) hits.parentNode.appendChild(hits);
 }
 
 export function pi_beforeDownload(svgClone) {
