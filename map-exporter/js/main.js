@@ -46,6 +46,7 @@ function getSelections() {
       majorRoads: document.getElementById('chkMajorRoads').checked,
       minorRoads: document.getElementById('chkMinorRoads').checked,
       water: document.getElementById('chkWater').checked,
+      waterLines: document.getElementById('chkWater').checked && document.getElementById('chkWaterLines').checked,
       parks: document.getElementById('chkParks').checked,
       buildings: document.getElementById('chkBuildings').checked
     },
@@ -320,7 +321,7 @@ function initPreviewExport(map, frameApi) {
       setProgress(100, 'Export completed');
       logProgress(`Export completed in ${getElapsedSec()}s`);
 
-      lastExportRequest = { width, height, want, colors };
+      lastExportRequest = { width, height, want, colors, roadSubTypeColors };
     } catch (e) {
       const msg = e && e.message ? e.message : String(e);
       setProgress(100, msg === 'Export was canceled' ? 'Export canceled' : 'Export failed');
@@ -392,12 +393,21 @@ function initPreviewExport(map, frameApi) {
     'chkMajorRoads',
     'chkMinorRoads',
     'chkWater',
+    'chkWaterLines',
     'chkParks',
     'chkBuildings'
   ].forEach((id) => {
     document.getElementById(id).addEventListener('input', updateExportEstimate);
     document.getElementById(id).addEventListener('change', updateExportEstimate);
   });
+
+  const waterToggle = document.getElementById('chkWater');
+  const waterLinesToggle = document.getElementById('chkWaterLines');
+  const syncWaterLineToggle = () => {
+    waterLinesToggle.disabled = !waterToggle.checked;
+  };
+  waterToggle.addEventListener('change', syncWaterLineToggle);
+  syncWaterLineToggle();
 
   const overridePairs = [
     ['ovrMotorway', 'colMotorway'],

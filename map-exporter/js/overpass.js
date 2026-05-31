@@ -30,9 +30,12 @@ export function buildOverpassBBox(b, want) {
       `way["natural"="water"](${south},${west},${north},${east});`,
       `relation["natural"="water"](${south},${west},${north},${east});`,
       `way["waterway"="riverbank"](${south},${west},${north},${east});`,
-      `relation["waterway"="riverbank"](${south},${west},${north},${east});`,
-      `way["waterway"~"^(river|stream|canal)$"](${south},${west},${north},${east});`
+      `relation["waterway"="riverbank"](${south},${west},${north},${east});`
     );
+  }
+
+  if (want.waterLines) {
+    parts.push(`way["waterway"~"^(river|stream|canal)$"](${south},${west},${north},${east});`);
   }
 
   if (want.buildings) {
@@ -50,6 +53,8 @@ export function buildOverpassBBox(b, want) {
     const roadRegex = `^(${Array.from(new Set(roadClasses)).join('|')})$`;
     parts.push(`way["highway"~"${roadRegex}"](${south},${west},${north},${east});`);
   }
+
+  if (!parts.length) return '';
 
   const body = parts.join('\n  ');
   return `
@@ -87,6 +92,8 @@ function linkAbortSignals(primarySignal, secondarySignal) {
 export async function fetchElementsForBBox(bbox, want, opts = {}) {
   const { signal: externalSignal = null, onAttempt = null } = opts;
   const ovp = buildOverpassBBox(bbox, want);
+  if (!ovp) return [];
+
   const endpoints = [
     'https://overpass-api.de/api/interpreter',
     'https://overpass.kumi.systems/api/interpreter',

@@ -39,16 +39,17 @@ function lineString(coords, tx, ty) {
   return d;
 }
 
-function polygonPath(geom, tx, ty) {
+function polygonPath(geom, tx, ty, options = {}) {
   if (!geom || !geom.length) return '';
   const first = geom[0];
   const last = geom[geom.length - 1];
   let d = lineString(geom, tx, ty);
-  if (first && last && first.lat === last.lat && first.lon === last.lon) d += 'Z';
+  const isClosed = first && last && first.lat === last.lat && first.lon === last.lon;
+  if (isClosed || options.forceClose) d += 'Z';
   return d;
 }
 
-function relationMultipolygonPath(members, tx, ty) {
+function relationMultipolygonPath(members, tx, ty, options = {}) {
   if (!members || !members.length) return '';
 
   const outers = [];
@@ -63,7 +64,7 @@ function relationMultipolygonPath(members, tx, ty) {
   }
 
   const ordered = [...outers, ...unknown, ...inners];
-  return ordered.map((ring) => polygonPath(ring, tx, ty)).filter(Boolean).join(' ');
+  return ordered.map((ring) => polygonPath(ring, tx, ty, options)).filter(Boolean).join(' ');
 }
 
 export function buildSVG({
@@ -131,7 +132,7 @@ export function buildSVG({
 
   const parks = want.parks ? elements.filter((e) => predicates.isPark(e.tags)) : [];
   const watersP = want.water ? elements.filter((e) => predicates.isWaterPolygon(e.tags)) : [];
-  const watersL = want.water ? elements.filter((e) => predicates.isWaterLine(e.tags)) : [];
+  const watersL = want.waterLines ? elements.filter((e) => predicates.isWaterLine(e.tags)) : [];
   const buildings = want.buildings ? elements.filter((e) => predicates.isBuilding(e.tags)) : [];
   progress(40, 'Classifying map features');
 
@@ -185,9 +186,9 @@ export function buildSVG({
     const feat = watersP[i];
     const p = document.createElementNS(SVG_NS, 'path');
     if (feat.type === 'way' && feat.geometry) {
-      p.setAttribute('d', polygonPath(feat.geometry, tx, ty));
+      p.setAttribute('d', polygonPath(feat.geometry, tx, ty, { forceClose: true }));
     } else if (feat.type === 'relation' && feat.members) {
-      const d = relationMultipolygonPath(feat.members, tx, ty);
+      const d = relationMultipolygonPath(feat.members, tx, ty, { forceClose: true });
       if (!d) continue;
       p.setAttribute('d', d);
       p.setAttribute('fill-rule', 'evenodd');
@@ -214,7 +215,7 @@ export function buildSVG({
     gWater.appendChild(p);
     if (i % 1000 === 0) ensureNotCanceled();
   }
-  if (want.water) progress(70, `Water layer ready (${watersP.length + watersL.length})`);
+  if (want.water || want.waterLines) progress(70, `Water layer ready (${watersP.length + watersL.length})`);
 
   if (want.buildings) {
     for (let i = 0; i < buildings.length; i++) {
@@ -255,7 +256,7 @@ export function buildSVG({
   };
 
   if (want.parks) svg.appendChild(gParks);
-  if (want.water) svg.appendChild(gWater);
+  if (want.water || want.waterLines) svg.appendChild(gWater);
   if (want.buildings) svg.appendChild(gBldg);
   if (want.majorRoads) addLine(majorRoads, gMajorRoads, 2.8), svg.appendChild(gMajorRoads);
   if (want.minorRoads) addLine(minorRoads, gMinorRoads, 1.9), svg.appendChild(gMinorRoads);
