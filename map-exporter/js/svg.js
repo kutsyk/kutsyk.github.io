@@ -129,11 +129,15 @@ export function buildSVG({
   const gBldg = group(); gBldg.setAttribute('id', 'buildings');
   const gMajorRoads = group(); gMajorRoads.setAttribute('id', 'major_roads');
   const gMinorRoads = group(); gMinorRoads.setAttribute('id', 'minor_roads');
+  const gRailways = group(); gRailways.setAttribute('id', 'railways');
 
   const parks = want.parks ? elements.filter((e) => predicates.isPark(e.tags)) : [];
   const watersP = want.water ? elements.filter((e) => predicates.isWaterPolygon(e.tags)) : [];
   const watersL = want.waterLines ? elements.filter((e) => predicates.isWaterLine(e.tags)) : [];
   const buildings = want.buildings ? elements.filter((e) => predicates.isBuilding(e.tags)) : [];
+  const railways = want.railways
+    ? elements.filter((e) => e.type === 'way' && e.geometry && e.geometry.length >= 2 && predicates.isRailway(e.tags))
+    : [];
   progress(40, 'Classifying map features');
 
   const ways = elements.filter((e) => e.type === 'way' && e.geometry && e.geometry.length >= 2);
@@ -260,7 +264,24 @@ export function buildSVG({
   if (want.buildings) svg.appendChild(gBldg);
   if (want.majorRoads) addLine(majorRoads, gMajorRoads, 2.8), svg.appendChild(gMajorRoads);
   if (want.minorRoads) addLine(minorRoads, gMinorRoads, 1.9), svg.appendChild(gMinorRoads);
-  progress(90, `Road layers ready (${majorRoads.length + minorRoads.length})`);
+  if (want.railways) {
+    for (let i = 0; i < railways.length; i++) {
+      const feat = railways[i];
+      const d = lineString(feat.geometry, tx, ty);
+      if (!d) continue;
+      const p = document.createElementNS(SVG_NS, 'path');
+      p.setAttribute('d', d);
+      p.setAttribute('fill', 'none');
+      p.setAttribute('stroke', colors.railways);
+      p.setAttribute('stroke-linecap', 'round');
+      p.setAttribute('stroke-linejoin', 'round');
+      p.setAttribute('stroke-width', '2.2');
+      gRailways.appendChild(p);
+      if (i % 1000 === 0) ensureNotCanceled();
+    }
+    svg.appendChild(gRailways);
+  }
+  progress(90, `Transport layers ready (${majorRoads.length + minorRoads.length + railways.length})`);
 
   const serializer = new XMLSerializer();
   const svgStr = serializer.serializeToString(svg);

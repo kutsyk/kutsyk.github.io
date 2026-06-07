@@ -4,7 +4,8 @@ export const predicates = {
   isWaterLine: (t) => t && /^(river|stream|canal)$/.test(t.waterway || ''),
   highwayEq: (t, val) => t && t.highway === val,
   isLocalRoad: (t) => t && /^(residential|unclassified|service|living_street)$/.test(t.highway || ''),
-  isBuilding: (t) => t && !!t.building
+  isBuilding: (t) => t && !!t.building,
+  isRailway: (t) => t && t.railway === 'rail'
 };
 
 export function buildOverpassBBox(b, want) {
@@ -43,6 +44,10 @@ export function buildOverpassBBox(b, want) {
       `way["building"](${south},${west},${north},${east});`,
       `relation["building"](${south},${west},${north},${east});`
     );
+  }
+
+  if (want.railways) {
+    parts.push(`way["railway"="rail"](${south},${west},${north},${east});`);
   }
 
   const roadClasses = [];

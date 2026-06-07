@@ -48,14 +48,16 @@ function getSelections() {
       water: document.getElementById('chkWater').checked,
       waterLines: document.getElementById('chkWater').checked && document.getElementById('chkWaterLines').checked,
       parks: document.getElementById('chkParks').checked,
-      buildings: document.getElementById('chkBuildings').checked
+      buildings: document.getElementById('chkBuildings').checked,
+      railways: document.getElementById('chkRailways').checked
     },
     colors: {
       majorRoads: majorRoadsColor,
       minorRoads: minorRoadsColor,
       water: document.getElementById('colWater').value || '#4b64e1',
       parks: document.getElementById('colParks').value || '#00ff32',
-      buildings: document.getElementById('colBuildings').value || '#ff2d2d'
+      buildings: document.getElementById('colBuildings').value || '#ff2d2d',
+      railways: document.getElementById('colRailways').value || '#6f42c1'
     },
     roadSubTypeColors: {
       motorway: overrideColor('ovrMotorway', 'colMotorway', majorRoadsColor),
@@ -395,7 +397,8 @@ function initPreviewExport(map, frameApi) {
     'chkWater',
     'chkWaterLines',
     'chkParks',
-    'chkBuildings'
+    'chkBuildings',
+    'chkRailways'
   ].forEach((id) => {
     document.getElementById(id).addEventListener('input', updateExportEstimate);
     document.getElementById(id).addEventListener('change', updateExportEstimate);
