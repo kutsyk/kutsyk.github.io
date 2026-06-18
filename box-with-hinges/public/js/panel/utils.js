@@ -9,6 +9,7 @@ export function findPanelNode(svg, name) {
         svg.querySelector(`[id$="${name}"]`)
     );
 }
+
 export function ensureLayer(svg, panelName, dblHandler) {
     const host = findPanelNode(svg, panelName);
     if (!host) return null;

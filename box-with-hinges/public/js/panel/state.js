@@ -27,6 +27,15 @@ let _editOriginal = null;
 let _activeCell = null;               // {panel,row,col} or null
 let _currentSvg = null;               // bound preview <svg>
 let _uiMode = UIMODES.CELL;           // default mode
+let _readonly = false;
+
+export function isReadonly() { return !!_readonly; }
+export function setReadonly(v) {
+    const nv = !!v;
+    if (nv === _readonly) return;
+    _readonly = nv;
+    document.dispatchEvent(new CustomEvent('pc:readonlyChanged', { detail: nv }));
+}
 
 export function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(_state)); }
 export function getStateRef() { return _state; }

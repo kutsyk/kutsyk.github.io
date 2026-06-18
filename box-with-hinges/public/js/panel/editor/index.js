@@ -95,18 +95,26 @@ export { pc_enterEdit, pc_activateEditorTab };
 // ----- Back-compat surface (legacy entry points other modules expect) -----
 export function pc_renderAll(svg){ const s = svg || getCurrentSvg(); if (s) repaint(s); }
 
-export function pc_getStateRef(){
-    return {
-        panels: {
-            Bottom: panelState('Bottom'),
-            Lid:    panelState('Lid'),
-            Front:  panelState('Front'),
-            Back:   panelState('Back'),
-            Left:   panelState('Left'),
-            Right:  panelState('Right')
-        }
-    };
+let _S = window.__PC_STATE__ || { panels:{}, _ui:{} };
+export function pc_getStateRef(){ return _S; }
+export function pc_setStateRef(next){
+    _S = next || { panels:{}, _ui:{} };
+    if(!_S.panels) _S.panels = {};
+    if(!_S._ui) _S._ui = {};
 }
+
+// export function pc_getStateRef(){
+//     return {
+//         panels: {
+//             Bottom: panelState('Bottom'),
+//             Lid:    panelState('Lid'),
+//             Front:  panelState('Front'),
+//             Back:   panelState('Back'),
+//             Left:   panelState('Left'),
+//             Right:  panelState('Right')
+//         }
+//     };
+// }
 export function pc_getPanelState(name){ return panelState(name); }
 export function pc_save(){ saveState(); }
 
