@@ -18,7 +18,9 @@ with sync_playwright() as p:
             query = parse_qs(request_route.request.post_data)['data'][0]
             requests.append(query)
             # One section succeeds, one fails without subdivision (access denial).
-            if fail[0] and '(0,0.1,0.1,0.2)' in query:
+            if fail[0] == 'overload':
+                request_route.fulfill(status=502, body='Upstream overloaded')
+            elif fail[0] and '(0,0.1,0.1,0.2)' in query:
                 request_route.fulfill(status=403, body='Unavailable')
             else:
                 request_route.fulfill(json={'elements': [
@@ -70,6 +72,15 @@ with sync_playwright() as p:
     assert not page.locator('#layer-buildings').is_checked()
     page.set_viewport_size({'width': 390, 'height': 844})
     assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth')
+    fail[0] = 'overload'
+    before = len(requests)
+    page.locator('#start').click()
+    page.wait_for_function("document.querySelector('#jobTitle').textContent === 'Map services temporarily unavailable' && !document.querySelector('#retry').disabled")
+    assert len(requests) == before + 3
+    assert 'Retry unfinished sections after' in page.locator('#status').inner_text()
+    page.locator('#retry').click()
+    page.wait_for_function("!document.querySelector('#retry').disabled")
+    assert len(requests) == before + 3, 'Immediate retry must not bypass cooldowns'
     assert not errors, errors
     print('PASS: partial export, worker SVG, resume, deduplication, ZIP contents/CRC, saved settings, mobile layout')
     browser.close()

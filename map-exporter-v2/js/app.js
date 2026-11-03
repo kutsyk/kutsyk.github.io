@@ -105,7 +105,10 @@ async function run(retry=false){
     $('partial').hidden=!unfinished||job.features.size===0;
     if(!unfinished&&!controller.signal.aborted)await generate(false);
     else if(job.limited){$('jobTitle').textContent='Area exceeds export limit';message('Reached the 150,000-feature safety limit. Preview the completed sections, or start a new export with a smaller area or fewer layers.');}
-    else if(!controller.signal.aborted)$('jobTitle').textContent='Some sections need retry';
+    else if(!controller.signal.aborted){
+      $('jobTitle').textContent=job.retryAt?'Map services temporarily unavailable':'Some sections need retry';
+      if(job.retryAt)message(`Map services are rate-limited or overloaded. Completed sections are saved. Retry unfinished sections after ${new Date(job.retryAt).toLocaleTimeString()}.`);
+    }
   }catch(e){message(e.message);$('jobTitle').textContent='Export needs attention';}
   finally{lock(false);}
 }

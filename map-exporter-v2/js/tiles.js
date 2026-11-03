@@ -29,9 +29,10 @@ export class TileJob {
   }
   async run(signal, retry=false) {
     if(retry) for(const t of this.tiles) if(t.status==='failed') t.status='pending';
+    let paused=false;this.retryAt=null;
     const take=()=>this.tiles.find(t=>t.status==='pending');
     const worker=async()=>{
-      while(!signal.aborted && !this.limited) {
+      while(!signal.aborted && !this.limited && !paused) {
         const tile=take(); if(!tile) return;
         tile.status='loading'; this.onUpdate(this);
         try {
@@ -50,6 +51,7 @@ export class TileJob {
           tile.status='done'; delete tile.error;
         } catch(e) {
           if(signal.aborted) tile.status='pending';
+          else if(e.unavailable){tile.status='failed';tile.error=e.message;this.retryAt=e.retryAt;paused=true;}
           else if(e.splittable && tile.depth<3 && this.tiles.length+4<=1024) {
             tile.status='split';
             this.tiles.push(...splitBounds(tile.bounds).map((bounds,i)=>({id:`${tile.id}.${i}`,bounds,depth:tile.depth+1,status:'pending'})));

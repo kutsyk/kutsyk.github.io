@@ -21,9 +21,9 @@ Download a single layered SVG, or download independently clipped SVG tiles in a 
 ## Reliability and limits
 
 - Initial grid: at most 0.12° per axis per tile, up to 256 initial tiles.
-- Two concurrent tile fetches, three Overpass endpoint fallbacks, 45-second request timeout.
-- Timeouts, oversized responses, and Overpass error remarks subdivide tiles, to depth 3 and at most 1,024 total tile records.
-- Rate limits pause before fallback, honoring numeric Retry-After values up to 60 seconds; permission/network failures remain retryable without subdivision.
+- Two tile-processing workers share one network request slot, with at least two seconds between request starts, three Overpass endpoint fallbacks, and a 45-second request timeout.
+- Oversized responses and explicit Overpass timeout/memory remarks subdivide tiles, to depth 3 and at most 1,024 total tile records. HTTP 5xx, network timeouts, and rate limits never trigger subdivision.
+- Endpoint cooldowns are shared across tiles, retries, and new jobs in this tab. HTTP 429 honors Retry-After seconds or HTTP dates without shortening the requested wait (60-second default); HTTP 5xx and network failures use exponential cooldowns from 30 seconds up to five minutes. Healthy fallback endpoints can continue work. When services are unavailable, the job pauses with completed sections retained and displays a retry time. Manual retries respect existing cooldowns.
 - Responses are capped at 16 MiB before JSON parsing; jobs are capped at 150,000 unique features. These safety limits are conservative, not guarantees of arbitrary-area support.
 - Features deduplicate by OSM type and ID. Tile borders are clipped on export. Relations spanning tile boundaries use Overpass-provided member geometry.
 - SVG generation and ZIP packaging run in a module Web Worker. Cancel terminates generation without losing fetched data.
