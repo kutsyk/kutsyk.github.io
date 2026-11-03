@@ -49,6 +49,7 @@ function getSelections() {
       waterLines: document.getElementById('chkWater').checked && document.getElementById('chkWaterLines').checked,
       parks: document.getElementById('chkParks').checked,
       buildings: document.getElementById('chkBuildings').checked,
+      airports: document.getElementById('chkAirports').checked,
       railways: document.getElementById('chkRailways').checked
     },
     colors: {
@@ -57,6 +58,7 @@ function getSelections() {
       water: document.getElementById('colWater').value || '#4b64e1',
       parks: document.getElementById('colParks').value || '#00ff32',
       buildings: document.getElementById('colBuildings').value || '#ff2d2d',
+      airports: document.getElementById('colAirports').value || '#607d8b',
       railways: document.getElementById('colRailways').value || '#6f42c1'
     },
     roadSubTypeColors: {

@@ -1,3 +1,6 @@
+const airportTypes = 'runway|taxiway|apron|terminal|hangar|helipad';
+const airportPattern = new RegExp(`^(${airportTypes})$`);
+
 export const predicates = {
   isPark: (t) => t && (t.leisure === 'park' || t.landuse === 'grass' || t.landuse === 'recreation_ground'),
   isWaterPolygon: (t) => t && (t.natural === 'water' || t.waterway === 'riverbank'),
@@ -5,6 +8,7 @@ export const predicates = {
   highwayEq: (t, val) => t && t.highway === val,
   isLocalRoad: (t) => t && /^(residential|unclassified|service|living_street)$/.test(t.highway || ''),
   isBuilding: (t) => t && !!t.building,
+  isAirport: (t) => t && airportPattern.test(t.aeroway || ''),
   isRailway: (t) => t && t.railway === 'rail'
 };
 
@@ -48,6 +52,13 @@ export function buildOverpassBBox(b, want) {
 
   if (want.railways) {
     parts.push(`way["railway"="rail"](${south},${west},${north},${east});`);
+  }
+
+  if (want.airports) {
+    parts.push(
+      `way["aeroway"~"^(${airportTypes})$"](${south},${west},${north},${east});`,
+      `relation["type"="multipolygon"]["aeroway"~"^(${airportTypes})$"](${south},${west},${north},${east});`
+    );
   }
 
   const roadClasses = [];

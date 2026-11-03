@@ -129,8 +129,10 @@ export function buildSVG({
   const gBldg = group(); gBldg.setAttribute('id', 'buildings');
   const gMajorRoads = group(); gMajorRoads.setAttribute('id', 'major_roads');
   const gMinorRoads = group(); gMinorRoads.setAttribute('id', 'minor_roads');
+  const gAirports = group(); gAirports.setAttribute('id', 'airports');
   const gRailways = group(); gRailways.setAttribute('id', 'railways');
 
+  const airports = want.airports ? elements.filter((e) => predicates.isAirport(e.tags)) : [];
   const parks = want.parks ? elements.filter((e) => predicates.isPark(e.tags)) : [];
   const watersP = want.water ? elements.filter((e) => predicates.isWaterPolygon(e.tags)) : [];
   const watersL = want.waterLines ? elements.filter((e) => predicates.isWaterLine(e.tags)) : [];
@@ -261,6 +263,35 @@ export function buildSVG({
 
   if (want.parks) svg.appendChild(gParks);
   if (want.water || want.waterLines) svg.appendChild(gWater);
+  if (want.airports) {
+    for (let i = 0; i < airports.length; i++) {
+      ensureNotCanceled();
+      const feat = airports[i];
+      let d;
+      let isArea;
+      if (feat.type === 'way' && feat.geometry?.length >= 2) {
+        const first = feat.geometry[0];
+        const last = feat.geometry[feat.geometry.length - 1];
+        isArea = feat.tags.area !== 'no' && (feat.tags.area === 'yes'
+          || (feat.geometry.length >= 4 && first.lat === last.lat && first.lon === last.lon));
+        d = polygonPath(feat.geometry, tx, ty, { forceClose: isArea });
+      } else if (feat.type === 'relation' && feat.tags.type === 'multipolygon') {
+        isArea = true;
+        d = relationMultipolygonPath(feat.members, tx, ty, { forceClose: true });
+      }
+      if (!d) continue;
+      const p = document.createElementNS(SVG_NS, 'path');
+      p.setAttribute('d', d);
+      p.setAttribute('fill', isArea ? colors.airports : 'none');
+      p.setAttribute('fill-rule', 'evenodd');
+      p.setAttribute('stroke', colors.airports);
+      p.setAttribute('stroke-width', feat.tags.aeroway === 'runway' ? '3.2' : '1.6');
+      p.setAttribute('stroke-linecap', 'round');
+      p.setAttribute('stroke-linejoin', 'round');
+      gAirports.appendChild(p);
+    }
+    svg.appendChild(gAirports);
+  }
   if (want.buildings) svg.appendChild(gBldg);
   if (want.majorRoads) addLine(majorRoads, gMajorRoads, 2.8), svg.appendChild(gMajorRoads);
   if (want.minorRoads) addLine(minorRoads, gMinorRoads, 1.9), svg.appendChild(gMinorRoads);
@@ -281,7 +312,7 @@ export function buildSVG({
     }
     svg.appendChild(gRailways);
   }
-  progress(90, `Transport layers ready (${majorRoads.length + minorRoads.length + railways.length})`);
+  progress(90, `Transport layers ready (${majorRoads.length + minorRoads.length + railways.length + gAirports.childNodes.length})`);
 
   const serializer = new XMLSerializer();
   const svgStr = serializer.serializeToString(svg);
