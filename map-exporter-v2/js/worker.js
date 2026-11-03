@@ -20,7 +20,7 @@ self.onmessage=({data})=>{
         const result=buildSVG({...data,bbox:boundsObject(tile.bounds),clipToFrame:true,elements:tile.featureKeys.map(k=>features.get(k)).filter(Boolean)});
         return {name:`tile_${tile.id}.svg`,text:result.svgStr};
       });
-      files.push({name:'manifest.json',text:JSON.stringify({incomplete:data.incomplete,bounds:data.bounds,tiles:data.tiles.map(({id,bounds})=>({id,bounds})),attribution:'© OpenStreetMap contributors'},null,2)});
+      files.push({name:'manifest.json',text:JSON.stringify({incomplete:data.incomplete,strategy:data.strategy,bounds:data.bounds,tiles:data.tiles.map(({id,bounds,layer})=>({id,bounds,layer})),attribution:'© OpenStreetMap contributors'},null,2)});
       self.postMessage({archive:zipFiles(files)});return;
     }
     const result=buildSVG({...data,bbox:boundsObject(data.bounds),onProgress:p=>self.postMessage({progress:p})});

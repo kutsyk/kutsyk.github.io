@@ -41,3 +41,37 @@ test('feature safety limit preserves previous completed work',async()=>{
   await job.run(new AbortController().signal);
   assert.equal(job.features.size,0);assert.equal(job.tiles[0].status,'failed');assert.equal(job.limited,true);
 });
+test('adaptive strategy separates expensive queries by layer before geographic subdivision',async()=>{
+  const calls=[];
+  const job=new TileJob(bounds,{buildings:true,airports:true},async(b,w)=>{
+    calls.push({b,w});
+    if(Object.keys(w).length>1 || (w.buildings && b[2]-b[0]>.05))throw Object.assign(new Error('query memory limit'),{splittable:true});
+    return [{type:'way',id:w.airports?1:2}];
+  },()=>{},{strategy:'adaptive'});
+  await job.run(new AbortController().signal);
+  assert.equal(calls.length,7);
+  assert.equal(calls.filter(c=>c.w.airports&&!c.w.buildings).length,1);
+  assert.equal(job.features.size,2);
+  assert.equal(job.tiles.filter(t=>t.status==='done').length,5);
+});
+test('combined strategy keeps enabled layers together when subdividing',async()=>{
+  let first=true;const queries=[];
+  const job=new TileJob(bounds,{buildings:true,airports:true},async(b,w)=>{
+    queries.push(w);if(first){first=false;throw Object.assign(new Error('memory limit'),{splittable:true});}return [];
+  },()=>{},{strategy:'combined'});
+  await job.run(new AbortController().signal);
+  assert.equal(queries.length,5);assert.ok(queries.every(w=>w.buildings&&w.airports));
+});
+test('separate-layer strategy retries only the failing layer',async()=>{
+  let fail=true;const calls=[];
+  const job=new TileJob(bounds,{buildings:true,airports:true,parks:false},async(b,w)=>{
+    calls.push(Object.keys(w)[0]);assert.equal(Object.keys(w).length,1);
+    if(w.buildings&&fail)throw new Error('unavailable');return [{type:'way',id:w.airports?1:2}];
+  },()=>{},{strategy:'layers'});
+  await job.run(new AbortController().signal);fail=false;await job.run(new AbortController().signal,true);
+  assert.deepEqual(calls.sort(),['airports','buildings','buildings']);assert.equal(job.features.size,2);
+});
+test('adaptive strategy never splits overload failures into layer queries',async()=>{
+  const job=new TileJob(bounds,{buildings:true,airports:true},async()=>{throw Object.assign(new Error('cooldown'),{unavailable:true,retryAt:Date.now()+60000});},()=>{},{strategy:'adaptive'});
+  await job.run(new AbortController().signal);assert.equal(job.tiles.length,1);assert.equal(job.tiles[0].status,'failed');
+});

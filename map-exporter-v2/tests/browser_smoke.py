@@ -34,6 +34,9 @@ with sync_playwright() as p:
 
     page.route('**/*', route)
     page.goto('http://127.0.0.1:8000/map-exporter-v2/')
+    assert page.locator('#strategy').input_value() == 'adaptive'
+    page.locator('#strategy').select_option('combined')
+    assert 'together' in page.locator('#strategyInfo').inner_text()
     for box in page.locator('#layers input[type=checkbox]').all():
         box.uncheck()
     page.locator('#layer-airports').check()
@@ -55,6 +58,7 @@ with sync_playwright() as p:
     page.wait_for_function("document.querySelector('#jobTitle').textContent === 'Export ready'")
     assert len(requests) == 5, 'Retry must reuse the completed section'
     assert page.locator('#preview #airports path').count() == 1, 'Overlapping features must be deduplicated'
+    assert 'Strategy: combined' in page.locator('#resultInfo').inner_text()
     assert '2/2 sections' in page.locator('#resultInfo').inner_text()
     with page.expect_download() as archive_info:
         page.locator('#downloadTiles').click()
@@ -65,11 +69,23 @@ with sync_playwright() as p:
         assert len([name for name in z.namelist() if name.endswith('.svg')]) == 2
         manifest = json.loads(z.read('manifest.json'))
         assert manifest['incomplete'] is False
+        assert manifest['strategy'] == 'combined'
         assert len(manifest['tiles']) == 2
     # Reload confirms saved layer preferences, and mobile controls remain usable.
     page.reload()
+    assert page.locator('#strategy').input_value() == 'combined'
     assert page.locator('#layer-airports').is_checked()
     assert not page.locator('#layer-buildings').is_checked()
+    page.locator('#strategy').select_option('layers')
+    page.locator('#layer-buildings').check()
+    before_layers = len(requests)
+    page.locator('#start').click()
+    page.wait_for_function("document.querySelector('#jobTitle').textContent === 'Export ready'")
+    layer_queries = requests[before_layers:]
+    assert len(layer_queries) == 4
+    assert all(('aeroway' in query) != ('building' in query) for query in layer_queries)
+    assert 'Strategy: layers' in page.locator('#resultInfo').inner_text()
+    assert page.locator('#preview #airports path').count() == 1
     page.set_viewport_size({'width': 390, 'height': 844})
     assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth')
     fail[0] = 'overload'

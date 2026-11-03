@@ -22,8 +22,15 @@ export function initialTiles(bounds, maxSpan=.12) {
   });
 }
 export class TileJob {
-  constructor(bounds, want, fetchTile, onUpdate=()=>{}) {
+  constructor(bounds, want, fetchTile, onUpdate=()=>{}, {strategy='adaptive'}={}) {
     this.bounds=[...bounds]; this.want={...want}; this.tiles=initialTiles(bounds);
+    if(!['adaptive','combined','layers'].includes(strategy))throw new Error('Unknown export strategy.');
+    this.strategy=strategy;
+    const enabled=Object.keys(want).filter(key=>want[key]);
+    if(strategy==='layers'&&enabled.length){
+      if(this.tiles.length*enabled.length>1024)throw new Error('Too many layer sections. Use Adaptive or select a smaller area.');
+      this.tiles=this.tiles.flatMap(tile=>enabled.map(layer=>({...tile,id:`${tile.id}.${layer}`,want:{[layer]:true},layer})));
+    }
     this.fetchTile=fetchTile; this.onUpdate=onUpdate; this.features=new Map();
     this.maxFeatures=150000; this.limited=false;
   }
@@ -36,7 +43,7 @@ export class TileJob {
         const tile=take(); if(!tile) return;
         tile.status='loading'; this.onUpdate(this);
         try {
-          const data=await this.fetchTile(tile.bounds,this.want,signal);
+          const data=await this.fetchTile(tile.bounds,tile.want||this.want,signal);
           if(signal.aborted) throw new DOMException('Canceled','AbortError');
           const unique=new Map(data.map(e=>[`${e.type}/${e.id}`,e]));
           const additions=[...unique.keys()].filter(k=>!this.features.has(k)).length;
@@ -52,9 +59,16 @@ export class TileJob {
         } catch(e) {
           if(signal.aborted) tile.status='pending';
           else if(e.unavailable){tile.status='failed';tile.error=e.message;this.retryAt=e.retryAt;paused=true;}
+          else if(e.splittable && this.strategy==='adaptive' && Object.values(tile.want||this.want).filter(Boolean).length>1
+            && this.tiles.length+Object.values(tile.want||this.want).filter(Boolean).length<=1024){
+            tile.status='split';
+            this.tiles.push(...Object.keys(tile.want||this.want).filter(key=>(tile.want||this.want)[key]).map(layer=>({
+              id:`${tile.id}.${layer}`,bounds:[...tile.bounds],depth:tile.depth,status:'pending',want:{[layer]:true},layer
+            })));
+          }
           else if(e.splittable && tile.depth<3 && this.tiles.length+4<=1024) {
             tile.status='split';
-            this.tiles.push(...splitBounds(tile.bounds).map((bounds,i)=>({id:`${tile.id}.${i}`,bounds,depth:tile.depth+1,status:'pending'})));
+            this.tiles.push(...splitBounds(tile.bounds).map((bounds,i)=>({id:`${tile.id}.${i}`,bounds,depth:tile.depth+1,status:'pending',want:tile.want,layer:tile.layer})));
           } else {tile.status='failed';tile.error=e.message;}
         }
         this.onUpdate(this);

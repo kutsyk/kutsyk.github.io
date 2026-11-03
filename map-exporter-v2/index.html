@@ -20,7 +20,17 @@
 <button id="applyBounds">Apply bounds</button><p id="areaInfo" class="hint"></p>
 </section>
 <section><h2>2. Choose layers</h2><div id="layers"></div></section>
-<section><h2>3. Output</h2><div class="bounds"><label>Width (px)<input id="width" type="number" min="512" max="8192" value="2048"></label><label>Height (px)<input id="height" type="number" min="512" max="8192" value="2048"></label></div>
+<section><h2>3. Export strategy</h2>
+<label for="strategy">How to request map data</label>
+<select id="strategy" aria-describedby="strategyInfo">
+<option value="adaptive">Adaptive (recommended)</option>
+<option value="combined">Combined layers</option>
+<option value="layers">Separate layers</option>
+</select>
+<p id="strategyInfo" class="hint"></p>
+<p class="hint">Every strategy respects service cooldowns. Switching applies to a new export; Retry keeps the original strategy.</p>
+</section>
+<section><h2>4. Output</h2><div class="bounds"><label>Width (px)<input id="width" type="number" min="512" max="8192" value="2048"></label><label>Height (px)<input id="height" type="number" min="512" max="8192" value="2048"></label></div>
 <label class="check"><input id="clip" type="checkbox" checked> Clip to selected area</label>
 <p class="hint">Full detail. Large areas use smaller requests automatically; export fewer layers to reduce file size.</p>
 <button id="start" class="primary">Build SVG</button>

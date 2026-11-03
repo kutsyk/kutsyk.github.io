@@ -18,6 +18,14 @@ The map shows completed sections in green, fetching sections in amber, and faile
 
 Download a single layered SVG, or download independently clipped SVG tiles in a ZIP with a bounds manifest. Partial ZIP archives contain only completed tiles. ZIP uses uncompressed storage to avoid third-party dependencies. All output retains full geometry detail; simplification and URL-based settings sharing are deferred.
 
+## Export strategy selector
+
+- **Adaptive (recommended)** starts with combined queries. Explicit query timeout/memory or response-size failures split the section into layer requests first, then subdivide only expensive layer requests geographically.
+- **Combined layers** retains all selected layers in each request and geographically subdivides expensive queries.
+- **Separate layers** creates a request per enabled layer and area from the start. Successful layers are retained when another layer needs retry; the tradeoff is more requests.
+
+The selector is saved with layer preferences, locked while exporting, and captured for each job. Changing it affects the next Build SVG, while Retry retains the original job strategy. All strategies use the same request pacing and endpoint cooldowns; HTTP 429/5xx never cause layer or geographic splitting. Progress sections count individual work units, which can share bounds when layers are separate. ZIP filenames identify layer sections; combined SVG output merges all completed data. This selector controls fetching only: persistent data caching, density-based initial tiling, geometry simplification, and adaptive pacing are not implemented.
+
 ## Reliability and limits
 
 - Initial grid: at most 0.12° per axis per tile, up to 256 initial tiles.

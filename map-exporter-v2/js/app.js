@@ -18,7 +18,16 @@ for(const [group,items] of definitions){
     row.addEventListener('change',()=>{try{localStorage.setItem('map-exporter-v2',JSON.stringify(selections()));}catch{}updateAreaInfo();});
   }
 }
-function selections(){const want={},colors={};for(const [,items] of definitions)for(const [key]of items){want[key]=$(`layer-${key}`).checked;colors[key]=$(`color-${key}`).value;}return{want,colors};}
+function selections(){const want={},colors={};for(const [,items] of definitions)for(const [key]of items){want[key]=$(`layer-${key}`).checked;colors[key]=$(`color-${key}`).value;}return{want,colors,strategy:$('strategy').value};}
+const strategyDescriptions={
+  adaptive:'Starts with combined layers. On explicit query timeout or memory limits, separates layers, then subdivides only the failing layer. Section counts may grow.',
+  combined:'Requests all enabled layers together for each geographic section. Expensive queries split into smaller geographic sections.',
+  layers:'Requests each enabled layer separately from the start. Easier to retry a single layer, but uses more requests and may take longer. ZIP files are separated by layer and area.'
+};
+$('strategy').value=Object.hasOwn(strategyDescriptions,saved.strategy)?saved.strategy:'adaptive';
+function describeStrategy(){$('strategyInfo').textContent=strategyDescriptions[$('strategy').value];}
+$('strategy').onchange=()=>{describeStrategy();try{localStorage.setItem('map-exporter-v2',JSON.stringify(selections()));}catch{}};
+describeStrategy();
 let selected=[23.95,49.8,24.1,49.9],map,mapReady=false,job,controller,worker,busy=false,outputURL,snapshot,drawStart,drawing=false;
 const message=text=>{$('status').textContent=text;};
 function readBounds(){return ['west','south','east','north'].map(id=>Number($(id).value.trim()||NaN));}
@@ -34,7 +43,15 @@ function polygon(b){const[w,s,e,n]=b;return{type:'Polygon',coordinates:[[[w,s],[
 function paint(){
   if(!mapReady)return;
   const features=[{type:'Feature',properties:{status:'selected'},geometry:polygon(selected)}];
-  if(job)for(const t of job.tiles)if(t.status!=='split')features.push({type:'Feature',properties:{status:t.status},geometry:polygon(t.bounds)});
+  if(job){
+    const areas=new Map(),priority={done:0,pending:1,loading:2,failed:3};
+    for(const tile of job.tiles){
+      if(tile.status==='split')continue;
+      const key=JSON.stringify(tile.bounds),previous=areas.get(key);
+      if(!previous||priority[tile.status]>priority[previous.status])areas.set(key,tile);
+    }
+    for(const tile of areas.values())features.push({type:'Feature',properties:{status:tile.status},geometry:polygon(tile.bounds)});
+  }
   const data={type:'FeatureCollection',features};
   if(map.getSource('selection'))map.getSource('selection').setData(data);
   else{
@@ -70,7 +87,7 @@ $('searchForm').onsubmit=async e=>{
 };
 function lock(value){
   busy=value;
-  for(const el of document.querySelectorAll('aside input,aside button'))el.disabled=value;
+  for(const el of document.querySelectorAll('aside input,aside button,aside select'))el.disabled=value;
   if(!map){$('useView').disabled=true;$('draw').disabled=true;}
   $('cancel').hidden=!value;$('retry').disabled=value;$('partial').disabled=value;$('download').disabled=value||!outputURL;$('downloadTiles').disabled=value||!job?.tiles.some(t=>t.status==='done');
   if(value){drawing=false;drawStart=null;$('draw').textContent='Draw rectangle';if(map)map.getCanvas().style.cursor='';}
@@ -79,9 +96,9 @@ function renderJob(){
   const active=job.tiles.filter(t=>t.status!=='split'),done=active.filter(t=>t.status==='done').length;
   $('progress').value=active.length?done/active.length*70:0;
   const failed=active.filter(t=>t.status==='failed');
-  message(`${done} of ${active.length} sections complete · ${job.features.size.toLocaleString()} unique features\nGreen: complete · Amber: fetching · Red: needs retry. Large sections may split into smaller ones.`);
+  message(`${done} of ${active.length} sections complete · ${job.features.size.toLocaleString()} unique features\nGreen: complete · Amber: fetching · Red: needs retry. Sections may split by area or layer.`);
   $('errors').hidden=!failed.length;$('errorList').replaceChildren();
-  for(const t of failed){const li=document.createElement('li');li.textContent=`Section ${t.id}: ${t.error}`;$('errorList').append(li);}
+  for(const t of failed){const li=document.createElement('li');li.textContent=`Section ${t.id}${t.layer?` (${t.layer})`:""}: ${t.error}`;$('errorList').append(li);}
   paint();
 }
 function clearResult(){if(outputURL)URL.revokeObjectURL(outputURL);outputURL=null;$('download').disabled=true;$('preview').replaceChildren();$('resultInfo').textContent='';$('previewPanel').open=false;}
@@ -89,12 +106,12 @@ async function run(retry=false){
   if(busy)return;
   try{
     if(!retry){
-      const bounds=readBounds();setBounds(bounds);const {want,colors}=selections();
+      const bounds=readBounds();setBounds(bounds);const {want,colors,strategy}=selections();
       if(!Object.values(want).some(Boolean))throw new Error('Select at least one layer.');
       const width=Number($('width').value),height=Number($('height').value);
       if(![width,height].every(n=>Number.isInteger(n)&&n>=512&&n<=8192))throw new Error('Output dimensions must be whole numbers from 512 to 8192.');
-      snapshot={want,colors,width,height,clipToFrame:$('clip').checked,bounds:[...bounds]};
-      job=new TileJob(bounds,want,fetchTile,renderJob);
+      snapshot={want,colors,strategy,width,height,clipToFrame:$('clip').checked,bounds:[...bounds]};
+      job=new TileJob(bounds,want,fetchTile,renderJob,{strategy});
     }
     clearResult();lock(true);$('retry').hidden=true;$('partial').hidden=true;
     $('jobTitle').textContent=retry?'Resuming map data':'Fetching map data';
@@ -136,7 +153,7 @@ async function generate(incomplete){
     $('preview').replaceChildren(document.importNode(parsed.documentElement,true));$('previewPanel').open=true;
     $('progress').value=100;$('jobTitle').textContent=incomplete?'Incomplete export ready':'Export ready';
     const completed=job.tiles.filter(t=>t.status==='done').length,total=job.tiles.filter(t=>t.status!=='split').length;
-    $('resultInfo').textContent=`${incomplete?'INCOMPLETE · ':''}${completed}/${total} sections · ${job.features.size.toLocaleString()} features · ${(blob.size/1024/1024).toFixed(2)} MB · Bounds ${snapshot.bounds.join(', ')}`;
+    $('resultInfo').textContent=`${incomplete?'INCOMPLETE · ':''}${completed}/${total} sections · ${job.features.size.toLocaleString()} features · ${(blob.size/1024/1024).toFixed(2)} MB · Strategy: ${snapshot.strategy} · Bounds ${snapshot.bounds.join(', ')}`;
     message(incomplete?'Missing sections are excluded. The file is labeled INCOMPLETE.':'Your layered SVG is ready to preview and download.');
   }finally{worker.terminate();worker=null;$('partial').hidden=job.features.size===0;$('partial').textContent='Regenerate preview';}
 }
