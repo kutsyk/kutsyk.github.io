@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Map Exporter v2</title>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css">
+<link rel="stylesheet" href="styles.css">
+<script defer src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+<script type="module" src="js/app.js"></script>
+</head>
+<body>
+<header><div><strong>Map Exporter <span>v2</span></strong><small>Choose an area. Build a layered SVG.</small></div><a href="../map-exporter/">Original exporter ↗</a></header>
+<main>
+<aside aria-label="Export settings">
+<section><h1>1. Choose an area</h1>
+<label for="search">Find a place</label><form id="searchForm"><div class="inline"><input id="search" placeholder="City or place" required><button>Search</button></div></form><div id="searchResults"></div>
+<div class="inline actions"><button id="useView">Use current view</button><button id="draw">Draw rectangle</button></div>
+<p class="hint">Or enter bounds below. Panning keeps your selected area fixed.</p>
+<div class="bounds"><label>West<input id="west" type="number" step="any" value="23.95"></label><label>South<input id="south" type="number" step="any" value="49.8"></label><label>East<input id="east" type="number" step="any" value="24.1"></label><label>North<input id="north" type="number" step="any" value="49.9"></label></div>
+<button id="applyBounds">Apply bounds</button><p id="areaInfo" class="hint"></p>
+</section>
+<section><h2>2. Choose layers</h2><div id="layers"></div></section>
+<section><h2>3. Output</h2><div class="bounds"><label>Width (px)<input id="width" type="number" min="512" max="8192" value="2048"></label><label>Height (px)<input id="height" type="number" min="512" max="8192" value="2048"></label></div>
+<label class="check"><input id="clip" type="checkbox" checked> Clip to selected area</label>
+<p class="hint">Full detail. Large areas use smaller requests automatically; export fewer layers to reduce file size.</p>
+<button id="start" class="primary">Build SVG</button>
+</section>
+</aside>
+<div class="workspace"><div id="map" aria-label="Map area selection"></div>
+<section class="job" aria-label="Export progress"><div class="heading"><h2 id="jobTitle">Ready to export</h2><div class="inline"><button id="cancel" hidden>Cancel</button><button id="retry" hidden>Retry unfinished sections</button></div></div>
+<progress id="progress" max="100" value="0" aria-label="Export progress"></progress><p id="status" role="status" aria-live="polite">Select an area and the layers you need.</p>
+<details id="errors" hidden><summary>Sections needing attention</summary><ul id="errorList"></ul></details>
+<div class="inline"><button id="partial" hidden>Preview incomplete export</button><button id="download" class="primary" disabled>Download SVG</button><button id="downloadTiles" disabled>Download completed tiles (ZIP)</button></div><p id="resultInfo" class="hint"></p>
+<details id="previewPanel"><summary>SVG preview</summary><div id="preview"></div></details>
+</section></div>
+</main><footer>Map data © OpenStreetMap contributors · Completed sections are retained in this tab until a new export starts or the page closes.</footer>
+</body></html>
